@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--=============== SEO METADATA ===============-->
+    <meta name="description" content="Eslam Yasser - Full-Stack Web Developer (MEAN Stack) & Web Development Instructor. Specialized in Angular, Node.js, Express, MongoDB, and RESTful APIs.">
+    <meta name="keywords" content="Eslam Yasser, Full Stack Developer, MEAN Stack Developer, Web Development Instructor, Software Engineer, Qena, Egypt, Angular, Node.js">
+    <meta name="author" content="Eslam Yasser">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#020205">
+    <link rel="canonical" href="https://eslamyasser.github.io/">
+
+    <!--=============== OPEN GRAPH / FACEBOOK METADATA ===============-->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Eslam Yasser | Full-Stack Developer & Instructor Portfolio">
+    <meta property="og:description" content="Discover the portfolio of Eslam Yasser, a Full-Stack MEAN Developer and Web Development Instructor engineering scalable digital solutions.">
+    <meta property="og:url" content="https://eslamyasser.github.io/">
+    <meta property="og:site_name" content="Eslam Yasser Portfolio">
+    <meta property="og:image" content="assets/img/Eslam_Portfolio3-removebg-preview.png">
+    <meta property="og:locale" content="en_US">
+
+    <!--=============== TWITTER CARDS METADATA ===============-->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Eslam Yasser | Full-Stack Developer & Instructor Portfolio">
+    <meta name="twitter:description" content="Discover the portfolio of Eslam Yasser, a Full-Stack MEAN Developer and Web Development Instructor engineering scalable digital solutions.">
+    <meta name="twitter:image" content="assets/img/Eslam_Portfolio3-removebg-preview.png">
+
+    <!--=============== FAVICON ===============-->
+    <link rel="shortcut icon" href="assets/img/favicon_io/favicon.ico" type="image/x-icon">
+
+    <!--=============== REMIX ICONS ===============-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+
+    <!--=============== SWIPER CSS ===============-->
+    <link rel="stylesheet" href="assets/css/swiper-bundle.min.css">
+
+    <!--=============== GOOGLE FONTS ===============-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Unbounded:wght@200..900&display=swap" rel="stylesheet">
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <title>Eslam Yasser | Full-Stack Developer & Instructor Portfolio</title>
+</head>
+
+<body>
+    <!-- BACKGROUND PARTICLES CANVAS -->
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="header-blob blob-animate"></div>
+
+    <!--==================== HEADER ====================-->
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="#" class="nav__logo">Eslam</a>
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li>
+                        <a href="#home" class="nav__link active-link">
+                            <i class="ri-home-5-line nav__icon"></i>
+                            <span class="nav__name">Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#about" class="nav__link">
+                            <i class="ri-user-line nav__icon"></i>
+                            <span class="nav__name">About Me</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#skills" class="nav__link">
+                            <i class="ri-code-box-line nav__icon"></i>
+                            <span class="nav__name">Skills</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#work" class="nav__link">
+                            <i class="ri-briefcase-3-line nav__icon"></i>
+                            <span class="nav__name">Experience</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#services" class="nav__link">
+                            <i class="ri-customer-service-2-line nav__icon"></i>
+                            <span class="nav__name">Services</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#projects" class="nav__link">
+                            <i class="ri-image-line nav__icon"></i>
+                            <span class="nav__name">Projects</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#contact" class="nav__link">
+                            <i class="ri-mail-send-line nav__icon"></i>
+                            <span class="nav__name">Contact Me</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Close button for tablet hamburger drawer -->
+                <div class="nav__close" id="nav-close">
+                    <i class="ri-close-line"></i>
+                </div>
+            </div>
+
+            <!-- Toggle button for tablet hamburger -->
+            <div class="nav__toggle" id="nav-toggle">
+                <i class="ri-menu-line"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!--==================== MAIN ====================-->
+    <main class="main">
+        <!-- CUSTOM CURSOR -->
+        <div class="cursor"></div>
+        <div class="cursor-trail cursor-trail-1"></div>
+        <div class="cursor-trail cursor-trail-2"></div>
+        <!--==================== HOME ====================-->
+        <section class="home section" id="home">
+
+            <div class="home__container container grid">
+                <!-- Left side container -->
+                <div class="home__left">
+                    <div class="home__data">
+                        <h3 class="home__greeting">Hello, I'm</h3>
+                        <h1 class="home__name">Eslam <br> Yasser</h1>
+                    </div>
+                    
+                    <div class="home__social">
+                        <a href="https://www.linkedin.com/in/eslam-yasser" target="_blank" class="home__social-link">
+                            <i class="ri-linkedin-box-line"></i>
+                        </a>
+                        <a href="https://github.com/eslamyasser" target="_blank" class="home__social-link">
+                            <i class="ri-github-line"></i>
+                        </a>
+                        <a href="https://wa.me/201028103634" target="_blank" class="home__social-link">
+                            <i class="ri-whatsapp-line"></i>
+                        </a>
+                        <a href="mailto:eslam9076460@gmail.com" target="_blank" class="home__social-link">
+                            <i class="ri-google-line"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Center Profile Image -->
+                <div class="home__image">
+                    <div class="blob-animate"></div>
+                    <img src="assets/img/Eslam_Portfolio3-removebg-preview.png" alt="Eslam Yasser Profile Image" class="home__perfil" width="380" height="389">
+                </div>
+
+                <!-- Right side container -->
+                <div class="home__right">
+                    <div class="home__info">
+                        <h3 class="home__split">Full Stack</h3>
+                        <div class="home__profession-box">
+                            <h2 class="home__profession-1">MEAN Dev</h2>
+                            <h2 class="home__profession-2">Web Instructor</h2>
+                        </div>
+                    </div>
+                    
+                    <a href="assets/pdf/Eslam_YasFULL-STACK WEB DEVELOPER _ WEB DEVELOPMENT INSTRUCTOR_resume.pdf" download target="_blank" class="home__cv">
+                        RESUME <i class="ri-file-list-2-line"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!--==================== ABOUT ====================-->
+        <section class="about section" id="about">
+            <div class="about__shadow"></div>
+
+            <div class="about__container container grid">
+                <div class="about__data">
+                    <h2 class="section__title">
+                        <span>Engineering</span>
+                        <br> Scalable Digital Solutions
+                    </h2>
+
+                    <p class="about__description">
+                        I'm a <b>Full-Stack Web Developer (MEAN Stack)</b> and <b>Computer Science</b> student at
+                        Qena University.
+                        I specialize in <b>Angular, Node.js, Express.js, and MongoDB</b>, with practical experience building scalable web applications, RESTful APIs, and real-world systems.
+                        As a <b>Web Development Instructor</b>, I enjoy delivering practical sessions and simplifying programming concepts for Computer Science students.
+                    </p>
+
+                    <a href="assets/pdf/Eslam_YasFULL-STACK WEB DEVELOPER _ WEB DEVELOPMENT INSTRUCTOR_resume.pdf" download target="_blank" class="button">
+                        Resume <i class="ri-file-list-2-line"></i>
+                    </a>
+                </div>
+
+                <div class="about__image">
+                    <div class="blob-animate"></div>
+                    <div class="blob-animate"></div>
+
+                    <img src="assets/img/About.png" alt="Eslam Yasser About Image" class="about__perfil" width="220" height="242">
+                </div>
+            </div>
+        </section>
+
+        <!--==================== SKILLS ====================-->
+        <section class="skills section" id="skills">
+            <h2 class="section__title">My <span>Skills</span></h2>
+            
+            <div class="skills__container container grid">
+                <!-- Card 1: Frontend -->
+                <div class="skills__card">
+                    <div class="blob"></div>
+                    <div class="skills__header">
+                        <i class="ri-layout-line skills__icon"></i>
+                        <h3 class="skills__title">Frontend</h3>
+                    </div>
+                    
+                    <div class="skills__list">
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-html5-fill skills__item-icon"></i>
+                                <span class="skills__name">HTML & CSS</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-javascript-fill skills__item-icon"></i>
+                                <span class="skills__name">JavaScript</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-reactjs-line skills__item-icon"></i>
+                                <span class="skills__name">React JS</span>
+                            </div>
+                            <span class="skills__level">Intermediate</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-css3-fill skills__item-icon"></i>
+                                <span class="skills__name">Tailwind CSS</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Backend -->
+                <div class="skills__card">
+                    <div class="blob"></div>
+                    <div class="skills__header">
+                        <i class="ri-server-line skills__icon"></i>
+                        <h3 class="skills__title">Backend</h3>
+                    </div>
+                    
+                    <div class="skills__list">
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-nodejs-line skills__item-icon"></i>
+                                <span class="skills__name">Node JS</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-settings-5-line skills__item-icon"></i>
+                                <span class="skills__name">Express JS</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-database-2-line skills__item-icon"></i>
+                                <span class="skills__name">MongoDB</span>
+                            </div>
+                            <span class="skills__level">Intermediate</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-git-branch-line skills__item-icon"></i>
+                                <span class="skills__name">Git & GitHub</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Other Technologies -->
+                <div class="skills__card">
+                    <div class="blob"></div>
+                    <div class="skills__header">
+                        <i class="ri-terminal-box-line skills__icon"></i>
+                        <h3 class="skills__title">Tools & Concepts</h3>
+                    </div>
+                    
+                    <div class="skills__list">
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-code-s-slash-line skills__item-icon"></i>
+                                <span class="skills__name">Data Structures</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-braces-line skills__item-icon"></i>
+                                <span class="skills__name">OOP & C++</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-computer-line skills__item-icon"></i>
+                                <span class="skills__name">OS & Architecture</span>
+                            </div>
+                            <span class="skills__level">Intermediate</span>
+                        </div>
+                        
+                        <div class="skills__item">
+                            <div class="skills__item-data">
+                                <i class="ri-global-line skills__item-icon"></i>
+                                <span class="skills__name">REST APIs</span>
+                            </div>
+                            <span class="skills__level">Advanced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tech Scroll Marquee -->
+            <div class="tech-scroll__container" style="margin-top: 5rem;">
+                <div class="tech-row tech-row--left">
+                    <div class="tech-track" id="tech-left"></div>
+                </div>
+
+                <div class="tech-row tech-row--right">
+                    <div class="tech-track" id="tech-right"></div>
+                </div>
+            </div>
+        </section>
+
+        <!--==================== WORK ====================-->
+        <section class="work section" id="work">
+            <h2 class="section__title">
+                <span>Experience</span>
+                <br> & Education
+            </h2>
+
+            <div class="work__container container grid">
+                <div class="work__tabs">
+                    <span class="work__blob"></span>
+
+                    <!-- Experience -->
+                    <button class="work__button work-active" data-target="#experience">
+                        Experience <i class="ri-briefcase-3-line"></i>
+                    </button>
+
+                    <!-- Education -->
+                    <button class="work__button" data-target="#education">
+                        Education <i class="ri-graduation-cap-line"></i>
+                    </button>
+                </div>
+
+                <div class="work__area">
+                    <div class="work__line"></div>
+
+                    <!-- Content Experience -->
+                    <div class="work__content work-active" data-content id="experience"></div>
+
+                    <!-- Content Education -->
+                    <div class="work__content" data-content id="education"></div>
+                </div>
+            </div>
+        </section>
+
+        <!--==================== SERVICES ====================-->
+        <section class="services section" id="services">
+            <h2 class="section__title">What I <span>Offer</span></h2>
+
+            <div class="services__container container grid" id="services-content"></div>
+
+        </section>
+
+        <!--==================== PROJECTS ====================-->
+        <section class="projects section" id="projects">
+            <h2 class="section__title">
+                <span>Engineering</span>
+                <br> Scalable Digital Solutions
+            </h2>
+
+            <div class="projects__container container grid">
+                <div class="projects__swiper swiper">
+                    <div class="swiper-wrapper" id="projects-content"></div>
+
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </section>
+
+        <!--==================== CONTACT ====================-->
+        <section class="contact section" id="contact">
+            <div class="contact__container container grid">
+                <div class="contact__data">
+                    <h2 class="section__title">Contact Me</h2>
+
+                    <p class="contact__description">
+                        Tell Me About Your Next Project.
+                    </p>
+
+                    <form action="#" class="contact__form" id="contact-form">
+                        <div class="contact__form-div">
+                            <label class="contact__form-tag">Name</label>
+                            <input type="text" id="contact-name-input" placeholder="Insert your name" required class="contact__form-input">
+                        </div>
+                        
+                        <div class="contact__form-div">
+                            <label class="contact__form-tag">Email</label>
+                            <input type="email" id="contact-email-input" placeholder="Insert your email" required class="contact__form-input">
+                        </div>
+
+                        <div class="contact__form-div contact__form-area">
+                            <label class="contact__form-tag">Message</label>
+                            <textarea id="contact-message-input" placeholder="Write your project details" required class="contact__form-input"></textarea>
+                        </div>
+
+                        <button type="submit" class="button contact__form-button">
+                            Send Message <i class="ri-send-plane-line"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="contact__content grid">
+                    <div class="contact__info grid">
+                        <div class="contact__email-box">
+                            <h3 class="contact__title">Email</h3>
+                            <div class="contact__email-wrapper" id="contact-btn">
+                                <address class="contact__address" id="contact-email">eslam9076460@gmail.com</address>
+                                <i class="ri-file-copy-line contact__copy-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <h3 class="contact__title">Location</h3>
+                            <address class="contact__address">Qena, Egypt</address>
+                        </div>
+                    </div>
+
+                    <div class="contact__social">
+                        <h3 class="contact__title">Social Media</h3>
+
+                        <div class="contact__links">
+                            <a href="https://www.linkedin.com/in/eslam-yasser" target="_blank"
+                                class="contact__link">
+                                LinkedIn
+                                <i class="ri-arrow-right-up-long-line"></i>
+                            </a>
+
+                            <a href="https://github.com/eslamyasser" target="_blank" class="contact__link">
+                                GitHub
+                                <i class="ri-arrow-right-up-long-line"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact__write">
+                        <h3 class="contact__title">Write Me & We'll Talk</h3>
+
+                        <div class="contact__links">
+                            <a href="https://wa.me/201028103634" target="_blank" class="contact__link">
+                                WhatsApp
+                                <i class="ri-arrow-right-up-long-line"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!--==================== FOOTER ====================-->
+    <footer class="footer">
+        <div class="blob-animate"></div>
+        <div class="footer__container container grid">
+            <div class="footer__content">
+                <a href="#" class="footer__logo">Eslam</a>
+                <p class="footer__subtitle">MEAN Stack Developer & Web Instructor</p>
+            </div>
+            
+            <div class="footer__links">
+                <a href="#about" class="footer__link-item">About Me</a>
+                <a href="#projects" class="footer__link-item">Projects</a>
+                <a href="#contact" class="footer__link-item">Contact Me</a>
+            </div>
+
+            <div class="footer__social">
+                <a href="https://www.linkedin.com/in/eslam-yasser" target="_blank" class="footer__social-icon">
+                    <i class="ri-linkedin-box-line"></i>
+                </a>
+                <a href="https://github.com/eslamyasser" target="_blank" class="footer__social-icon">
+                    <i class="ri-github-line"></i>
+                </a>
+                <a href="https://wa.me/201028103634" target="_blank" class="footer__social-icon">
+                    <i class="ri-whatsapp-line"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer__bottom container">
+            <div class="footer__copy">
+                All Rights Reserved By <span>Eslam Yasser</span>
+            </div>
+            <div class="footer__year">
+                &#169; <span id="footer-year"></span>
+            </div>
+        </div>
+    </footer>
+
+    <div class="intro-loader" id="intro-loader">
+        <div class="intro-loader__bg"></div>
+        
+        <!-- Marquee Background Rows -->
+        <div class="intro-loader__marquee-container">
+            <div class="intro-loader__marquee intro-loader__marquee--left">
+                <div class="intro-loader__marquee-track">
+                    <span>INNOVATE • CREATE • DEVELOP • CODING • LOGIC • MEAN • DESIGN • SPEED • SCALE • PERFORMANCE • </span>
+                    <span>INNOVATE • CREATE • DEVELOP • CODING • LOGIC • MEAN • DESIGN • SPEED • SCALE • PERFORMANCE • </span>
+                </div>
+            </div>
+            <div class="intro-loader__marquee intro-loader__marquee--right">
+                <div class="intro-loader__marquee-track">
+                    <span>BUILD THE FUTURE • SOLVE PROBLEMS • ANGULAR • CLEAN CODE • ALGORITHMS • NODE • EXPRESS • </span>
+                    <span>BUILD THE FUTURE • SOLVE PROBLEMS • ANGULAR • CLEAN CODE • ALGORITHMS • NODE • EXPRESS • </span>
+                </div>
+            </div>
+            <div class="intro-loader__marquee intro-loader__marquee--left">
+                <div class="intro-loader__marquee-track">
+                    <span>DETERMINATION • FOCUS • PERSISTENCE • SUCCESS • EVOLVE • LEARN • GROW • EXCELLENCE • PASSION • </span>
+                    <span>DETERMINATION • FOCUS • PERSISTENCE • SUCCESS • EVOLVE • LEARN • GROW • EXCELLENCE • PASSION • </span>
+                </div>
+            </div>
+            <div class="intro-loader__marquee intro-loader__marquee--right">
+                <div class="intro-loader__marquee-track">
+                    <span>HTML • CSS • JAVASCRIPT • TYPESCRIPT • MONGODB • GIT • COMPILER • FRONTEND • BACKEND • FULLSTACK • </span>
+                    <span>HTML • CSS • JAVASCRIPT • TYPESCRIPT • MONGODB • GIT • COMPILER • FRONTEND • BACKEND • FULLSTACK • </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="intro-loader__content">
+            <div class="intro-loader__word">BUILD.</div>
+            <div class="intro-loader__word">TRY.</div>
+            <div class="intro-loader__word">LAUNCH.</div>
+            <div class="intro-loader__word">ESLAM YASSER.</div>
+        </div>
+        <div class="intro-loader__scroll">
+            <span class="intro-loader__scroll-text">SCROLL TO ENTER</span>
+            <div class="intro-loader__scroll-indicator">
+                <div class="intro-loader__scroll-wheel"></div>
+            </div>
+        </div>
+        <div class="intro-loader__progress">
+            <div class="intro-loader__progress-bar"></div>
+            <span class="intro-loader__progress-num">0%</span>
+        </div>
+    </div>
+
+    <!--========== SCROLL UP ==========-->
+    <a href="#home" class="scrollup" id="scroll-up">
+        <i class="ri-arrow-up-line"></i>
+    </a>
+
+    <!--=============== GSAP & SCROLLTRIGGER ===============-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!--=============== LENIS SMOOTH SCROLL ===============-->
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+
+    <!--=============== SWIPER JS ===============-->
+    <script src="assets/js/swiper-bundle.min.js"></script>
+    <!--=============== MAIN JS ===============-->
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html>

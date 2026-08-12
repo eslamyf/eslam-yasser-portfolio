@@ -1,0 +1,52 @@
+[
+    {
+        "id": "01",
+        "category": "MEAN Stack",
+        "title": "Aqario Luxe",
+        "subtitle": "Real Estate Management System",
+        "description": "Developed a scalable real estate platform using the MEAN stack with clean, maintainable architecture. Implemented a freemium model with secure payment integration for user transactions and structured MongoDB database design.",
+        "image": "assets/img/aqario.png",
+        "demo": "https://aqario-luxe.vercel.app/",
+        "github": "https://github.com/eslamyf/aqario-luxe-web"
+    },
+    {
+        "id": "02",
+        "category": "MEAN Stack",
+        "title": "Foodio",
+        "subtitle": "University Food Delivery Platform",
+        "description": "Built a food delivery app connecting local restaurants with university students. Implemented core features including cart system, favorites management, and a modular project structure for high scalability.",
+        "image": "assets/img/RWD.png",
+        "demo": "",
+        "github": ""
+    },
+    {
+        "id": "03",
+        "category": "Angular / TypeScript",
+        "title": "ClassMate Platform",
+        "subtitle": "Educational Resource Collector",
+        "description": "Content data collection and frontend platform designed to organize and streamline academic resources for Computer Science university students.",
+        "image": "assets/img/TH.png",
+        "demo": "",
+        "github": ""
+    },
+    {
+        "id": "04",
+        "category": "Node.js / Express",
+        "title": "RESTful API Backend Architecture",
+        "subtitle": "Modular Backend System",
+        "description": "Engineered robust RESTful backend APIs featuring JWT authentication, role-based access control, MongoDB data modeling, and error handling middleware.",
+        "image": "assets/img/jsondb.png",
+        "demo": "",
+        "github": ""
+    },
+    {
+        "id": "05",
+        "category": "C++",
+        "title": "Data Structures & OOP Systems",
+        "subtitle": "Core CS Systems & Algorithms",
+        "description": "Implemented custom data structure containers and OOP modular systems in C++ to solve complex algorithmic problems efficiently.",
+        "image": "assets/img/STLs.png",
+        "demo": "",
+        "github": ""
+    }
+]

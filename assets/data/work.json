@@ -1,0 +1,66 @@
+{
+    "experience": [
+        {
+            "title": "MEAN Stack Web Developer Trainee",
+            "subtitle": "NTI - Creativa Innovation Hubs (DEY Initiative), Egypt - Qena",
+            "year": "January 2026 - May 2026",
+            "description": "Completed the intensive 'MEAN Stack: Web Developer Career Accelerator' program. Trained practically on building scalable full-stack applications using MongoDB, Express.js, Angular, and Node.js. Gained hands-on experience in RESTful APIs, asynchronous programming, and responsive UI design."
+        },
+        {
+            "title": "Web Development Instructor",
+            "subtitle": "Support Web Program, Qena, Egypt",
+            "year": "June 2026 - Present",
+            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples."
+        },
+        {
+            "title": "Head of PR Team",
+            "subtitle": "Students for Egypt - Faculty of Computers and Information",
+            "year": "Present",
+            "description": "Leading public relations team and student communications for the Faculty of Computers and Information."
+        },
+        {
+            "title": "Content Data Collector",
+            "subtitle": "ClassMate Platform",
+            "year": "Present",
+            "description": "Collecting, structuring, and organizing educational data and content resources for the platform."
+        }
+    ],
+    "education": [
+        {
+            "title": "Bachelor’s Degree in Computers and Information",
+            "subtitle": "Qena University, Egypt - Qena",
+            "year": "September 2024 - June 2028",
+            "description": "Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming (C++), Database Systems, Software Engineering, Operating Systems, Computer Networks, Web Development, and Problem Solving Techniques."
+        },
+        {
+            "title": "Cybersecurity Academy (Undergraduate Level)",
+            "subtitle": "NTI & EG-CERT",
+            "year": "June 2025",
+            "description": "Completed specialized training in cybersecurity principles, network defense, and system security fundamentals."
+        },
+        {
+            "title": "NASA International Space Apps Challenge",
+            "subtitle": "NASA",
+            "year": "October 2026",
+            "description": "Participated in global hackathon solving space science and environmental engineering challenges."
+        },
+        {
+            "title": "Learn C++ from Scratch",
+            "subtitle": "Udemy",
+            "year": "September 2025",
+            "description": "Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures."
+        },
+        {
+            "title": "Python Programming Fundamentals",
+            "subtitle": "Creativa TIEC Qena",
+            "year": "July 2026",
+            "description": "Completed intensive training in Python core programming, data structures, and script automation."
+        },
+        {
+            "title": "Startup Innovation Lab",
+            "subtitle": "Creativa TIEC Qena",
+            "year": "June 2026",
+            "description": "Participated in an intensive startup incubator program focused on lean methodology, MVP development, business models, and pitching."
+        }
+    ]
+}

@@ -1,0 +1,61 @@
+[
+    {
+        "title": "MEAN Stack Web Development",
+        "description": "Designing and developing high-performance, responsive web applications using Angular, Node.js, Express, and MongoDB with clean architecture.",
+        "subtitle": "Skills & Tools",
+        "skills": [
+            "Angular",
+            "TypeScript",
+            "Node.js",
+            "Express.js",
+            "MongoDB",
+            "RESTful APIs",
+            "Bootstrap",
+            "Git/GitHub"
+        ],
+        "icon": "ri-code-s-slash-line"
+    },
+    {
+        "title": "Web Development Instruction",
+        "description": "Delivering practical web development sessions, mentoring Computer Science students in HTML, CSS, JavaScript, C++, OOP, and core CS concepts.",
+        "subtitle": "Skills & Topics",
+        "skills": [
+            "HTML5 & CSS3",
+            "JavaScript",
+            "C++ (OOP)",
+            "Data Structures",
+            "Problem Solving",
+            "Code Reviews"
+        ],
+        "icon": "ri-graduation-cap-line"
+    },
+    {
+        "title": "Backend & API Architecture",
+        "description": "Architecting secure, scalable server-side logic and RESTful APIs with JWT authentication, middleware design, and structured MongoDB modeling.",
+        "subtitle": "Technical Stack",
+        "skills": [
+            "Node.js",
+            "Express.js",
+            "MongoDB",
+            "JWT Authentication",
+            "RESTful APIs",
+            "Postman",
+            "MVC Architecture"
+        ],
+        "icon": "ri-server-line"
+    },
+    {
+        "title": "Responsive UI/UX Frontend",
+        "description": "Crafting clean, responsive user interfaces and modern web layouts optimized for speed, cross-browser compatibility, and user experience.",
+        "subtitle": "Frontend Tools",
+        "skills": [
+            "Angular",
+            "TypeScript",
+            "HTML5 / CSS3",
+            "Bootstrap",
+            "Responsive Design",
+            "Aesthetic UI"
+        ],
+        "icon": "ri-layout-masonry-line"
+    }
+]
