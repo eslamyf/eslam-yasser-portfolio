@@ -11,7 +11,7 @@ document.body.classList.add("preloader-active");
 let lenis = null;
 
 // Helper to split text into spans
-function splitTextIntoSpans(selector) {
+function splitTextIntoSpans(selector, initialY = "100%") {
     const element = document.querySelector(selector);
     if (!element) return [];
     const text = element.textContent.trim();
@@ -19,7 +19,7 @@ function splitTextIntoSpans(selector) {
     return text.split("").map(char => {
         const span = document.createElement("span");
         span.style.display = "inline-block";
-        span.style.transform = "translateY(100%)";
+        span.style.transform = `translateY(${initialY})`;
         span.textContent = char === " " ? "\u00A0" : char;
         element.appendChild(span);
         return span;
@@ -89,8 +89,8 @@ let introComplete = false;
 
 // Run profession loop after Hero entrance completes
 const runProfessionLoop = () => {
-    const chars1 = splitTextIntoSpans(".home__profession-1");
-    const chars2 = splitTextIntoSpans(".home__profession-2");
+    const chars1 = splitTextIntoSpans(".home__profession-1", "0%");
+    const chars2 = splitTextIntoSpans(".home__profession-2", "100%");
 
     if (chars1.length && chars2.length) {
         gsap.set(".home__profession-2", { opacity: 0 });
@@ -99,14 +99,14 @@ const runProfessionLoop = () => {
         const profTl = gsap.timeline({ repeat: -1 });
 
         profTl
-            .to(chars1, { translateY: "0%", stagger: 0.05, duration: 0.5, ease: "power2.out" })
-            .to(chars1, { translateY: "-100%", stagger: 0.03, duration: 0.4, ease: "power2.in", delay: 2 })
+            .to(chars1, { translateY: "-100%", stagger: 0.03, duration: 0.4, ease: "power2.in", delay: 2.5 })
             .set(".home__profession-2", { opacity: 1 })
             .set(".home__profession-1", { opacity: 0 })
-            .to(chars2, { translateY: "0%", stagger: 0.05, duration: 0.5, ease: "power2.out" })
-            .to(chars2, { translateY: "-100%", stagger: 0.03, duration: 0.4, ease: "power2.in", delay: 2 })
+            .fromTo(chars2, { translateY: "100%" }, { translateY: "0%", stagger: 0.05, duration: 0.5, ease: "power2.out" })
+            .to(chars2, { translateY: "-100%", stagger: 0.03, duration: 0.4, ease: "power2.in", delay: 2.5 })
             .set(".home__profession-1", { opacity: 1 })
-            .set(".home__profession-2", { opacity: 0 });
+            .set(".home__profession-2", { opacity: 0 })
+            .fromTo(chars1, { translateY: "100%" }, { translateY: "0%", stagger: 0.05, duration: 0.5, ease: "power2.out" });
     }
 };
 
@@ -158,7 +158,7 @@ const finishIntro = () => {
         .from(".home__greeting", { x: -50, opacity: 0, duration: 0.8, ease: "power2.out" }, "<")
         .from(".home__name", { y: 50, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.5")
         .from(".home__perfil", { scale: 0.85, opacity: 0, duration: 1.2, ease: "power2.out" }, "-=0.8")
-        .from(".home__profession-1, .home__profession-2", { opacity: 0, y: 20, stagger: 0.15, duration: 0.8 }, "-=0.6")
+        .from(".home__profession-1", { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" }, "-=0.6")
         .from(".home__social-link", { scale: 0, opacity: 0, stagger: 0.08, duration: 0.6, ease: "back.out(1.7)" }, "-=0.6")
         .from(".home__cv", { y: 30, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.6");
 };

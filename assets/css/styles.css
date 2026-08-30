@@ -588,6 +588,10 @@ html.lenis body {
     color: var(--first-color);
 }
 
+.home__profession-2 {
+    opacity: 0;
+}
+
 .home__social {
     display: flex;
     column-gap: 1.25rem;
