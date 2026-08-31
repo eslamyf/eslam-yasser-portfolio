@@ -1,23 +1,23 @@
 [
     {
         "title": "MEAN Stack Web Development",
-        "description": "Designing and developing high-performance, responsive web applications using Angular, Node.js, Express, and MongoDB with clean architecture.",
+        "description": "Designing and developing high-performance, scalable web applications using Angular, Express.js, Node.js, and MongoDB with clean architecture.",
         "subtitle": "Skills & Tools",
         "skills": [
             "Angular",
             "TypeScript",
             "Node.js",
             "Express.js",
-            "MongoDB",
+            "MongoDB (NoSQL)",
             "RESTful APIs",
             "Bootstrap",
-            "Git/GitHub"
+            "Git & GitHub"
         ],
         "icon": "ri-code-s-slash-line"
     },
     {
         "title": "Web Development Instruction",
-        "description": "Delivering practical web development sessions, mentoring Computer Science students in HTML, CSS, JavaScript, C++, OOP, and core CS concepts.",
+        "description": "Delivering practical web development sessions and simplifying programming concepts (HTML, CSS, JS, C++, OOP, Data Structures) for Computer Science students.",
         "subtitle": "Skills & Topics",
         "skills": [
             "HTML5 & CSS3",
@@ -25,18 +25,18 @@
             "C++ (OOP)",
             "Data Structures",
             "Problem Solving",
-            "Code Reviews"
+            "Practical Sessions"
         ],
         "icon": "ri-graduation-cap-line"
     },
     {
         "title": "Backend & API Architecture",
-        "description": "Architecting secure, scalable server-side logic and RESTful APIs with JWT authentication, middleware design, and structured MongoDB modeling.",
+        "description": "Architecting secure, scalable server-side logic and RESTful APIs with JWT authentication, middleware design, asynchronous programming, and structured MongoDB modeling.",
         "subtitle": "Technical Stack",
         "skills": [
             "Node.js",
             "Express.js",
-            "MongoDB",
+            "MongoDB & Mongoose",
             "JWT Authentication",
             "RESTful APIs",
             "Postman",
@@ -45,17 +45,17 @@
         "icon": "ri-server-line"
     },
     {
-        "title": "Responsive UI/UX Frontend",
-        "description": "Crafting clean, responsive user interfaces and modern web layouts optimized for speed, cross-browser compatibility, and user experience.",
-        "subtitle": "Frontend Tools",
+        "title": "Databases & Core CS Systems",
+        "description": "Designing structured database schemas (ERD), SQL basics, MongoDB NoSQL collections, and developing efficient C++ Object-Oriented software.",
+        "subtitle": "Core Competencies",
         "skills": [
-            "Angular",
-            "TypeScript",
-            "HTML5 / CSS3",
-            "Bootstrap",
-            "Responsive Design",
-            "Aesthetic UI"
+            "MongoDB (NoSQL)",
+            "SQL Basics",
+            "ERD & DB Design",
+            "C++ (OOP)",
+            "Data Structures",
+            "Algorithms"
         ],
-        "icon": "ri-layout-masonry-line"
+        "icon": "ri-database-2-line"
     }
 ]

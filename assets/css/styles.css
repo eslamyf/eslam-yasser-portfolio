@@ -1443,6 +1443,66 @@ html.lenis body {
     }
 }
 
+/*=============== ABOUT LANGUAGES & CONTACT ADDITIONS ===============*/
+.about__languages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block: 1rem 1.5rem;
+}
+
+.about__lang-badge {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    background-color: var(--container-color);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2rem;
+    font-size: var(--small-font-size);
+    color: var(--title-color);
+    transition: border-color 0.3s, transform 0.3s;
+}
+
+.about__lang-badge i {
+    color: var(--first-color);
+    font-size: 1rem;
+}
+
+.about__lang-badge:hover {
+    border-color: var(--first-color);
+    transform: translateY(-2px);
+}
+
+.contact__phone-box {
+    text-align: center;
+}
+
+.contact__phone-box a.contact__address {
+    display: inline-block;
+    transition: color 0.3s;
+}
+
+.contact__phone-box a.contact__address:hover {
+    color: var(--first-color);
+}
+
+@media screen and (max-width: 600px) {
+    .work__tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        border-radius: 1.5rem;
+        padding: 0.75rem;
+    }
+    .work__button {
+        flex: 1 1 45%;
+        padding: 0.4rem;
+    }
+    .work__blob {
+        display: none;
+    }
+}
+
 /*=============== SCROLL BAR ===============*/
 ::-webkit-scrollbar {
     width: 0.6rem;

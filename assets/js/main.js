@@ -305,7 +305,9 @@ function initSwiper() {
 
 /*=============== WORK TABS DYNAMIC RENDER ===============*/
 const experienceContainer = document.getElementById("experience"),
-    educationContainer = document.getElementById("education");
+    educationContainer = document.getElementById("education"),
+    volunteeringContainer = document.getElementById("volunteering"),
+    certificatesContainer = document.getElementById("certificates");
 
 fetch("assets/data/work.json")
     .then((response) => {
@@ -315,20 +317,22 @@ fetch("assets/data/work.json")
     .then((data) => {
         renderWorkItems(data.experience, experienceContainer);
         renderWorkItems(data.education, educationContainer);
+        renderWorkItems(data.volunteering, volunteeringContainer);
+        renderWorkItems(data.certificates, certificatesContainer);
         initWorkTabs();
         if (ScrollTrigger) ScrollTrigger.refresh(); // Refresh ScrollTrigger after dynamic content load
     })
     .catch((error) => console.error("Error loading work data:", error));
 
 function renderWorkItems(items, container) {
-    if (!container) return;
+    if (!container || !items) return;
     container.innerHTML = items
         .map(
             (item) => `
         <div class="work__card">
             <div class="work__data">
                 <div>
-                    <h1 class="work__title">${item.title.replace(" ", "<br>")}</h1>
+                    <h1 class="work__title">${item.title}</h1>
                     <h3 class="work__subtitle">${item.subtitle}</h3>
                 </div>
                 <h2 class="work__year">${item.year}</h2>

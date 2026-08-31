@@ -11,6 +11,22 @@
             "subtitle": "Support Web Program, Qena, Egypt",
             "year": "June 2026 - Present",
             "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples."
+        }
+    ],
+    "education": [
+        {
+            "title": "Bachelor’s Degree in Computers and Information",
+            "subtitle": "Qena University, Egypt - Qena",
+            "year": "September 2024 - June 2028",
+            "description": "Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming (C++), Database Systems, Software Engineering, Operating Systems, Computer Networks, Web Development, and Problem Solving Techniques."
+        }
+    ],
+    "volunteering": [
+        {
+            "title": "Web Development Instructor",
+            "subtitle": "Support Web Program, Qena, Egypt",
+            "year": "June 2026 - Present",
+            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples."
         },
         {
             "title": "Head of PR Team",
@@ -25,30 +41,30 @@
             "description": "Collecting, structuring, and organizing educational data and content resources for the platform."
         }
     ],
-    "education": [
-        {
-            "title": "Bachelor’s Degree in Computers and Information",
-            "subtitle": "Qena University, Egypt - Qena",
-            "year": "September 2024 - June 2028",
-            "description": "Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming (C++), Database Systems, Software Engineering, Operating Systems, Computer Networks, Web Development, and Problem Solving Techniques."
-        },
+    "certificates": [
         {
             "title": "Cybersecurity Academy (Undergraduate Level)",
             "subtitle": "NTI & EG-CERT",
             "year": "June 2025",
-            "description": "Completed specialized training in cybersecurity principles, network defense, and system security fundamentals."
+            "description": "Completed undergraduate cybersecurity academy covering network defense, vulnerability assessment, and security fundamentals."
         },
         {
             "title": "NASA International Space Apps Challenge",
             "subtitle": "NASA",
             "year": "October 2026",
-            "description": "Participated in global hackathon solving space science and environmental engineering challenges."
+            "description": "Participated in global hackathon solving space science, data analysis, and environmental engineering challenges."
         },
         {
-            "title": "Learn C++ from Scratch",
-            "subtitle": "Udemy",
-            "year": "September 2025",
-            "description": "Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures."
+            "title": "The 2026 ICPC Egyptian Collegiate Programming Contest (ECPC)",
+            "subtitle": "ICPC ECPC Qualifications",
+            "year": "August 2026",
+            "description": "Qualified and competed in the Egyptian Collegiate Programming Contest solving complex algorithmic and data structure problems."
+        },
+        {
+            "title": "InnovEgypt Program",
+            "subtitle": "Innovation & Entrepreneurship Track",
+            "year": "August 2026",
+            "description": "Completed innovation and tech entrepreneurship training program focused on creating technology ventures and commercialization."
         },
         {
             "title": "Python Programming Fundamentals",
@@ -61,6 +77,12 @@
             "subtitle": "Creativa TIEC Qena",
             "year": "June 2026",
             "description": "Participated in an intensive startup incubator program focused on lean methodology, MVP development, business models, and pitching."
+        },
+        {
+            "title": "Learn C++ from Scratch",
+            "subtitle": "Udemy",
+            "year": "September 2025",
+            "description": "Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures."
         }
     ]
 }
