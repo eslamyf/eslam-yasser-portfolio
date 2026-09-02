@@ -980,48 +980,51 @@ html.lenis body {
 .work__tabs {
     position: relative;
     background-color: var(--container-color);
-    padding: 1.25rem 2rem;
+    padding: 0.75rem 1.25rem;
     border-radius: 4rem;
     display: flex;
+    align-items: center;
     justify-content: space-between;
+    column-gap: 0.5rem;
     z-index: 1;
+    width: max-content;
+    max-width: 100%;
+    margin-inline: auto;
 }
 
 .work__blob {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    height: calc(100% - 1rem);
-
+    height: calc(100% - 0.75rem);
     width: 0;
     left: 0;
-
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 4rem;
-
     transition:
-        left 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6),
-        width 0.7s cubic-bezier(0.68, -0.6, 0.32, 1.6);
-    z-index: -1;
+        left 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+        width 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+    z-index: 1;
 }
 
 /* ==> */
 .work__button {
     position: relative;
     z-index: 2;
-    flex: 1;
-    justify-content: center;
     background: none;
     color: var(--text-color);
     display: flex;
     align-items: center;
-    column-gap: 0.25rem;
+    column-gap: 0.4rem;
     font-size: var(--small-font-size);
     font-family: var(--second-font);
     cursor: pointer;
     transition: color 0.4s;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    white-space: nowrap;
 }
 
 .work__button i {
@@ -1579,7 +1582,8 @@ html.lenis body {
     }
 
     .work__tabs {
-        width: 330px;
+        width: max-content;
+        max-width: 100%;
         justify-self: center;
     }
 

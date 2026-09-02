@@ -352,6 +352,7 @@ function initWorkTabs() {
     if (!blob) return;
 
     const updateBlob = (tab) => {
+        if (!tab) return;
         blob.style.left = `${tab.offsetLeft}px`;
         blob.style.width = `${tab.offsetWidth}px`;
     };
@@ -361,20 +362,23 @@ function initWorkTabs() {
             const target = document.querySelector(tab.dataset.target);
 
             tabContents.forEach((tc) => tc.classList.remove("work-active"));
-            target.classList.add("work-active");
+            if (target) target.classList.add("work-active");
 
             tabs.forEach((t) => t.classList.remove("work-active"));
             tab.classList.add("work-active");
 
             updateBlob(tab);
-            if (ScrollTrigger) ScrollTrigger.refresh(); // Refresh ScrollTrigger in case tab height changes
+            if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh(); // Refresh ScrollTrigger in case tab height changes
         });
     });
 
-    const initialTab = document.querySelector(".work__button.work-active");
-    if (initialTab) {
-        setTimeout(() => updateBlob(initialTab), 100);
-    }
+    const updateActiveBlob = () => {
+        const activeTab = document.querySelector(".work__button.work-active");
+        if (activeTab) updateBlob(activeTab);
+    };
+
+    setTimeout(updateActiveBlob, 100);
+    window.addEventListener("resize", updateActiveBlob);
 }
 
 /*=============== SERVICES DYNAMIC RENDER ===============*/
