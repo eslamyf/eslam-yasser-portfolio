@@ -512,7 +512,8 @@ if (contactForm) {
                         submitBtn.disabled = false;
                     }, 4000);
                 } else {
-                    throw new Error("Submission failed");
+                    console.error("FormSubmit response:", data);
+                    throw new Error(data.message || "Submission failed");
                 }
             })
             .catch(error => {
