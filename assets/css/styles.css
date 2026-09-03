@@ -1072,6 +1072,51 @@ html.lenis body {
     font-size: var(--h1-font-size);
 }
 
+.work__link-wrapper {
+    margin-top: 0.5rem;
+}
+
+.work__link-btn {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 0.5rem;
+    color: var(--first-color);
+    font-size: var(--small-font-size);
+    font-family: var(--second-font);
+    font-weight: var(--font-medium);
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--first-color);
+    border-radius: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: max-content;
+    text-decoration: none;
+}
+
+.work__link-btn i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.work__link-btn:hover {
+    background: var(--first-color);
+    color: var(--body-color);
+    box-shadow: 0 4px 20px hsla(var(--hue), 60%, 64%, 0.35);
+    transform: translateY(-2px);
+}
+
+.work__link-btn:hover i {
+    transform: translate(3px, -3px);
+}
+
+.work__link-btn--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    border-color: var(--text-color-light);
+    color: var(--text-color-light);
+}
+
 .work__line {
     width: 4px;
     height: 100%;

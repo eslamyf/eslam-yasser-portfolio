@@ -327,8 +327,13 @@ fetch("assets/data/work.json")
 function renderWorkItems(items, container) {
     if (!container || !items) return;
     container.innerHTML = items
-        .map(
-            (item) => `
+        .map((item) => {
+            const hasLink = item.link && item.link.trim() !== "" && item.link !== "#";
+            const linkBtn = hasLink
+                ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="work__link-btn"><i class="ri-external-link-line"></i> View Credential</a>`
+                : (item.link === "#" ? `<a href="#" class="work__link-btn work__link-btn--disabled"><i class="ri-external-link-line"></i> View Credential</a>` : '');
+
+            return `
         <div class="work__card">
             <div class="work__data">
                 <div>
@@ -338,9 +343,10 @@ function renderWorkItems(items, container) {
                 <h2 class="work__year">${item.year}</h2>
             </div>
             <p class="work__description">${item.description}</p>
+            ${linkBtn ? `<div class="work__link-wrapper">${linkBtn}</div>` : ''}
         </div>
-    `,
-        )
+    `;
+        })
         .join("");
 }
 

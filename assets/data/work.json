@@ -4,13 +4,15 @@
             "title": "MEAN Stack Web Developer Trainee",
             "subtitle": "NTI - Creativa Innovation Hubs (DEY Initiative), Egypt - Qena",
             "year": "January 2026 - May 2026",
-            "description": "Completed the intensive 'MEAN Stack: Web Developer Career Accelerator' program. Trained practically on building scalable full-stack applications using MongoDB, Express.js, Angular, and Node.js. Gained hands-on experience in RESTful APIs, asynchronous programming, and responsive UI design."
+            "description": "Completed the intensive 'MEAN Stack: Web Developer Career Accelerator' program. Trained practically on building scalable full-stack applications using MongoDB, Express.js, Angular, and Node.js. Gained hands-on experience in RESTful APIs, asynchronous programming, and responsive UI design.",
+            "link": "https://www.nti.sci.eg/"
         },
         {
             "title": "Web Development Instructor",
             "subtitle": "Support Web Program, Qena, Egypt",
             "year": "June 2026 - Present",
-            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples."
+            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples.",
+            "link": ""
         }
     ],
     "education": [
@@ -18,7 +20,8 @@
             "title": "Bachelor’s Degree in Computers and Information",
             "subtitle": "Qena University, Egypt - Qena",
             "year": "September 2024 - June 2028",
-            "description": "Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming (C++), Database Systems, Software Engineering, Operating Systems, Computer Networks, Web Development, and Problem Solving Techniques."
+            "description": "Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming (C++), Database Systems, Software Engineering, Operating Systems, Computer Networks, Web Development, and Problem Solving Techniques.",
+            "link": ""
         }
     ],
     "volunteering": [
@@ -26,19 +29,22 @@
             "title": "Web Development Instructor",
             "subtitle": "Support Web Program, Qena, Egypt",
             "year": "June 2026 - Present",
-            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples."
+            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples.",
+            "link": ""
         },
         {
             "title": "Head of PR Team",
             "subtitle": "Students for Egypt - Faculty of Computers and Information",
             "year": "Present",
-            "description": "Leading public relations team and student communications for the Faculty of Computers and Information."
+            "description": "Leading public relations team and student communications for the Faculty of Computers and Information.",
+            "link": ""
         },
         {
             "title": "Content Data Collector",
             "subtitle": "ClassMate Platform",
             "year": "Present",
-            "description": "Collecting, structuring, and organizing educational data and content resources for the platform."
+            "description": "Collecting, structuring, and organizing educational data and content resources for the platform.",
+            "link": ""
         }
     ],
     "certificates": [
@@ -46,43 +52,50 @@
             "title": "Cybersecurity Academy (Undergraduate Level)",
             "subtitle": "NTI & EG-CERT",
             "year": "June 2025",
-            "description": "Completed undergraduate cybersecurity academy covering network defense, vulnerability assessment, and security fundamentals."
+            "description": "Completed undergraduate cybersecurity academy covering network defense, vulnerability assessment, and security fundamentals.",
+            "link": "https://www.nti.sci.eg/"
         },
         {
             "title": "NASA International Space Apps Challenge",
             "subtitle": "NASA",
             "year": "October 2026",
-            "description": "Participated in global hackathon solving space science, data analysis, and environmental engineering challenges."
+            "description": "Participated in global hackathon solving space science, data analysis, and environmental engineering challenges.",
+            "link": "https://www.spaceappschallenge.org/"
         },
         {
             "title": "The 2026 ICPC Egyptian Collegiate Programming Contest (ECPC)",
             "subtitle": "ICPC ECPC Qualifications",
             "year": "August 2026",
-            "description": "Qualified and competed in the Egyptian Collegiate Programming Contest solving complex algorithmic and data structure problems."
+            "description": "Qualified and competed in the Egyptian Collegiate Programming Contest solving complex algorithmic and data structure problems.",
+            "link": "https://icpc.global/"
         },
         {
             "title": "InnovEgypt Program",
             "subtitle": "Innovation & Entrepreneurship Track",
             "year": "August 2026",
-            "description": "Completed innovation and tech entrepreneurship training program focused on creating technology ventures and commercialization."
+            "description": "Completed innovation and tech entrepreneurship training program focused on creating technology ventures and commercialization.",
+            "link": "https://tiec.gov.eg/"
         },
         {
             "title": "Python Programming Fundamentals",
             "subtitle": "Creativa TIEC Qena",
             "year": "July 2026",
-            "description": "Completed intensive training in Python core programming, data structures, and script automation."
+            "description": "Completed intensive training in Python core programming, data structures, and script automation.",
+            "link": "https://creativa.gov.eg/"
         },
         {
             "title": "Startup Innovation Lab",
             "subtitle": "Creativa TIEC Qena",
             "year": "June 2026",
-            "description": "Participated in an intensive startup incubator program focused on lean methodology, MVP development, business models, and pitching."
+            "description": "Participated in an intensive startup incubator program focused on lean methodology, MVP development, business models, and pitching.",
+            "link": "https://creativa.gov.eg/"
         },
         {
             "title": "Learn C++ from Scratch",
             "subtitle": "Udemy",
             "year": "September 2025",
-            "description": "Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures."
+            "description": "Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures.",
+            "link": "https://www.udemy.com/"
         }
     ]
 }
