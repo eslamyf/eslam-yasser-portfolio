@@ -763,7 +763,7 @@ const initParticleCanvas = () => {
             this.baseX = this.x;
             this.baseY = this.y;
             this.density = (Math.random() * 30) + 10;
-            this.color = `rgba(50, 205, 50, ${Math.random() * 0.12 + 0.04})`; // Glowing transparent green
+            this.color = `rgba(77, 166, 255, ${Math.random() * 0.12 + 0.04})`; // Glowing transparent electric blue
         }
 
         draw() {
