@@ -631,6 +631,20 @@
         <i class="ri-arrow-up-line"></i>
     </a>
 
+    <!--========== PROTECTED YOUTUBE VIDEO MODAL ==========-->
+    <div id="youtube-video-modal" class="yt-modal" style="display: none;">
+        <div class="yt-modal__overlay" onclick="closeYouTubeModal()"></div>
+        <div class="yt-modal__content">
+            <div class="yt-modal__header">
+                <h3 id="yt-modal-title"><i class="ri-youtube-fill" style="color: #ef4444;"></i> Demo Video</h3>
+                <button class="yt-modal__close" onclick="closeYouTubeModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="yt-modal__body">
+                <iframe id="yt-modal-iframe" width="100%" height="400" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
     <!--=============== GSAP & SCROLLTRIGGER ===============-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>

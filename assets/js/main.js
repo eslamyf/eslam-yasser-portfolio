@@ -229,23 +229,52 @@ window.addEventListener("wheel", onVirtualScroll);
 window.addEventListener("touchstart", onTouchStart, { passive: true });
 window.addEventListener("touchmove", onTouchMove, { passive: true });
 
+/*=============== VISITOR TRACKING & ANALYTICS ===============*/
+try {
+    fetch("/api/analytics/track", { method: "POST" })
+        .catch(err => console.log("Analytics tracking note:", err.message));
+} catch (e) { }
+
 /*=============== PROJECTS CARDS ===============*/
 const projectsContent = document.getElementById("projects-content");
 
-fetch("assets/data/projects.json")
-    .then((response) => response.json())
-    .then((data) => {
-        renderProjects(data);
-        initSwiper();
-        if (ScrollTrigger) ScrollTrigger.refresh(); // Refresh ScrollTrigger after dynamic content load
+fetch("/api/projects")
+    .then((response) => {
+        if (!response.ok) throw new Error("API not available, fallback to static JSON");
+        return response.json();
     })
-    .catch((error) => console.error("Error loading projects:", error));
+    .then((result) => {
+        const projectsData = result.data ? result.data : result;
+        renderProjects(projectsData);
+        initSwiper();
+        if (ScrollTrigger) ScrollTrigger.refresh();
+    })
+    .catch((error) => {
+        console.warn("Loading projects from static fallback assets/data/projects.json:", error);
+        fetch("assets/data/projects.json")
+            .then(res => res.json())
+            .then(data => {
+                renderProjects(data);
+                initSwiper();
+                if (ScrollTrigger) ScrollTrigger.refresh();
+            });
+    });
 
 function renderProjects(projects) {
     projectsContent.innerHTML = projects
-        .map((project) => {
+        .map((project, idx) => {
+            const displayId = project.id || (idx + 1 < 10 ? `0${idx + 1}` : `${idx + 1}`);
             const hasDemo = project.demo && project.demo.trim() !== "" && project.demo !== "#";
             const hasGithub = project.github && project.github.trim() !== "" && project.github !== "#";
+            
+            // Extract Youtube Video ID if exists
+            let ytVideoId = project.youtubeId;
+            if (!ytVideoId && project.youtubeUrl) {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                const match = project.youtubeUrl.match(regExp);
+                if (match && match[2].length === 11) ytVideoId = match[2];
+                else if (project.youtubeUrl.length === 11) ytVideoId = project.youtubeUrl;
+            }
 
             const liveBtn = hasDemo
                 ? `<a href="${project.demo}" target="_blank" class="projects__btn projects__btn--live"><i class="ri-global-line"></i> Live Demo</a>`
@@ -255,34 +284,66 @@ function renderProjects(projects) {
                 ? `<a href="${project.github}" target="_blank" class="projects__btn projects__btn--github"><i class="ri-github-line"></i> GitHub</a>`
                 : `<span class="projects__btn projects__btn--disabled"><i class="ri-github-line"></i> GitHub</span>`;
 
+            const youtubeBtn = ytVideoId
+                ? `<button onclick="openYouTubeModal('${ytVideoId}', '${project.title.replace(/'/g, "\\'")}')" class="projects__btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);"><i class="ri-youtube-fill"></i> Watch Demo</button>`
+                : '';
+
             return `
         <article class="projects__card swiper-slide">
             <div class="blob"></div>
             
             <div class="projects__number">
-                <h1>${project.id}</h1>
+                <h1>${displayId}</h1>
                 <h3>${project.category}</h3>
             </div>
             
             <div class="projects__data">
                 <h1 class="projects__title">${project.title}</h1>
-                <p class="projects__subtitle">${project.subtitle}</p>
+                <p class="projects__subtitle">${project.subtitle || ''}</p>
                 <p class="projects__description">${project.description}</p>
             </div>
             
             <div class="projects__image">
-                <img src="${project.image}" alt="${project.title}" class="projects__img" width="302" height="180" loading="lazy">
-                ${hasDemo ? `<a href="${project.demo}" target="_blank" class="projects__button"><i class="ri-arrow-right-up-long-line"></i></a>` : (hasGithub ? `<a href="${project.github}" target="_blank" class="projects__button"><i class="ri-arrow-right-up-long-line"></i></a>` : '')}
+                <img src="${project.image}" alt="${project.title}" class="projects__img" width="302" height="180" loading="lazy" onerror="this.src='assets/img/backend_api.jpg'">
+                ${ytVideoId 
+                    ? `<button onclick="openYouTubeModal('${ytVideoId}', '${project.title.replace(/'/g, "\\'")}')" class="projects__button" style="background: #ef4444; color: #fff;"><i class="ri-play-fill"></i></button>`
+                    : (hasDemo ? `<a href="${project.demo}" target="_blank" class="projects__button"><i class="ri-arrow-right-up-long-line"></i></a>` : (hasGithub ? `<a href="${project.github}" target="_blank" class="projects__button"><i class="ri-arrow-right-up-long-line"></i></a>` : ''))
+                }
             </div>
 
-            <div class="projects__buttons">
+            <div class="projects__buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
                 ${liveBtn}
                 ${githubBtn}
+                ${youtubeBtn}
             </div>
         </article>
         `;
         })
         .join("");
+}
+
+/*=============== PROTECTED YOUTUBE MODAL LOGIC ===============*/
+function openYouTubeModal(videoId, title) {
+    const modal = document.getElementById("youtube-video-modal");
+    const iframe = document.getElementById("yt-modal-iframe");
+    const titleEl = document.getElementById("yt-modal-title");
+
+    if (modal && iframe) {
+        titleEl.innerHTML = `<i class="ri-youtube-fill" style="color: #ef4444;"></i> ${title || 'Demo Video'}`;
+        // Using YouTube Privacy-Enhanced Mode (youtube-nocookie.com)
+        iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1`;
+        modal.style.display = "flex";
+    }
+}
+
+function closeYouTubeModal() {
+    const modal = document.getElementById("youtube-video-modal");
+    const iframe = document.getElementById("yt-modal-iframe");
+
+    if (modal && iframe) {
+        iframe.src = "";
+        modal.style.display = "none";
+    }
 }
 
 function initSwiper() {
@@ -477,7 +538,7 @@ if (copyBtn) {
     });
 }
 
-/*=============== CONTACT FORM SUBMIT (FORMSUBMIT.CO AJAX) ===============*/
+/*=============== CONTACT FORM SUBMIT (BACKEND API /api/inquiries) ===============*/
 const contactForm = document.getElementById("contact-form");
 if (contactForm) {
     contactForm.addEventListener("submit", (e) => {
@@ -492,22 +553,21 @@ if (contactForm) {
         submitBtn.innerHTML = `Sending... <i class="ri-loader-4-line animate-spin"></i>`;
         submitBtn.disabled = true;
 
-        fetch("https://formsubmit.co/ajax/eslam9076460@gmail.com", {
+        fetch("/api/inquiries", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 name: name,
                 email: email,
                 message: message,
-                _captcha: "false"
+                subject: `New Inquiry from ${name}`
             })
         })
             .then(response => response.json())
             .then(data => {
-                if (data.success === "true" || data.success === true) {
+                if (data.success) {
                     submitBtn.innerHTML = `Sent Successfully! <i class="ri-check-line"></i>`;
                     submitBtn.style.backgroundColor = "hsl(140, 60%, 40%)";
                     contactForm.reset();
@@ -518,20 +578,30 @@ if (contactForm) {
                         submitBtn.disabled = false;
                     }, 4000);
                 } else {
-                    console.error("FormSubmit response:", data);
-                    throw new Error(data.message || "Submission failed");
+                    alert(data.message || "Failed to send message.");
+                    submitBtn.innerHTML = originalBtnContent;
+                    submitBtn.disabled = false;
                 }
             })
             .catch(error => {
-                console.error("FormSubmit Error:", error);
-                submitBtn.innerHTML = `Failed to Send <i class="ri-error-warning-line"></i>`;
-                submitBtn.style.backgroundColor = "hsl(0, 60%, 40%)";
-
-                setTimeout(() => {
-                    submitBtn.innerHTML = originalBtnContent;
-                    submitBtn.style.backgroundColor = "";
-                    submitBtn.disabled = false;
-                }, 4000);
+                console.warn("Backend API inquiry error, sending via fallback:", error);
+                // Fallback to formsubmit if local server endpoint unavailable
+                fetch("https://formsubmit.co/ajax/eslam9076460@gmail.com", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify({ name, email, message, _captcha: "false" })
+                })
+                .then(res => res.json())
+                .then(resData => {
+                    submitBtn.innerHTML = `Sent Successfully! <i class="ri-check-line"></i>`;
+                    submitBtn.style.backgroundColor = "hsl(140, 60%, 40%)";
+                    contactForm.reset();
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalBtnContent;
+                        submitBtn.style.backgroundColor = "";
+                        submitBtn.disabled = false;
+                    }, 4000);
+                });
             });
     });
 }
