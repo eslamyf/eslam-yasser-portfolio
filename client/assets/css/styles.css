@@ -514,7 +514,8 @@ html.lenis body {
     row-gap: 3rem;
 }
 
-.home__greeting {
+.home__greeting,
+.home__split {
     font-size: var(--h2-font-size);
     font-weight: var(--font-regular);
     color: var(--first-color);
@@ -748,21 +749,34 @@ html.lenis body {
 /*=============== ABOUT ===============*/
 .about {
     position: relative;
+    padding-block: 6rem 3rem;
 }
 
 .about__container {
     row-gap: 3rem;
-    overflow-y: clip;
+}
+
+.about__subtitle-tag {
+    display: inline-block;
+    font-size: var(--small-font-size);
+    font-family: var(--second-font);
+    color: var(--first-color);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
 }
 
 .about__data .section__title {
     margin-bottom: 1.5rem;
     text-align: initial;
+    font-size: var(--h1-font-size);
 }
 
 .about__description {
-    font-size: var(--h2-font-size);
+    font-size: var(--normal-font-size);
+    line-height: 1.7;
     margin-bottom: 2rem;
+    color: var(--text-color);
 }
 
 .about__description b {
@@ -770,25 +784,112 @@ html.lenis body {
     font-weight: var(--font-semi-bold);
 }
 
+.about__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.about__stat-card {
+    background-color: var(--container-color);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    padding: 1.25rem 0.75rem;
+    text-align: center;
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+.about__stat-card i {
+    font-size: 1.5rem;
+    color: var(--first-color);
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.about__stat-card h3 {
+    font-size: var(--h2-font-size);
+    font-weight: var(--font-semi-bold);
+    color: var(--title-color);
+    margin-bottom: 0.25rem;
+}
+
+.about__stat-card p {
+    font-size: var(--smaller-font-size);
+    color: var(--text-color-light);
+}
+
+.about__stat-card:hover {
+    border-color: var(--first-color);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(var(--hue), 60%, 64%, 0.15);
+}
+
+.about__languages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.about__lang-badge {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--container-color);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2rem;
+    font-size: var(--small-font-size);
+    color: var(--title-color);
+    transition: border-color 0.3s, transform 0.3s;
+}
+
+.about__lang-badge i {
+    color: var(--first-color);
+    font-size: 1rem;
+}
+
+.about__lang-badge:hover {
+    border-color: var(--first-color);
+    transform: translateY(-2px);
+}
+
+.about__buttons {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.button--ghost {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+    color: var(--title-color);
+}
+
+.button--ghost:hover {
+    border-color: var(--first-color);
+    color: var(--first-color);
+    box-shadow: 0 0 20px rgba(var(--hue), 60%, 64%, 0.2);
+}
+
 .about__image {
     position: relative;
     justify-self: center;
-}
-
-.about__image .blob-animate:nth-child(1) {
-    top: 1.5rem;
-    left: 1rem;
-}
-
-.about__image .blob-animate:nth-child(2) {
-    right: -0.5rem;
-    bottom: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .about__perfil {
-    width: 220px;
+    width: 450px;
     height: auto;
-    aspect-ratio: 220 / 242;
+    max-height: 520px;
+    object-fit: contain;
+    justify-self: center;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.4));
 }
 
 .about__shadow {
@@ -800,6 +901,7 @@ html.lenis body {
     background: linear-gradient(180deg,
             hsla(var(--hue), 45%, 4%, 0) 60%,
             var(--body-color) 95%);
+    pointer-events: none;
 }
 
 /*=============== PROJECTS ===============*/
@@ -1710,16 +1812,26 @@ html.lenis body {
     .home__left {
         align-items: flex-start;
         text-align: left;
+        height: 180px;
+        justify-content: space-between;
     }
 
     .home__social {
-        flex-direction: column;
-        row-gap: 1rem;
-        column-gap: 0;
+        flex-direction: row;
+        column-gap: 1.25rem;
+        row-gap: 0;
     }
 
     .home__right {
         align-items: flex-end;
+        text-align: right;
+        height: 180px;
+        justify-content: space-between;
+    }
+
+    .home__profession-1,
+    .home__profession-2 {
+        right: 0;
         text-align: right;
     }
 }
@@ -1930,7 +2042,8 @@ html.lenis body {
     }
 
     .home__container {
-        grid-template-columns: 1fr 550px 1fr;
+        grid-template-columns: 1fr 500px 1fr;
+        align-items: center;
         column-gap: 3rem;
         max-width: 1130px;
         width: 100%;
@@ -1938,7 +2051,7 @@ html.lenis body {
     }
 
     .home__perfil {
-        width: 550px;
+        width: 500px;
     }
 
     .home__image .blob-animate {
@@ -1948,7 +2061,10 @@ html.lenis body {
         filter: blur(50px);
     }
 
-
+    .home__left {
+        height: 180px;
+        justify-content: space-between;
+    }
 
     .home__split {
         font-size: var(--h2-font-size);
@@ -1957,6 +2073,8 @@ html.lenis body {
     .home__right {
         align-items: flex-end;
         text-align: right;
+        height: 180px;
+        justify-content: space-between;
     }
 
     .home__profession-box {
@@ -1969,6 +2087,7 @@ html.lenis body {
         font-size: clamp(1.4rem, 2vw, 2.1rem);
         text-align: right;
         white-space: nowrap;
+        right: 0;
     }
 
     .home__social-link {
@@ -1980,29 +2099,30 @@ html.lenis body {
     }
 
     .about__container {
-        grid-template-columns: repeat(2, 500px);
+        grid-template-columns: 460px 1fr;
         align-items: center;
-        column-gap: 5.5rem;
+        column-gap: 4rem;
         padding-top: 2rem;
     }
 
     .about__data,
     .about__data .section__title {
-        text-align: initial;
+        text-align: left;
         z-index: 2;
-        margin-bottom: 3rem;
+        margin-bottom: 0;
     }
 
     .about__description {
-        margin-bottom: 3rem;
+        font-size: 1.05rem;
+        margin-bottom: 2rem;
     }
 
     .about__perfil {
-        width: 500px;
+        width: 460px;
     }
 
     .about__image {
-        order: -1;
+        order: initial;
     }
 
     .about__image .blob-animate {

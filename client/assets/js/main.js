@@ -87,27 +87,62 @@ if (words.length >= 4) {
 let virtualProgress = 0;
 let introComplete = false;
 
-// Run profession loop after Hero entrance completes
+// Run profession loop continuously and seamlessly without timeline resetting
 const runProfessionLoop = () => {
+    const el1 = document.querySelector(".home__profession-1");
+    const el2 = document.querySelector(".home__profession-2");
+    if (!el1 || !el2) return;
+
     const chars1 = splitTextIntoSpans(".home__profession-1", "0%");
     const chars2 = splitTextIntoSpans(".home__profession-2", "100%");
 
-    if (chars1.length && chars2.length) {
-        gsap.set(".home__profession-2", { opacity: 0 });
-        gsap.set(".home__profession-1", { opacity: 1 });
+    if (!chars1.length || !chars2.length) return;
 
-        const profTl = gsap.timeline({ repeat: -1 });
+    gsap.set(el1, { opacity: 1 });
+    gsap.set(el2, { opacity: 0 });
+    gsap.set(chars1, { translateY: "0%" });
+    gsap.set(chars2, { translateY: "100%" });
 
-        profTl
-            .to(chars1, { translateY: "-100%", stagger: 0.03, duration: 0.4, ease: "power2.in", delay: 2.5 })
-            .set(".home__profession-2", { opacity: 1 })
-            .set(".home__profession-1", { opacity: 0 })
-            .fromTo(chars2, { translateY: "100%" }, { translateY: "0%", stagger: 0.05, duration: 0.5, ease: "power2.out" })
-            .to(chars2, { translateY: "-100%", stagger: 0.03, duration: 0.4, ease: "power2.in", delay: 2.5 })
-            .set(".home__profession-1", { opacity: 1 })
-            .set(".home__profession-2", { opacity: 0 })
-            .fromTo(chars1, { translateY: "100%" }, { translateY: "0%", stagger: 0.05, duration: 0.5, ease: "power2.out" });
+    const cycleTime = 1.4;
+    const animDuration = 0.35;
+
+    function animateToNext(currentChars, nextEl, nextChars, onComplete) {
+        gsap.timeline({ onComplete })
+            .to(currentChars, {
+                translateY: "-100%",
+                stagger: 0.02,
+                duration: animDuration,
+                ease: "power2.in"
+            })
+            .set(nextEl, { opacity: 1 }, "<0.08")
+            .to(nextChars, {
+                translateY: "0%",
+                stagger: 0.02,
+                duration: animDuration,
+                ease: "power2.out"
+            }, "<")
+            .set(currentChars, { translateY: "100%" });
     }
+
+    function loop1() {
+        gsap.delayedCall(cycleTime, () => {
+            animateToNext(chars1, el2, chars2, () => {
+                gsap.set(el1, { opacity: 0 });
+                loop2();
+            });
+        });
+    }
+
+    function loop2() {
+        gsap.delayedCall(cycleTime, () => {
+            animateToNext(chars2, el1, chars1, () => {
+                gsap.set(el2, { opacity: 0 });
+                loop1();
+            });
+        });
+    }
+
+    loop1();
 };
 
 // Function to trigger once preloader sequence completes
@@ -245,6 +280,9 @@ fetch("/api/projects")
     })
     .then((result) => {
         const projectsData = result.data ? result.data : result;
+        if (!Array.isArray(projectsData) || projectsData.length === 0) {
+            throw new Error("API returned empty projects array, fallback to static JSON");
+        }
         renderProjects(projectsData);
         initSwiper();
         if (ScrollTrigger) ScrollTrigger.refresh();

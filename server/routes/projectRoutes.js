@@ -38,7 +38,10 @@ router.get('/', async (req, res) => {
       if (includeDrafts === 'true') {
         query = {};
       }
-      const projects = await Project.find(query).sort({ orderIndex: 1, createdAt: -1 });
+      let projects = await Project.find(query).sort({ orderIndex: 1, createdAt: -1 });
+      if (projects.length === 0) {
+        projects = getFallbackProjects();
+      }
       return res.json({ success: true, count: projects.length, data: projects });
     } else {
       // Fallback mode using JSON file
