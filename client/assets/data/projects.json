@@ -1,0 +1,24 @@
+[
+    {
+        "id": "01",
+        "category": "MEAN Stack",
+        "title": "Aqario Luxe",
+        "subtitle": "Real Estate Management System",
+        "date": "March 2026 – June 2026",
+        "description": "Developed a scalable real estate platform (Aqario Luxe) using the MEAN stack with clean, maintainable architecture. Implemented a freemium model with secure payment integration for user transactions, structured MongoDB database design, and Git version control.",
+        "image": "assets/img/aqario.png",
+        "demo": "https://aqario-luxe.vercel.app/",
+        "github": "https://github.com/eslamyf/aqario-luxe-web"
+    },
+    {
+        "id": "02",
+        "category": "MEAN Stack",
+        "title": "Foodio",
+        "subtitle": "University Food Delivery Platform",
+        "date": "February 2026 – March 2026",
+        "description": "Built a food delivery app connecting local restaurants with university students. Implemented core features including cart system, favorites management, and organized a modular project structure for high scalability.",
+        "image": "assets/img/RWD.png",
+        "demo": "",
+        "github": ""
+    }
+]

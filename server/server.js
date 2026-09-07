@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const connectDB = require('./config/db');
 const User = require('./models/User');
@@ -17,8 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static assets & frontend files
-app.use('/assets', express.static(path.join(__dirname, '../assets')));
-app.use(express.static(path.join(__dirname, '../')));
+app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
+app.use(express.static(path.join(__dirname, '../client')));
 
 // Database Connection & Initial Seeding
 let isDbConnected = false;
@@ -50,7 +50,7 @@ async function seedInitialData() {
     // 2. Seed Projects from projects.json if DB is empty
     const projectCount = await Project.countDocuments();
     if (projectCount === 0) {
-      const projectsJsonPath = path.join(__dirname, '../assets/data/projects.json');
+      const projectsJsonPath = path.join(__dirname, '../client/assets/data/projects.json');
       if (fs.existsSync(projectsJsonPath)) {
         const rawData = fs.readFileSync(projectsJsonPath, 'utf8');
         const initialProjects = JSON.parse(rawData);
@@ -90,12 +90,12 @@ app.use('/api', require('./routes/analyticsRoutes')); // for /api/admin/analytic
 
 // Admin Dashboard route
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '../admin.html'));
+  res.sendFile(path.join(__dirname, '../client/admin.html'));
 });
 
 // Fallback for single page app
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../index.html'));
+  res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
 // Error handling middleware

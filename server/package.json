@@ -2,11 +2,10 @@
   "name": "eslam-yasser-portfolio",
   "version": "2.0.0",
   "description": "Full-Stack Portfolio website with Node.js Express backend and Admin Dashboard",
-  "main": "server/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "nodemon server/server.js",
-    "seed": "node server/seed.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "portfolio",
