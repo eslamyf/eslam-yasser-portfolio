@@ -57,10 +57,7 @@ router.post('/track', async (req, res) => {
 
 // ==================== ADMIN PROTECTED ROUTE ====================
 
-// @route   GET /api/admin/analytics
-// @desc    Get dashboard metrics & overview statistics
-// @access  Private (Admin)
-router.get('/admin/analytics', protect, async (req, res) => {
+const handleGetAnalytics = async (req, res) => {
   try {
     if (isMongoReady()) {
       const allStats = await Analytics.find().sort({ date: -1 }).limit(30);
@@ -106,6 +103,9 @@ router.get('/admin/analytics', protect, async (req, res) => {
     console.error('Error getting analytics:', error);
     res.status(500).json({ success: false, message: 'Server error loading analytics' });
   }
-});
+};
+
+router.get('/', protect, handleGetAnalytics);
+router.get('/admin/analytics', protect, handleGetAnalytics);
 
 module.exports = router;

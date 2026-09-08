@@ -1,3 +1,12 @@
+const getApiBase = () => {
+    if (window.location.protocol === 'file:') return 'http://localhost:5000/api';
+    if (window.location.port && window.location.port !== '5000') {
+        return `http://${window.location.hostname || 'localhost'}:5000/api`;
+    }
+    return '/api';
+};
+const API_BASE = getApiBase();
+
 /*=============== GSAP & SCROLLTRIGGER SETUP ===============*/
 gsap.registerPlugin(ScrollTrigger);
 
@@ -266,14 +275,14 @@ window.addEventListener("touchmove", onTouchMove, { passive: true });
 
 /*=============== VISITOR TRACKING & ANALYTICS ===============*/
 try {
-    fetch("/api/analytics/track", { method: "POST" })
+    fetch(`${API_BASE}/analytics/track`, { method: "POST" })
         .catch(err => console.log("Analytics tracking note:", err.message));
 } catch (e) { }
 
 /*=============== PROJECTS CARDS ===============*/
 const projectsContent = document.getElementById("projects-content");
 
-fetch("/api/projects")
+fetch(`${API_BASE}/projects`)
     .then((response) => {
         if (!response.ok) throw new Error("API not available, fallback to static JSON");
         return response.json();
@@ -360,6 +369,236 @@ function renderProjects(projects) {
         .join("");
 }
 
+/*=============== NATIVE MODAL HANDLERS (NO EXTERNAL REDIRECTS) ===============*/
+async function downloadFileBlob(url, filename) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Download request failed with status ' + response.status);
+        const arrayBuffer = await response.arrayBuffer();
+        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            window.URL.revokeObjectURL(blobUrl);
+            if (a.parentNode) document.body.removeChild(a);
+        }, 60000);
+    } catch (err) {
+        console.warn('Blob download fallback:', err);
+        triggerDirectDownload(url);
+    }
+}
+
+function triggerDirectDownload(url) {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = url;
+    document.body.appendChild(iframe);
+    setTimeout(() => { if (iframe.parentNode) document.body.removeChild(iframe); }, 15000);
+}
+
+function openPdfModal(pdfUrl, title, originalFileName) {
+    const modal = document.getElementById("pdf-viewer-modal");
+    const container = document.getElementById("pdf-modal-container");
+    const titleEl = document.getElementById("pdf-modal-title");
+    const downloadBtn = document.getElementById("pdf-modal-download-btn");
+
+    // Determine base for file API calls (fixes 404 when running via Live Server on port 5501)
+    const fileApiBase = API_BASE.replace('/api', '');
+
+    if (modal && container) {
+        const fileName = originalFileName || (title ? `${title}.pdf` : 'Eslam_Yasser_Resume.pdf');
+        const viewUrl = `${fileApiBase}/api/files/view-pdf?filePath=${encodeURIComponent(pdfUrl)}`;
+        const downloadUrl = `${fileApiBase}/api/files/download?filePath=${encodeURIComponent(pdfUrl)}&name=${encodeURIComponent(fileName)}`;
+
+        titleEl.innerHTML = `<i class="ri-file-pdf-2-line" style="color: var(--first-color);"></i> ${title || 'Document Viewer'}`;
+        if (downloadBtn) {
+            downloadBtn.href = downloadUrl;
+            downloadBtn.onclick = (e) => {
+                e.preventDefault();
+                downloadFileBlob(downloadUrl, fileName);
+            };
+        }
+
+        container.innerHTML = `
+            <div id="pdf-viewer-wrapper" style="width:100%; height:100%; display:flex; flex-direction:column; background:#0f172a; border-radius:0 0 12px 12px; overflow:hidden;">
+                <div style="padding:10px 15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; flex-wrap:wrap; gap:10px;">
+                    <span style="color:#94a3b8; font-size:0.85rem;"><i class="ri-information-line"></i> Native PDF View Engine</span>
+                    <div style="display:flex; gap:8px;">
+                        <button id="btn-mode-native" class="projects__btn" style="padding: 4px 10px; font-size: 0.8rem;" onclick="switchPdfViewMode('native', '${viewUrl}')"><i class="ri-pages-line"></i> Direct PDF</button>
+                        <button id="btn-mode-canvas" class="projects__btn projects__btn--live" style="padding: 4px 10px; font-size: 0.8rem;" onclick="switchPdfViewMode('canvas', '${viewUrl}')"><i class="ri-image-line"></i> HD Canvas</button>
+                    </div>
+                </div>
+                <div id="pdf-view-body" style="flex:1; width:100%; height:100%; min-height:70vh; overflow:hidden;">
+                    <object data="${viewUrl}#toolbar=1" type="application/pdf" style="width:100%; height:100%; border:none;">
+                        <iframe src="${viewUrl}" style="width:100%; height:100%; border:none;"></iframe>
+                    </object>
+                </div>
+            </div>
+        `;
+
+        modal.style.display = "flex";
+    }
+}
+
+function switchPdfViewMode(mode, viewUrl) {
+    const body = document.getElementById('pdf-view-body');
+    const btnNative = document.getElementById('btn-mode-native');
+    const btnCanvas = document.getElementById('btn-mode-canvas');
+    if (!body) return;
+
+    if (mode === 'native') {
+        if (btnNative) { btnNative.className = 'projects__btn'; }
+        if (btnCanvas) { btnCanvas.className = 'projects__btn projects__btn--live'; }
+        body.innerHTML = `
+            <object data="${viewUrl}#toolbar=1" type="application/pdf" style="width:100%; height:100%; border:none;">
+                <iframe src="${viewUrl}" style="width:100%; height:100%; border:none;"></iframe>
+            </object>
+        `;
+    } else if (mode === 'canvas') {
+        if (btnNative) { btnNative.className = 'projects__btn projects__btn--live'; }
+        if (btnCanvas) { btnCanvas.className = 'projects__btn'; }
+        body.innerHTML = `
+            <div id="pdf-scroll-box" style="width:100%; height:100%; overflow-y:auto; padding:20px; display:flex; flex-direction:column; align-items:center; gap:20px; background:#0f172a;">
+                <div id="pdf-loading-msg" style="color:#93c5fd; padding:20px; font-size:0.9rem; text-align:center;">
+                    <i class="ri-loader-4-line animate-spin" style="font-size:1.5rem; display:block; margin-bottom:8px;"></i>
+                    Processing HD Pages...
+                </div>
+                <div id="pdf-canvas-container" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:20px;"></div>
+            </div>
+        `;
+
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+            fetch(viewUrl)
+                .then(r => r.arrayBuffer())
+                .then(buffer => {
+                    return pdfjsLib.getDocument({
+                        data: buffer,
+                        cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+                        cMapPacked: true,
+                        standardFontDataUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/standard_fonts/'
+                    }).promise;
+                })
+                .then(pdf => {
+                    const loadingEl = document.getElementById('pdf-loading-msg');
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    const container = document.getElementById('pdf-canvas-container');
+                    if (!container) return;
+                    container.innerHTML = '';
+
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        pdf.getPage(pageNum).then(page => {
+                            const canvas = document.createElement('canvas');
+                            canvas.style.maxWidth = '100%';
+                            canvas.style.height = 'auto';
+                            canvas.style.borderRadius = '8px';
+                            canvas.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5)';
+
+                            const scale = 1.5;
+                            const viewport = page.getViewport({ scale: scale });
+                            const outputScale = window.devicePixelRatio || 1;
+
+                            canvas.width = Math.floor(viewport.width * outputScale);
+                            canvas.height = Math.floor(viewport.height * outputScale);
+                            canvas.style.width = Math.floor(viewport.width) + "px";
+                            canvas.style.height = Math.floor(viewport.height) + "px";
+
+                            const ctx = canvas.getContext('2d');
+                            const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+                            container.appendChild(canvas);
+                            page.render({ canvasContext: ctx, transform: transform, viewport: viewport });
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Canvas render error:', err);
+                    const loadingEl = document.getElementById('pdf-loading-msg');
+                    if (loadingEl) loadingEl.innerHTML = `<div style="color:#f87171; padding:15px;">Local rendering unavailable. Please switch to Direct PDF view.</div>`;
+                });
+        }
+    }
+}
+
+function closePdfModal() {
+    const modal = document.getElementById("pdf-viewer-modal");
+    const container = document.getElementById("pdf-modal-container");
+    if (modal) {
+        if (container) container.innerHTML = "";
+        modal.style.display = "none";
+    }
+}
+
+function openVideoModal(videoUrl, title) {
+    const modal = document.getElementById("video-player-modal");
+    const videoEl = document.getElementById("video-modal-element");
+    const titleEl = document.getElementById("video-modal-title");
+
+    if (modal && videoEl) {
+        titleEl.innerHTML = `<i class="ri-video-line" style="color: var(--first-color);"></i> ${title || 'Video Player'}`;
+        videoEl.src = videoUrl;
+        modal.style.display = "flex";
+        videoEl.play().catch(e => {});
+    }
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById("video-player-modal");
+    const videoEl = document.getElementById("video-modal-element");
+    if (modal && videoEl) {
+        videoEl.pause();
+        videoEl.src = "";
+        modal.style.display = "none";
+    }
+}
+
+function openLightboxModal(imageUrl, title) {
+    const modal = document.getElementById("image-lightbox-modal");
+    const imgEl = document.getElementById("lightbox-modal-img");
+    const titleEl = document.getElementById("lightbox-modal-title");
+
+    if (modal && imgEl) {
+        titleEl.innerHTML = `<i class="ri-image-line" style="color: var(--first-color);"></i> ${title || 'Image View'}`;
+        imgEl.src = imageUrl;
+        modal.style.display = "flex";
+    }
+}
+
+function closeLightboxModal() {
+    const modal = document.getElementById("image-lightbox-modal");
+    if (modal) modal.style.display = "none";
+}
+
+function handleCvView(e) {
+    if (e) e.preventDefault();
+    fetch(`${API_BASE}/cv/active`)
+        .then(res => res.json())
+        .then(result => {
+            if (result.success && result.data) {
+                const cv = result.data;
+                openPdfModal(cv.pdfFile, cv.name || 'Eslam Yasser - CV', cv.originalName || 'Eslam Yasser - CV.pdf');
+            } else {
+                openPdfModal('/assets/pdf/Eslam_Yasser_Resume.pdf', 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
+            }
+        })
+        .catch(() => {
+            openPdfModal('/assets/pdf/Eslam_Yasser_Resume.pdf', 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
+        });
+}
+
+// Bind CV Resume buttons
+document.addEventListener("DOMContentLoaded", () => {
+    const cvButtons = document.querySelectorAll(".home__cv, a[href*='Resume']");
+    cvButtons.forEach(btn => {
+        btn.addEventListener("click", handleCvView);
+    });
+});
+
 /*=============== PROTECTED YOUTUBE MODAL LOGIC ===============*/
 function openYouTubeModal(videoId, title) {
     const modal = document.getElementById("youtube-video-modal");
@@ -368,7 +607,6 @@ function openYouTubeModal(videoId, title) {
 
     if (modal && iframe) {
         titleEl.innerHTML = `<i class="ri-youtube-fill" style="color: #ef4444;"></i> ${title || 'Demo Video'}`;
-        // Using YouTube Privacy-Enhanced Mode (youtube-nocookie.com)
         iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1`;
         modal.style.display = "flex";
     }
@@ -385,8 +623,13 @@ function closeYouTubeModal() {
 }
 
 function initSwiper() {
+    // Count slides to decide if loop is safe (loop requires more slides than visible)
+    const slideCount = document.querySelectorAll('.projects__swiper .swiper-slide').length;
+    // Disable loop if fewer than 4 slides to avoid Swiper loop warning
+    const enableLoop = slideCount >= 4;
+
     let swiperProjects = new Swiper(".projects__swiper", {
-        loop: true,
+        loop: enableLoop,
         spaceBetween: 24,
         slidesPerView: "auto",
         grabCursor: true,
@@ -394,11 +637,12 @@ function initSwiper() {
         pagination: {
             el: ".swiper-pagination",
             clickable: true,
+            dynamicBullets: true,
         },
-        autoplay: {
+        autoplay: enableLoop ? {
             delay: 3000,
             disableOnInteraction: false,
-        },
+        } : false,
     });
 }
 
@@ -408,20 +652,145 @@ const experienceContainer = document.getElementById("experience"),
     volunteeringContainer = document.getElementById("volunteering"),
     certificatesContainer = document.getElementById("certificates");
 
-fetch("assets/data/work.json")
-    .then((response) => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.json();
-    })
-    .then((data) => {
-        renderWorkItems(data.experience, experienceContainer);
-        renderWorkItems(data.education, educationContainer);
-        renderWorkItems(data.volunteering, volunteeringContainer);
-        renderWorkItems(data.certificates, certificatesContainer);
-        initWorkTabs();
-        if (ScrollTrigger) ScrollTrigger.refresh(); // Refresh ScrollTrigger after dynamic content load
-    })
-    .catch((error) => console.error("Error loading work data:", error));
+async function loadAllWorkData() {
+    try {
+        const [expRes, eduRes, volRes, certRes] = await Promise.all([
+            fetch(`${API_BASE}/experience`).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(`${API_BASE}/education`).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(`${API_BASE}/volunteering`).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(`${API_BASE}/certificates`).then(r => r.ok ? r.json() : null).catch(() => null)
+        ]);
+
+        const hasApiData = expRes?.data?.length || eduRes?.data?.length || volRes?.data?.length || certRes?.data?.length;
+
+        if (hasApiData) {
+            renderExperienceItems(expRes?.data || [], experienceContainer);
+            renderEducationItems(eduRes?.data || [], educationContainer);
+            renderVolunteeringItems(volRes?.data || [], volunteeringContainer);
+            renderCertificateItems(certRes?.data || [], certificatesContainer);
+            initWorkTabs();
+            if (ScrollTrigger) ScrollTrigger.refresh();
+        } else {
+            fallbackToStaticWork();
+        }
+    } catch (e) {
+        fallbackToStaticWork();
+    }
+}
+
+function fallbackToStaticWork() {
+    fetch("assets/data/work.json")
+        .then((response) => response.json())
+        .then((data) => {
+            renderWorkItems(data.experience, experienceContainer);
+            renderWorkItems(data.education, educationContainer);
+            renderWorkItems(data.volunteering, volunteeringContainer);
+            renderWorkItems(data.certificates, certificatesContainer);
+            initWorkTabs();
+            if (ScrollTrigger) ScrollTrigger.refresh();
+        })
+        .catch((error) => console.error("Error loading work data:", error));
+}
+
+loadAllWorkData();
+
+function renderExperienceItems(items, container) {
+    if (!container || !items) return;
+    container.innerHTML = items
+        .map((item) => {
+            const dateStr = `${item.startDate} - ${item.current ? 'Present' : (item.endDate || 'Present')}`;
+            const certBtn = item.certificateFile
+                ? `<button onclick="openPdfModal('${item.certificateFile}', '${item.title.replace(/'/g, "\\'")}', '${(item.certificateOriginalName || item.title + '.pdf').replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-file-pdf-2-line"></i> View Proof</button>`
+                : '';
+            return `
+        <div class="work__card">
+            <div class="work__data">
+                <div>
+                    <h1 class="work__title">${item.title}</h1>
+                    <h3 class="work__subtitle">${item.company} ${item.location ? `• ${item.location}` : ''}</h3>
+                </div>
+                <h2 class="work__year">${dateStr}</h2>
+            </div>
+            <p class="work__description">${item.description || ''}</p>
+            ${certBtn ? `<div class="work__link-wrapper">${certBtn}</div>` : ''}
+        </div>`;
+        }).join("");
+}
+
+function renderEducationItems(items, container) {
+    if (!container || !items) return;
+    container.innerHTML = items
+        .map((item) => {
+            const dateStr = `${item.startDate} - ${item.endDate || 'Present'}`;
+            return `
+        <div class="work__card">
+            <div class="work__data">
+                <div>
+                    <h1 class="work__title">${item.degree}</h1>
+                    <h3 class="work__subtitle">${item.institution} ${item.gpa ? `(GPA: ${item.gpa})` : ''}</h3>
+                </div>
+                <h2 class="work__year">${dateStr}</h2>
+            </div>
+            <p class="work__description">${item.description || ''}</p>
+        </div>`;
+        }).join("");
+}
+
+function renderVolunteeringItems(items, container) {
+    if (!container || !items) return;
+    container.innerHTML = items
+        .map((item) => {
+            const dateStr = `${item.startDate} - ${item.endDate || 'Present'}`;
+            return `
+        <div class="work__card">
+            <div class="work__data">
+                <div>
+                    <h1 class="work__title">${item.role}</h1>
+                    <h3 class="work__subtitle">${item.organization} ${item.location ? `• ${item.location}` : ''}</h3>
+                </div>
+                <h2 class="work__year">${dateStr}</h2>
+            </div>
+            <p class="work__description">${item.description || ''}</p>
+        </div>`;
+        }).join("");
+}
+
+function renderCertificateItems(items, container) {
+    if (!container || !items) return;
+    container.innerHTML = items
+        .map((item) => {
+            const isPdf = item.pdfFile && item.pdfFile.trim() !== '';
+            const isImage = item.image && item.image.trim() !== '';
+            const originalName = item.originalPdfName || `${item.name}.pdf`;
+
+            let viewBtn = '';
+            let downloadBtn = '';
+
+            if (isPdf) {
+                const fileApiBase = API_BASE.replace('/api', '');
+                viewBtn = `<button onclick="openPdfModal('${item.pdfFile}', '${item.name.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-file-pdf-2-line"></i> View Certificate</button>`;
+                downloadBtn = `<a href="${fileApiBase}/api/files/download?filePath=${encodeURIComponent(item.pdfFile)}&name=${encodeURIComponent(originalName)}" class="work__link-btn work__link-btn--live"><i class="ri-download-line"></i> Download</a>`;
+            } else if (isImage) {
+                viewBtn = `<button onclick="openLightboxModal('${item.image}', '${item.name.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-image-line"></i> View Image</button>`;
+            }
+
+            return `
+        <div class="work__card">
+            <div class="work__data">
+                <div>
+                    <h1 class="work__title">${item.name}</h1>
+                    <h3 class="work__subtitle">${item.issuer} ${item.credentialId ? `(ID: ${item.credentialId})` : ''}</h3>
+                </div>
+                <h2 class="work__year">${item.issueDate || ''}</h2>
+            </div>
+            <p class="work__description">${item.description || ''}</p>
+            <div class="work__link-wrapper" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem;">
+                ${viewBtn}
+                ${downloadBtn}
+            </div>
+        </div>`;
+        }).join("");
+}
 
 function renderWorkItems(items, container) {
     if (!container || !items) return;
@@ -430,7 +799,7 @@ function renderWorkItems(items, container) {
             const hasLink = item.link && item.link.trim() !== "" && item.link !== "#";
             const linkBtn = hasLink
                 ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="work__link-btn"><i class="ri-external-link-line"></i> View Credential</a>`
-                : (item.link === "#" ? `<a href="#" class="work__link-btn work__link-btn--disabled"><i class="ri-external-link-line"></i> View Credential</a>` : '');
+                : '';
 
             return `
         <div class="work__card">
@@ -591,7 +960,7 @@ if (contactForm) {
         submitBtn.innerHTML = `Sending... <i class="ri-loader-4-line animate-spin"></i>`;
         submitBtn.disabled = true;
 
-        fetch("/api/inquiries", {
+        fetch(`${API_BASE}/inquiries`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

@@ -7,6 +7,12 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const connectDB = require('./config/db');
 const User = require('./models/User');
 const Project = require('./models/Project');
+const Experience = require('./models/Experience');
+const Education = require('./models/Education');
+const Volunteering = require('./models/Volunteering');
+const Certificate = require('./models/Certificate');
+const Skill = require('./models/Skill');
+const CV = require('./models/CV');
 
 // Initialize Express App
 const app = express();
@@ -16,7 +22,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static assets & frontend files
+// Serve Static Assets & Uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../client/assets/img/uploads')));
 app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
 app.use(express.static(path.join(__dirname, '../client')));
 
@@ -30,7 +38,7 @@ connectDB().then(connected => {
   }
 });
 
-// Helper function to seed initial admin user & existing projects from projects.json
+// Helper function to seed initial admin user & default records from JSON files
 async function seedInitialData() {
   try {
     // 1. Seed Admin User
@@ -47,17 +55,15 @@ async function seedInitialData() {
       console.log(`[Seed] Default Admin Created -> Username: "${defaultUsername}", Password: "${defaultPassword}"`);
     }
 
-    // 2. Seed Projects from projects.json if DB is empty
+    // 2. Seed Projects
     const projectCount = await Project.countDocuments();
     if (projectCount === 0) {
       const projectsJsonPath = path.join(__dirname, '../client/assets/data/projects.json');
       if (fs.existsSync(projectsJsonPath)) {
-        const rawData = fs.readFileSync(projectsJsonPath, 'utf8');
-        const initialProjects = JSON.parse(rawData);
-        
+        const initialProjects = JSON.parse(fs.readFileSync(projectsJsonPath, 'utf8'));
         for (let i = 0; i < initialProjects.length; i++) {
           const item = initialProjects[i];
-          const project = new Project({
+          await Project.create({
             title: item.title,
             category: item.category,
             subtitle: item.subtitle || '',
@@ -69,11 +75,91 @@ async function seedInitialData() {
             status: 'published',
             orderIndex: i + 1
           });
-          await project.save();
         }
-        console.log(`[Seed] Successfully imported ${initialProjects.length} projects from projects.json into MongoDB.`);
+        console.log(`[Seed] Imported ${initialProjects.length} projects.`);
       }
     }
+
+    // 3. Seed Work Data (Experience, Education, Volunteering, Certificates)
+    const workJsonPath = path.join(__dirname, '../client/assets/data/work.json');
+    if (fs.existsSync(workJsonPath)) {
+      const workData = JSON.parse(fs.readFileSync(workJsonPath, 'utf8'));
+
+      if (await Experience.countDocuments() === 0 && workData.experience) {
+        for (let i = 0; i < workData.experience.length; i++) {
+          const item = workData.experience[i];
+          const dates = item.year ? item.year.split('-') : ['2026', 'Present'];
+          await Experience.create({
+            title: item.title,
+            company: item.subtitle || 'Company',
+            startDate: dates[0] ? dates[0].trim() : '2026',
+            endDate: dates[1] ? dates[1].trim() : 'Present',
+            description: item.description || '',
+            orderIndex: i + 1
+          });
+        }
+        console.log('[Seed] Imported Experience records.');
+      }
+
+      if (await Education.countDocuments() === 0 && workData.education) {
+        for (let i = 0; i < workData.education.length; i++) {
+          const item = workData.education[i];
+          const dates = item.year ? item.year.split('-') : ['2024', '2028'];
+          await Education.create({
+            degree: item.title,
+            institution: item.subtitle || 'Qena University',
+            startDate: dates[0] ? dates[0].trim() : '2024',
+            endDate: dates[1] ? dates[1].trim() : '2028',
+            description: item.description || '',
+            orderIndex: i + 1
+          });
+        }
+        console.log('[Seed] Imported Education records.');
+      }
+
+      if (await Volunteering.countDocuments() === 0 && workData.volunteering) {
+        for (let i = 0; i < workData.volunteering.length; i++) {
+          const item = workData.volunteering[i];
+          const dates = item.year ? item.year.split('-') : ['2026', 'Present'];
+          await Volunteering.create({
+            role: item.title,
+            organization: item.subtitle || 'Community',
+            startDate: dates[0] ? dates[0].trim() : '2026',
+            endDate: dates[1] ? dates[1].trim() : 'Present',
+            description: item.description || '',
+            orderIndex: i + 1
+          });
+        }
+        console.log('[Seed] Imported Volunteering records.');
+      }
+
+      if (await Certificate.countDocuments() === 0 && workData.certificates) {
+        for (let i = 0; i < workData.certificates.length; i++) {
+          const item = workData.certificates[i];
+          await Certificate.create({
+            name: item.title,
+            issuer: item.subtitle || 'NTI',
+            issueDate: item.year || '2026',
+            description: item.description || '',
+            orderIndex: i + 1
+          });
+        }
+        console.log('[Seed] Imported Certificate records.');
+      }
+    }
+
+    // 4. Seed Active CV if empty
+    if (await CV.countDocuments() === 0) {
+      await CV.create({
+        name: 'Eslam Yasser - Resume.pdf',
+        version: '1.0',
+        pdfFile: '/assets/pdf/Eslam_Yasser_Resume.pdf',
+        originalName: 'Eslam_Yasser_Resume.pdf',
+        active: true
+      });
+      console.log('[Seed] Created default Active CV record.');
+    }
+
   } catch (error) {
     console.error('[Seed Error]:', error.message);
   }
@@ -82,11 +168,16 @@ async function seedInitialData() {
 // API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
-app.use('/api', require('./routes/projectRoutes')); // for /api/admin/projects
+app.use('/api/experience', require('./routes/experienceRoutes'));
+app.use('/api/education', require('./routes/educationRoutes'));
+app.use('/api/volunteering', require('./routes/volunteeringRoutes'));
+app.use('/api/certificates', require('./routes/certificateRoutes'));
+app.use('/api/videos', require('./routes/videoRoutes'));
+app.use('/api/cv', require('./routes/cvRoutes'));
+app.use('/api/skills', require('./routes/skillRoutes'));
+app.use('/api/files', require('./routes/fileRoutes'));
 app.use('/api/inquiries', require('./routes/inquiryRoutes'));
-app.use('/api', require('./routes/inquiryRoutes')); // for /api/admin/inquiries
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
-app.use('/api', require('./routes/analyticsRoutes')); // for /api/admin/analytics
 
 // Admin Dashboard route
 app.get('/admin', (req, res) => {

@@ -14,10 +14,7 @@ const generateToken = (id) => {
   });
 };
 
-// @route   POST /api/admin/login
-// @desc    Admin login & get token
-// @access  Public
-router.post('/login', async (req, res) => {
+const handleLogin = async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -39,7 +36,6 @@ router.post('/login', async (req, res) => {
       }
     }
 
-    // Fallback authentication check if MongoDB is not running or user isn't in DB yet
     if (username === defaultAdminUsername && password === defaultAdminPassword) {
       return res.json({
         success: true,
@@ -56,16 +52,58 @@ router.post('/login', async (req, res) => {
     console.error('Login error:', error);
     res.status(500).json({ success: false, message: 'Server error during login' });
   }
-});
+};
 
-// @route   GET /api/admin/me
-// @desc    Get current admin user details
-// @access  Private
-router.get('/me', protect, async (req, res) => {
+router.post('/login', handleLogin);
+router.post('/admin/login', handleLogin);
+
+// GET /api/auth/me or /api/admin/me
+const handleMe = async (req, res) => {
   res.json({
     success: true,
     user: req.user || { id: 'admin', username: process.env.ADMIN_USERNAME || 'admin', role: 'admin' }
   });
-});
+};
+
+router.get('/me', protect, handleMe);
+router.get('/admin/me', protect, handleMe);
+
+// POST /change-password
+const handleChangePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Please provide current and new password' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+    }
+
+    if (isMongoReady()) {
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      const isMatch = await user.matchPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({ success: false, message: 'Current password is incorrect (كلمة المرور الحالية غير صحيحة)' });
+      }
+
+      user.password = newPassword;
+      await user.save();
+      return res.json({ success: true, message: 'Password updated successfully (تم تغيير كلمة المرور بنجاح)' });
+    }
+
+    return res.json({ success: true, message: 'Password change requested' });
+  } catch (error) {
+    console.error('Password change error:', error);
+    res.status(500).json({ success: false, message: 'Server error changing password' });
+  }
+};
+
+router.post('/change-password', protect, handleChangePassword);
+router.post('/admin/change-password', protect, handleChangePassword);
 
 module.exports = router;

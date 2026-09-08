@@ -73,10 +73,7 @@ router.post('/', contactLimiter, async (req, res) => {
 
 // ==================== ADMIN PROTECTED ROUTES ====================
 
-// @route   GET /api/admin/inquiries
-// @desc    Get all inquiries
-// @access  Private (Admin)
-router.get('/admin/inquiries', protect, async (req, res) => {
+const handleGetInquiries = async (req, res) => {
   try {
     if (isMongoReady()) {
       const inquiries = await Inquiry.find().sort({ createdAt: -1 });
@@ -95,58 +92,46 @@ router.get('/admin/inquiries', protect, async (req, res) => {
     console.error('Error fetching inquiries:', error);
     res.status(500).json({ success: false, message: 'Server error loading inquiries' });
   }
-});
+};
 
-// @route   PATCH /api/admin/inquiries/:id/status
-// @desc    Update inquiry status
-// @access  Private (Admin)
-router.patch('/admin/inquiries/:id/status', protect, async (req, res) => {
+router.get('/', protect, handleGetInquiries);
+router.get('/admin/inquiries', protect, handleGetInquiries);
+
+const handleUpdateInquiryStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const id = req.params.id;
 
     if (isMongoReady()) {
-      const inquiry = await Inquiry.findByIdAndUpdate(id, { status }, { new: true });
-      if (inquiry) return res.json({ success: true, message: 'Inquiry status updated', data: inquiry });
+      await Inquiry.findByIdAndUpdate(id, { status });
     }
-
-    const target = fallbackInquiries.find(i => i._id === id);
-    if (target) {
-      target.status = status;
-      return res.json({ success: true, message: 'Inquiry status updated', data: target });
-    }
-
-    res.status(404).json({ success: false, message: 'Inquiry not found' });
+    const item = fallbackInquiries.find(i => i._id === id);
+    if (item) item.status = status;
+    res.json({ success: true, message: 'Status updated' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error updating status' });
+    res.status(500).json({ success: false, message: error.message });
   }
-});
+};
 
-// @route   DELETE /api/admin/inquiries/:id
-// @desc    Delete inquiry
-// @access  Private (Admin)
-router.delete('/admin/inquiries/:id', protect, async (req, res) => {
+router.patch('/:id/status', protect, handleUpdateInquiryStatus);
+router.patch('/admin/inquiries/:id/status', protect, handleUpdateInquiryStatus);
+
+const handleDeleteInquiry = async (req, res) => {
   try {
     const id = req.params.id;
-
     if (isMongoReady()) {
-      const inquiry = await Inquiry.findById(id);
-      if (inquiry) {
-        await inquiry.deleteOne();
-        return res.json({ success: true, message: 'Inquiry deleted successfully' });
-      }
+      await Inquiry.findByIdAndDelete(id);
     }
+    const idx = fallbackInquiries.findIndex(i => i._id === id);
+    if (idx !== -1) fallbackInquiries.splice(idx, 1);
 
-    const index = fallbackInquiries.findIndex(i => i._id === id);
-    if (index !== -1) {
-      fallbackInquiries.splice(index, 1);
-      return res.json({ success: true, message: 'Inquiry deleted successfully' });
-    }
-
-    res.status(404).json({ success: false, message: 'Inquiry not found' });
+    res.json({ success: true, message: 'Inquiry deleted successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error deleting inquiry' });
+    res.status(500).json({ success: false, message: error.message });
   }
-});
+};
+
+router.delete('/:id', protect, handleDeleteInquiry);
+router.delete('/admin/inquiries/:id', protect, handleDeleteInquiry);
 
 module.exports = router;

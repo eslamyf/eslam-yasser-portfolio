@@ -5,9 +5,9 @@ const path = require('path');
 const mongoose = require('mongoose');
 const Project = require('../models/Project');
 const { protect } = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploadMiddleware');
+const { upload } = require('../middleware/uploadMiddleware');
 
-const jsonPath = path.join(__dirname, '../../assets/data/projects.json');
+const jsonPath = path.join(__dirname, '../../client/assets/data/projects.json');
 
 // Helper to read fallback JSON projects
 const getFallbackProjects = () => {
