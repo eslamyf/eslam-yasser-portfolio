@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Project = require('../models/Project');
 const { protect } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
+const { uploadToCloudinary, isCloudinaryConfigured, deleteFromCloudinary, extractPublicId } = require('../config/cloudinary');
 
 const jsonPath = path.join(__dirname, '../../client/assets/data/projects.json');
 
@@ -97,6 +98,8 @@ router.post('/admin/projects', protect, async (req, res) => {
       demo,
       github,
       youtubeUrl,
+      videoUrl,
+      images,
       technologies,
       isFeatured,
       status,
@@ -117,6 +120,14 @@ router.post('/admin/projects', protect, async (req, res) => {
       parsedTech = technologies.split(',').map(t => t.trim());
     }
 
+    // Parse images array (may come as JSON string or comma-separated)
+    let parsedImages = [];
+    if (Array.isArray(images)) {
+      parsedImages = images.filter(Boolean);
+    } else if (typeof images === 'string' && images.trim()) {
+      try { parsedImages = JSON.parse(images); } catch { parsedImages = images.split(',').map(s => s.trim()).filter(Boolean); }
+    }
+
     let newProjectData = {
       title,
       category,
@@ -124,10 +135,12 @@ router.post('/admin/projects', protect, async (req, res) => {
       subtitle: subtitle || '',
       fullDescription: fullDescription || '',
       image: image || 'assets/img/backend_api.jpg',
+      images: parsedImages,
       date: date || new Date().getFullYear().toString(),
       demo: demo || '',
       github: github || '',
       youtubeUrl: youtubeUrl || '',
+      videoUrl: videoUrl || '',
       technologies: parsedTech,
       isFeatured: isFeatured === true || isFeatured === 'true',
       status: status || 'published',
@@ -173,6 +186,10 @@ router.put('/admin/projects/:id', protect, async (req, res) => {
       if (project) {
         if (req.body.technologies && typeof req.body.technologies === 'string') {
           req.body.technologies = req.body.technologies.split(',').map(t => t.trim());
+        }
+        // Parse images array if sent as string
+        if (req.body.images && typeof req.body.images === 'string') {
+          try { req.body.images = JSON.parse(req.body.images); } catch { req.body.images = req.body.images.split(',').map(s => s.trim()).filter(Boolean); }
         }
         project = await Project.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
         return res.json({
@@ -235,22 +252,73 @@ router.delete('/admin/projects/:id', protect, async (req, res) => {
 });
 
 // @route   POST /api/admin/upload
-// @desc    Upload project image
+// @desc    Upload single project image (local fallback or Cloudinary)
 // @access  Private (Admin)
-router.post('/admin/upload', protect, upload.single('image'), (req, res) => {
+router.post('/admin/upload', protect, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'Please upload an image file' });
     }
-    const relativePath = `assets/img/uploads/${req.file.filename}`;
+
+    // Try Cloudinary first
+    if (isCloudinaryConfigured()) {
+      const cloudResult = await uploadToCloudinary(req.file.path, 'portfolio/projects', 'image');
+      if (cloudResult) {
+        return res.json({
+          success: true,
+          message: 'Image uploaded to Cloudinary!',
+          filePath: cloudResult.secure_url,
+          cloudinaryUrl: cloudResult.secure_url,
+          publicId: cloudResult.public_id
+        });
+      }
+    }
+
+    // Fallback to local storage
+    const relativePath = `/uploads/projects/${req.file.filename}`;
     res.json({
       success: true,
-      message: 'Image uploaded successfully!',
+      message: 'Image uploaded locally!',
       filePath: relativePath
     });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ success: false, message: 'Failed to upload image' });
+  }
+});
+
+// @route   POST /api/admin/upload-multiple
+// @desc    Upload multiple project images (gallery support)
+// @access  Private (Admin)
+router.post('/admin/upload-multiple', protect, upload.array('images', 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: 'Please upload at least one image' });
+    }
+
+    const uploadedUrls = [];
+
+    for (const file of req.files) {
+      if (isCloudinaryConfigured()) {
+        const cloudResult = await uploadToCloudinary(file.path, 'portfolio/projects', 'image');
+        if (cloudResult) {
+          uploadedUrls.push({ url: cloudResult.secure_url, publicId: cloudResult.public_id });
+          continue;
+        }
+      }
+      // Fallback: local path
+      uploadedUrls.push({ url: `/uploads/projects/${file.filename}`, publicId: null });
+    }
+
+    res.json({
+      success: true,
+      message: `${uploadedUrls.length} image(s) uploaded successfully!`,
+      files: uploadedUrls,
+      urls: uploadedUrls.map(f => f.url)
+    });
+  } catch (error) {
+    console.error('Multi-upload error:', error);
+    res.status(500).json({ success: false, message: 'Failed to upload images' });
   }
 });
 

@@ -74,7 +74,7 @@ router.post('/admin/volunteering', authMiddleware, upload.fields([
         data.supportingFiles = [];
         for (const file of req.files.files) {
           const isPdf = file.mimetype === 'application/pdf';
-          const filePath = `/uploads/${isPdf ? 'pdfs' : 'documents'}/${file.filename}`;
+          const filePath = `/uploads/documents/${file.filename}`;
           data.supportingFiles.push({
             path: filePath,
             originalName: file.originalname
@@ -128,7 +128,7 @@ router.put('/admin/volunteering/:id', authMiddleware, upload.fields([
         data.supportingFiles = [];
         for (const file of req.files.files) {
           const isPdf = file.mimetype === 'application/pdf';
-          const filePath = `/uploads/${isPdf ? 'pdfs' : 'documents'}/${file.filename}`;
+          const filePath = `/uploads/documents/${file.filename}`;
           data.supportingFiles.push({
             path: filePath,
             originalName: file.originalname

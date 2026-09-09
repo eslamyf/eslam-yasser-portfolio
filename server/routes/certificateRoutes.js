@@ -69,7 +69,7 @@ router.post('/admin/certificates', authMiddleware, upload.fields([
       }
       if (req.files.pdf && req.files.pdf[0]) {
         const file = req.files.pdf[0];
-        data.pdfFile = `/uploads/pdfs/${file.filename}`;
+        data.pdfFile = `/uploads/certificates/${file.filename}`;
         data.originalPdfName = file.originalname;
         await File.create({
           originalName: file.originalname,
@@ -114,7 +114,7 @@ router.put('/admin/certificates/:id', authMiddleware, upload.fields([
       }
       if (req.files.pdf && req.files.pdf[0]) {
         const file = req.files.pdf[0];
-        data.pdfFile = `/uploads/pdfs/${file.filename}`;
+        data.pdfFile = `/uploads/certificates/${file.filename}`;
         data.originalPdfName = file.originalname;
         await File.create({
           originalName: file.originalname,

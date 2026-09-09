@@ -72,7 +72,7 @@ router.post('/admin/experience', authMiddleware, upload.fields([
       if (req.files.certificate && req.files.certificate[0]) {
         const file = req.files.certificate[0];
         const isPdf = file.mimetype === 'application/pdf';
-        data.certificateFile = `/uploads/${isPdf ? 'pdfs' : 'images'}/${file.filename}`;
+        data.certificateFile = `/uploads/${isPdf ? 'certificates' : 'images'}/${file.filename}`;
         data.certificateOriginalName = file.originalname;
         await File.create({
           originalName: file.originalname,
@@ -121,7 +121,7 @@ router.put('/admin/experience/:id', authMiddleware, upload.fields([
       if (req.files.certificate && req.files.certificate[0]) {
         const file = req.files.certificate[0];
         const isPdf = file.mimetype === 'application/pdf';
-        data.certificateFile = `/uploads/${isPdf ? 'pdfs' : 'images'}/${file.filename}`;
+        data.certificateFile = `/uploads/${isPdf ? 'certificates' : 'images'}/${file.filename}`;
         data.certificateOriginalName = file.originalname;
         await File.create({
           originalName: file.originalname,

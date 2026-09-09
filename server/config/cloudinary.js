@@ -9,19 +9,67 @@ cloudinary.config({
 });
 
 const isCloudinaryConfigured = () => {
-  return Boolean(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+  return Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  );
 };
 
-const uploadToCloudinary = async (filePath, folder = 'portfolio') => {
+/**
+ * Upload a file to Cloudinary
+ * @param {string} filePath    - Absolute local path to file
+ * @param {string} folder      - Cloudinary folder (e.g. 'portfolio/projects', 'portfolio/cv')
+ * @param {string} resourceType - 'image' | 'video' | 'raw' | 'auto'
+ * @returns {Promise<object|null>} Cloudinary result or null on failure
+ */
+const uploadToCloudinary = async (filePath, folder = 'portfolio/projects', resourceType = 'auto') => {
   if (!isCloudinaryConfigured()) return null;
   try {
     const result = await cloudinary.uploader.upload(filePath, {
-      folder: folder,
-      resource_type: 'auto'
+      folder,
+      resource_type: resourceType,
+      quality: 'auto:good',
+      fetch_format: 'auto'
     });
-    return result.secure_url;
+    // Clean up local temp file after successful upload
+    if (fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) => {
+        if (err) console.warn('[Cloudinary] Could not delete temp file:', err.message);
+      });
+    }
+    return result;
   } catch (err) {
-    console.warn('Cloudinary upload warning:', err.message);
+    console.warn('[Cloudinary] Upload warning:', err.message);
+    return null;
+  }
+};
+
+/**
+ * Delete a file from Cloudinary by public_id
+ */
+const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
+  if (!isCloudinaryConfigured() || !publicId) return null;
+  try {
+    return await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+  } catch (err) {
+    console.warn('[Cloudinary] Delete warning:', err.message);
+    return null;
+  }
+};
+
+/**
+ * Extract public_id from a Cloudinary URL
+ * e.g. https://res.cloudinary.com/mycloud/image/upload/v123/portfolio/abc.jpg => portfolio/abc
+ */
+const extractPublicId = (cloudinaryUrl) => {
+  if (!cloudinaryUrl || !cloudinaryUrl.includes('cloudinary.com')) return null;
+  try {
+    const parts = cloudinaryUrl.split('/upload/');
+    if (parts.length < 2) return null;
+    const withoutVersion = parts[1].replace(/^v\d+\//, '');
+    return withoutVersion.replace(/\.[^/.]+$/, ''); // remove extension
+  } catch {
     return null;
   }
 };
@@ -29,5 +77,8 @@ const uploadToCloudinary = async (filePath, folder = 'portfolio') => {
 module.exports = {
   cloudinary,
   isCloudinaryConfigured,
-  uploadToCloudinary
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  extractPublicId
 };
+

@@ -7,6 +7,9 @@
         "date": "March 2026 – June 2026",
         "description": "Developed a scalable real estate platform (Aqario Luxe) using the MEAN stack with clean, maintainable architecture. Implemented a freemium model with secure payment integration for user transactions, structured MongoDB database design, and Git version control.",
         "image": "assets/img/aqario.png",
+        "images": [],
+        "youtubeUrl": "",
+        "videoUrl": "",
         "demo": "https://aqario-luxe.vercel.app/",
         "github": "https://github.com/eslamyf/aqario-luxe-web"
     },
@@ -18,6 +21,9 @@
         "date": "February 2026 – March 2026",
         "description": "Built a food delivery app connecting local restaurants with university students. Implemented core features including cart system, favorites management, and organized a modular project structure for high scalability.",
         "image": "assets/img/RWD.png",
+        "images": [],
+        "youtubeUrl": "",
+        "videoUrl": "",
         "demo": "",
         "github": ""
     }

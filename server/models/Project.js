@@ -58,6 +58,17 @@ const projectSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  // Generic video URL (supports YouTube, Loom, Vimeo)
+  videoUrl: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  // Multiple project images for gallery/lightbox
+  images: {
+    type: [String],
+    default: []
+  },
   technologies: {
     type: [String],
     default: []

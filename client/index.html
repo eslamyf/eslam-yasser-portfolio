@@ -174,9 +174,9 @@
                         </div>
                     </div>
 
-                    <a href="assets/pdf/Eslam_Yasser_Resume.pdf" download target="_blank" class="home__cv">
+                    <button onclick="handleCvView(event)" class="home__cv" id="home-cv-btn">
                         RESUME <i class="ri-file-list-2-line"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
         </section>
@@ -237,12 +237,12 @@
 
                     <!-- Action Buttons -->
                     <div class="about__buttons">
-                        <a href="assets/pdf/Eslam_Yasser_Resume.pdf" download target="_blank" class="button">
-                            Resume <i class="ri-file-list-2-line"></i>
-                        </a>
-                        <a href="#contact" class="button button--ghost">
-                            Contact Me <i class="ri-mail-send-line"></i>
-                        </a>
+                        <button onclick="handleCvView(event)" class="button" id="cv-preview-btn">
+                            <i class="ri-eye-line"></i> Preview CV
+                        </button>
+                        <button onclick="handleCvDownload(event)" class="button button--ghost" id="cv-download-btn">
+                            <i class="ri-download-2-line"></i> Download CV
+                        </button>
                     </div>
                 </div>
             </div>

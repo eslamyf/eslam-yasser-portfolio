@@ -7,6 +7,41 @@ const getApiBase = () => {
 };
 const API_BASE = getApiBase();
 
+// Checks if the API server (port 5000) is available
+const SERVER_BASE = API_BASE.replace('/api', '');
+let _serverAvailable = null; // null=unknown, true=up, false=down
+async function checkServerAvailable() {
+    if (_serverAvailable !== null) return _serverAvailable;
+    try {
+        const r = await fetch(`${SERVER_BASE}/api/cv/active`, { method: 'HEAD', signal: AbortSignal.timeout(1500) });
+        _serverAvailable = r.ok || r.status < 500;
+    } catch {
+        _serverAvailable = false;
+    }
+    return _serverAvailable;
+}
+
+/**
+ * Convert any PDF path to a direct browser-accessible URL.
+ * Works in Live Server (5501), Express (5000), and production.
+ */
+function resolveLocalPdfUrl(pdfPath) {
+    if (!pdfPath) return null;
+    // Already a full https:// URL (Cloudinary, external) — use directly
+    if (pdfPath.startsWith('http://') || pdfPath.startsWith('https://')) return pdfPath;
+    // /assets/pdf/... or assets/pdf/... => serve relative to current page origin
+    const clean = pdfPath.replace(/^\/+/, '');
+    if (clean.startsWith('assets/')) {
+        return `${window.location.origin}/${clean}`;
+    }
+    // /uploads/... => goes through the Express server on 5000
+    if (clean.startsWith('uploads/') || pdfPath.startsWith('/uploads/')) {
+        return `${SERVER_BASE}/${clean}`;
+    }
+    // Default: relative path
+    return pdfPath;
+}
+
 /*=============== GSAP & SCROLLTRIGGER SETUP ===============*/
 gsap.registerPlugin(ScrollTrigger);
 
@@ -307,22 +342,68 @@ fetch(`${API_BASE}/projects`)
             });
     });
 
+function switchProjectImage(galleryId, imgUrl) {
+    const container = document.getElementById(galleryId);
+    if (!container) return;
+    const imgEl = container.querySelector('.projects__img');
+    if (imgEl) imgEl.src = imgUrl;
+    container.querySelectorAll('.proj-gallery-dot').forEach(dot => {
+        dot.classList.remove('active');
+        if (dot.getAttribute('onclick') && dot.getAttribute('onclick').includes(imgUrl.replace(/'/g, "\\'"))) {
+            dot.classList.add('active');
+        }
+    });
+}
+
 function renderProjects(projects) {
     projectsContent.innerHTML = projects
         .map((project, idx) => {
             const displayId = project.id || (idx + 1 < 10 ? `0${idx + 1}` : `${idx + 1}`);
-            const hasDemo = project.demo && project.demo.trim() !== "" && project.demo !== "#";
-            const hasGithub = project.github && project.github.trim() !== "" && project.github !== "#";
-            
-            // Extract Youtube Video ID if exists
-            let ytVideoId = project.youtubeId;
-            if (!ytVideoId && project.youtubeUrl) {
-                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                const match = project.youtubeUrl.match(regExp);
-                if (match && match[2].length === 11) ytVideoId = match[2];
-                else if (project.youtubeUrl.length === 11) ytVideoId = project.youtubeUrl;
+            const hasDemo = project.demo && project.demo.trim() !== '' && project.demo !== '#';
+            const hasGithub = project.github && project.github.trim() !== '' && project.github !== '#';
+
+            // ---- VIDEO DETECTION (YouTube / Loom / Vimeo) ----
+            let videoEmbed = null;
+            // Check videoUrl first (generic), then youtubeUrl, then youtubeId
+            const rawVideoUrl = project.videoUrl || project.youtubeUrl || '';
+            if (rawVideoUrl) {
+                videoEmbed = extractVideoEmbed(rawVideoUrl);
+            }
+            // Legacy: direct youtubeId field
+            if (!videoEmbed && project.youtubeId) {
+                videoEmbed = {
+                    type: 'youtube',
+                    id: project.youtubeId,
+                    embedUrl: `https://www.youtube-nocookie.com/embed/${project.youtubeId}?autoplay=1&rel=0`
+                };
             }
 
+            // ---- IMAGES GALLERY ----
+            // Combine main image with extra images array, deduplicate
+            const mainImage = project.image || 'assets/img/backend_api.jpg';
+            const extraImages = Array.isArray(project.images) ? project.images.filter(Boolean) : [];
+            const allImages = [mainImage, ...extraImages.filter(img => img !== mainImage)];
+
+            // Gallery HTML: if multiple images, show mini dot selector
+            const galleryId = `gallery-${displayId}-${idx}`;
+            let galleryHtml = '';
+            if (allImages.length > 1) {
+                const dotsHtml = allImages.map((img, i) =>
+                    `<button class="proj-gallery-dot${i === 0 ? ' active' : ''}" 
+                        onclick="switchProjectImage('${galleryId}', '${img.replace(/'/g, "\\'")}')"
+                        aria-label="Image ${i + 1}"></button>`
+                ).join('');
+                galleryHtml = `<div class="proj-gallery-dots">${dotsHtml}</div>`;
+            }
+
+            // Video overlay button on image
+            const videoOverlayBtn = videoEmbed
+                ? `<button onclick="openVideoEmbedModal('${videoEmbed.embedUrl}', '${(project.title || '').replace(/'/g, "\\'")}', '${videoEmbed.type}')" class="projects__play-btn" title="Watch Demo">
+                       <i class="ri-play-fill"></i>
+                   </button>`
+                : '';
+
+            // ---- ACTION BUTTONS ----
             const liveBtn = hasDemo
                 ? `<a href="${project.demo}" target="_blank" class="projects__btn projects__btn--live"><i class="ri-global-line"></i> Live Demo</a>`
                 : `<span class="projects__btn projects__btn--disabled"><i class="ri-global-line"></i> Live Demo</span>`;
@@ -331,8 +412,10 @@ function renderProjects(projects) {
                 ? `<a href="${project.github}" target="_blank" class="projects__btn projects__btn--github"><i class="ri-github-line"></i> GitHub</a>`
                 : `<span class="projects__btn projects__btn--disabled"><i class="ri-github-line"></i> GitHub</span>`;
 
-            const youtubeBtn = ytVideoId
-                ? `<button onclick="openYouTubeModal('${ytVideoId}', '${project.title.replace(/'/g, "\\'")}')" class="projects__btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);"><i class="ri-youtube-fill"></i> Watch Demo</button>`
+            const youtubeBtn = videoEmbed
+                ? `<button onclick="openVideoEmbedModal('${videoEmbed.embedUrl}', '${(project.title || '').replace(/'/g, "\\'")}', '${videoEmbed.type}')" class="projects__btn" style="background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3);">
+                       <i class="ri-play-circle-line"></i> Watch Demo
+                   </button>`
                 : '';
 
             return `
@@ -350,12 +433,15 @@ function renderProjects(projects) {
                 <p class="projects__description">${project.description}</p>
             </div>
             
-            <div class="projects__image">
-                <img src="${project.image}" alt="${project.title}" class="projects__img" width="302" height="180" loading="lazy" onerror="this.src='assets/img/backend_api.jpg'">
-                ${ytVideoId 
-                    ? `<button onclick="openYouTubeModal('${ytVideoId}', '${project.title.replace(/'/g, "\\'")}')" class="projects__button" style="background: #ef4444; color: #fff;"><i class="ri-play-fill"></i></button>`
-                    : (hasDemo ? `<a href="${project.demo}" target="_blank" class="projects__button"><i class="ri-arrow-right-up-long-line"></i></a>` : (hasGithub ? `<a href="${project.github}" target="_blank" class="projects__button"><i class="ri-arrow-right-up-long-line"></i></a>` : ''))
-                }
+            <div class="projects__image" id="${galleryId}">
+                <img src="${mainImage}" alt="${project.title}" 
+                     class="projects__img" 
+                     width="302" height="180" loading="lazy"
+                     style="cursor: zoom-in;"
+                     onclick="openLightboxModal(this.src, '${(project.title || '').replace(/'/g, "\\'")}')"
+                     onerror="this.src='assets/img/backend_api.jpg'">
+                ${videoOverlayBtn}
+                ${galleryHtml}
             </div>
 
             <div class="projects__buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -366,163 +452,78 @@ function renderProjects(projects) {
         </article>
         `;
         })
-        .join("");
+        .join('');
 }
 
-/*=============== NATIVE MODAL HANDLERS (NO EXTERNAL REDIRECTS) ===============*/
-async function downloadFileBlob(url, filename) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Download request failed with status ' + response.status);
-        const arrayBuffer = await response.arrayBuffer();
-        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            window.URL.revokeObjectURL(blobUrl);
-            if (a.parentNode) document.body.removeChild(a);
-        }, 60000);
-    } catch (err) {
-        console.warn('Blob download fallback:', err);
-        triggerDirectDownload(url);
-    }
+/*=============== SIMPLE & ROBUST PDF MODAL & DOWNLOAD HANDLERS ===============*/
+
+// Constant direct static path - Canonical Master Resume
+const STATIC_CV_PATH = 'assets/pdf/Eslam_Yasser_Resume.pdf';
+
+/**
+ * Unified Direct File Downloader
+ * Streams file from backend /api/files/download or triggers direct browser download
+ */
+function downloadFile(filePath, fileName) {
+    const targetPath = filePath || STATIC_CV_PATH;
+    const targetName = fileName || 'Eslam_Yasser_Resume.pdf';
+    const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(targetPath)}&name=${encodeURIComponent(targetName)}`;
+
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = targetName;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+        if (a.parentNode) document.body.removeChild(a);
+    }, 500);
 }
 
-function triggerDirectDownload(url) {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = url;
-    document.body.appendChild(iframe);
-    setTimeout(() => { if (iframe.parentNode) document.body.removeChild(iframe); }, 15000);
+// Backward-compatible alias
+function downloadFileBlob(url, filename) {
+    downloadFile(url, filename);
 }
 
+/**
+ * Unified PDF Viewer Modal
+ */
 function openPdfModal(pdfUrl, title, originalFileName) {
-    const modal = document.getElementById("pdf-viewer-modal");
-    const container = document.getElementById("pdf-modal-container");
-    const titleEl = document.getElementById("pdf-modal-title");
-    const downloadBtn = document.getElementById("pdf-modal-download-btn");
+    const modal = document.getElementById('pdf-viewer-modal');
+    const container = document.getElementById('pdf-modal-container');
+    const titleEl = document.getElementById('pdf-modal-title');
+    const downloadBtn = document.getElementById('pdf-modal-download-btn');
 
-    // Determine base for file API calls (fixes 404 when running via Live Server on port 5501)
-    const fileApiBase = API_BASE.replace('/api', '');
+    if (!modal || !container) return;
 
-    if (modal && container) {
-        const fileName = originalFileName || (title ? `${title}.pdf` : 'Eslam_Yasser_Resume.pdf');
-        const viewUrl = `${fileApiBase}/api/files/view-pdf?filePath=${encodeURIComponent(pdfUrl)}`;
-        const downloadUrl = `${fileApiBase}/api/files/download?filePath=${encodeURIComponent(pdfUrl)}&name=${encodeURIComponent(fileName)}`;
+    const targetPath = pdfUrl || STATIC_CV_PATH;
+    const fileName = originalFileName || (title ? `${title}.pdf` : 'Eslam_Yasser_Resume.pdf');
+    const viewUrl = `${API_BASE}/files/view?filePath=${encodeURIComponent(targetPath)}`;
 
+    if (titleEl) {
         titleEl.innerHTML = `<i class="ri-file-pdf-2-line" style="color: var(--first-color);"></i> ${title || 'Document Viewer'}`;
-        if (downloadBtn) {
-            downloadBtn.href = downloadUrl;
-            downloadBtn.onclick = (e) => {
-                e.preventDefault();
-                downloadFileBlob(downloadUrl, fileName);
-            };
-        }
-
-        container.innerHTML = `
-            <div id="pdf-viewer-wrapper" style="width:100%; height:100%; display:flex; flex-direction:column; background:#0f172a; border-radius:0 0 12px 12px; overflow:hidden;">
-                <div style="padding:10px 15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; flex-wrap:wrap; gap:10px;">
-                    <span style="color:#94a3b8; font-size:0.85rem;"><i class="ri-information-line"></i> Native PDF View Engine</span>
-                    <div style="display:flex; gap:8px;">
-                        <button id="btn-mode-native" class="projects__btn" style="padding: 4px 10px; font-size: 0.8rem;" onclick="switchPdfViewMode('native', '${viewUrl}')"><i class="ri-pages-line"></i> Direct PDF</button>
-                        <button id="btn-mode-canvas" class="projects__btn projects__btn--live" style="padding: 4px 10px; font-size: 0.8rem;" onclick="switchPdfViewMode('canvas', '${viewUrl}')"><i class="ri-image-line"></i> HD Canvas</button>
-                    </div>
-                </div>
-                <div id="pdf-view-body" style="flex:1; width:100%; height:100%; min-height:70vh; overflow:hidden;">
-                    <object data="${viewUrl}#toolbar=1" type="application/pdf" style="width:100%; height:100%; border:none;">
-                        <iframe src="${viewUrl}" style="width:100%; height:100%; border:none;"></iframe>
-                    </object>
-                </div>
-            </div>
-        `;
-
-        modal.style.display = "flex";
     }
-}
 
-function switchPdfViewMode(mode, viewUrl) {
-    const body = document.getElementById('pdf-view-body');
-    const btnNative = document.getElementById('btn-mode-native');
-    const btnCanvas = document.getElementById('btn-mode-canvas');
-    if (!body) return;
-
-    if (mode === 'native') {
-        if (btnNative) { btnNative.className = 'projects__btn'; }
-        if (btnCanvas) { btnCanvas.className = 'projects__btn projects__btn--live'; }
-        body.innerHTML = `
-            <object data="${viewUrl}#toolbar=1" type="application/pdf" style="width:100%; height:100%; border:none;">
-                <iframe src="${viewUrl}" style="width:100%; height:100%; border:none;"></iframe>
-            </object>
-        `;
-    } else if (mode === 'canvas') {
-        if (btnNative) { btnNative.className = 'projects__btn projects__btn--live'; }
-        if (btnCanvas) { btnCanvas.className = 'projects__btn'; }
-        body.innerHTML = `
-            <div id="pdf-scroll-box" style="width:100%; height:100%; overflow-y:auto; padding:20px; display:flex; flex-direction:column; align-items:center; gap:20px; background:#0f172a;">
-                <div id="pdf-loading-msg" style="color:#93c5fd; padding:20px; font-size:0.9rem; text-align:center;">
-                    <i class="ri-loader-4-line animate-spin" style="font-size:1.5rem; display:block; margin-bottom:8px;"></i>
-                    Processing HD Pages...
-                </div>
-                <div id="pdf-canvas-container" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:20px;"></div>
-            </div>
-        `;
-
-        if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-            fetch(viewUrl)
-                .then(r => r.arrayBuffer())
-                .then(buffer => {
-                    return pdfjsLib.getDocument({
-                        data: buffer,
-                        cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-                        cMapPacked: true,
-                        standardFontDataUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/standard_fonts/'
-                    }).promise;
-                })
-                .then(pdf => {
-                    const loadingEl = document.getElementById('pdf-loading-msg');
-                    if (loadingEl) loadingEl.style.display = 'none';
-                    const container = document.getElementById('pdf-canvas-container');
-                    if (!container) return;
-                    container.innerHTML = '';
-
-                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                        pdf.getPage(pageNum).then(page => {
-                            const canvas = document.createElement('canvas');
-                            canvas.style.maxWidth = '100%';
-                            canvas.style.height = 'auto';
-                            canvas.style.borderRadius = '8px';
-                            canvas.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5)';
-
-                            const scale = 1.5;
-                            const viewport = page.getViewport({ scale: scale });
-                            const outputScale = window.devicePixelRatio || 1;
-
-                            canvas.width = Math.floor(viewport.width * outputScale);
-                            canvas.height = Math.floor(viewport.height * outputScale);
-                            canvas.style.width = Math.floor(viewport.width) + "px";
-                            canvas.style.height = Math.floor(viewport.height) + "px";
-
-                            const ctx = canvas.getContext('2d');
-                            const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
-
-                            container.appendChild(canvas);
-                            page.render({ canvasContext: ctx, transform: transform, viewport: viewport });
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error('Canvas render error:', err);
-                    const loadingEl = document.getElementById('pdf-loading-msg');
-                    if (loadingEl) loadingEl.innerHTML = `<div style="color:#f87171; padding:15px;">Local rendering unavailable. Please switch to Direct PDF view.</div>`;
-                });
-        }
+    if (downloadBtn) {
+        downloadBtn.onclick = (e) => {
+            e.preventDefault();
+            downloadFile(targetPath, fileName);
+        };
     }
+
+    // High performance native browser PDF viewer with fallback
+    container.innerHTML = `
+        <div style="width:100%; height:100%; min-height:75vh; background:#0f172a; border-radius:0 0 12px 12px; overflow:hidden;">
+            <iframe src="${viewUrl}#toolbar=1" style="width:100%; height:100%; min-height:75vh; border:none;" title="PDF Preview">
+                <p style="color:#fff; padding:20px; text-align:center;">
+                    Your browser does not support inline PDF preview. 
+                    <a href="${viewUrl}" download="${fileName}" style="color:var(--first-color); text-decoration:underline;">Click here to download</a>
+                </p>
+            </iframe>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
 }
 
 function closePdfModal() {
@@ -532,6 +533,36 @@ function closePdfModal() {
         if (container) container.innerHTML = "";
         modal.style.display = "none";
     }
+}
+
+function handleCvView(e) {
+    if (e) e.preventDefault();
+    fetch(`${API_BASE}/cv/active`, { signal: AbortSignal.timeout(1200) })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success && res.data && res.data.pdfFile) {
+                openPdfModal(res.data.pdfFile, res.data.name, res.data.originalName);
+            } else {
+                openPdfModal(STATIC_CV_PATH, 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
+            }
+        })
+        .catch(() => {
+            openPdfModal(STATIC_CV_PATH, 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
+        });
+}
+
+function handleCvDownload(e) {
+    if (e) e.preventDefault();
+    fetch(`${API_BASE}/cv/active`, { signal: AbortSignal.timeout(1200) })
+        .then(r => r.json())
+        .then(res => {
+            const path = (res.success && res.data && res.data.pdfFile) ? res.data.pdfFile : STATIC_CV_PATH;
+            const name = (res.success && res.data && res.data.originalName) ? res.data.originalName : 'Eslam_Yasser_Resume.pdf';
+            downloadFile(path, name);
+        })
+        .catch(() => {
+            downloadFile(STATIC_CV_PATH, 'Eslam_Yasser_Resume.pdf');
+        });
 }
 
 function openVideoModal(videoUrl, title) {
@@ -574,30 +605,65 @@ function closeLightboxModal() {
     if (modal) modal.style.display = "none";
 }
 
-function handleCvView(e) {
-    if (e) e.preventDefault();
-    fetch(`${API_BASE}/cv/active`)
-        .then(res => res.json())
-        .then(result => {
-            if (result.success && result.data) {
-                const cv = result.data;
-                openPdfModal(cv.pdfFile, cv.name || 'Eslam Yasser - CV', cv.originalName || 'Eslam Yasser - CV.pdf');
-            } else {
-                openPdfModal('/assets/pdf/Eslam_Yasser_Resume.pdf', 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
-            }
-        })
-        .catch(() => {
-            openPdfModal('/assets/pdf/Eslam_Yasser_Resume.pdf', 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
-        });
+/**
+ * Extract video embed data from any video URL (YouTube, Loom, Vimeo)
+ * @returns {object|null} { type, embedUrl, id? }
+ */
+function extractVideoEmbed(url) {
+    if (!url || !url.trim()) return null;
+    url = url.trim();
+
+    // YouTube: youtu.be/ID, watch?v=ID, /embed/ID
+    const ytMatch = url.match(/(?:youtu\.be\/|v=|v\/|embed\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) {
+        return {
+            type: 'youtube',
+            id: ytMatch[1],
+            embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0&modestbranding=1`
+        };
+    }
+
+    // Loom: loom.com/share/ID
+    const loomMatch = url.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
+    if (loomMatch) {
+        return {
+            type: 'loom',
+            id: loomMatch[1],
+            embedUrl: `https://www.loom.com/embed/${loomMatch[1]}?autoplay=1`
+        };
+    }
+
+    // Vimeo: vimeo.com/ID
+    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/);
+    if (vimeoMatch) {
+        return {
+            type: 'vimeo',
+            id: vimeoMatch[1],
+            embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&title=0&byline=0`
+        };
+    }
+
+    return null;
 }
 
-// Bind CV Resume buttons
-document.addEventListener("DOMContentLoaded", () => {
-    const cvButtons = document.querySelectorAll(".home__cv, a[href*='Resume']");
-    cvButtons.forEach(btn => {
-        btn.addEventListener("click", handleCvView);
-    });
-});
+/**
+ * Open a universal video modal — supports YouTube, Loom, Vimeo, or any embed URL
+ */
+function openVideoEmbedModal(embedUrl, title, videoType) {
+    const modal = document.getElementById('youtube-video-modal');
+    const iframe = document.getElementById('yt-modal-iframe');
+    const titleEl = document.getElementById('yt-modal-title');
+    if (!modal || !iframe) return;
+
+    let iconHtml = '<i class="ri-video-fill" style="color: var(--first-color);"></i>';
+    if (videoType === 'youtube') iconHtml = '<i class="ri-youtube-fill" style="color: #ef4444;"></i>';
+    else if (videoType === 'loom') iconHtml = '<i class="ri-record-circle-line" style="color: #8b5cf6;"></i>';
+    else if (videoType === 'vimeo') iconHtml = '<i class="ri-vimeo-line" style="color: #1ab7ea;"></i>';
+
+    titleEl.innerHTML = `${iconHtml} ${title || 'Demo Video'}`;
+    iframe.src = embedUrl;
+    modal.style.display = 'flex';
+}
 
 /*=============== PROTECTED YOUTUBE MODAL LOGIC ===============*/
 function openYouTubeModal(videoId, title) {
@@ -767,11 +833,11 @@ function renderCertificateItems(items, container) {
             let downloadBtn = '';
 
             if (isPdf) {
-                const fileApiBase = API_BASE.replace('/api', '');
-                viewBtn = `<button onclick="openPdfModal('${item.pdfFile}', '${item.name.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-file-pdf-2-line"></i> View Certificate</button>`;
-                downloadBtn = `<a href="${fileApiBase}/api/files/download?filePath=${encodeURIComponent(item.pdfFile)}&name=${encodeURIComponent(originalName)}" class="work__link-btn work__link-btn--live"><i class="ri-download-line"></i> Download</a>`;
+                viewBtn = `<button onclick="openPdfModal('${item.pdfFile.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-file-pdf-2-line"></i> View Certificate</button>`;
+                downloadBtn = `<button onclick="downloadFile('${item.pdfFile.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn work__link-btn--live"><i class="ri-download-line"></i> Download</button>`;
             } else if (isImage) {
-                viewBtn = `<button onclick="openLightboxModal('${item.image}', '${item.name.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-image-line"></i> View Image</button>`;
+                viewBtn = `<button onclick="openLightboxModal('${item.image.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-image-line"></i> View Image</button>`;
+                downloadBtn = `<button onclick="downloadFile('${item.image.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn work__link-btn--live"><i class="ri-download-line"></i> Download</button>`;
             }
 
             return `
