@@ -698,20 +698,20 @@
         </div>
     </div>
 
-    <!--========== NATIVE PDF VIEWER MODAL ==========-->
+    <!--========== ENHANCED PDF VIEWER MODAL ==========-->
     <div id="pdf-viewer-modal" class="yt-modal" style="display: none;">
         <div class="yt-modal__overlay" onclick="closePdfModal()"></div>
-        <div class="yt-modal__content" style="max-width: 900px; height: 85vh; display: flex; flex-direction: column;">
+        <div class="yt-modal__content">
             <div class="yt-modal__header">
                 <h3 id="pdf-modal-title"><i class="ri-file-pdf-2-line" style="color: var(--first-color);"></i> Document Viewer</h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a id="pdf-modal-download-btn" href="#" download class="projects__btn projects__btn--live" style="padding: 6px 14px; font-size: 0.85rem;">
+                    <button id="pdf-modal-download-btn" class="pdf-tool-btn pdf-tool-btn--primary">
                         <i class="ri-download-line"></i> Download
-                    </a>
+                    </button>
                     <button class="yt-modal__close" onclick="closePdfModal()"><i class="ri-close-line"></i></button>
                 </div>
             </div>
-            <div id="pdf-modal-container" class="yt-modal__body" style="flex: 1; aspect-ratio: auto; background: #1a1a1a;">
+            <div id="pdf-modal-container" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #090d16;">
             </div>
         </div>
     </div>

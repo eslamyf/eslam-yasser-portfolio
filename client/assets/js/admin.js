@@ -1384,33 +1384,41 @@ async function deleteCv(id) {
 }
 
 async function downloadFileBlob(url, filename) {
+  const targetName = filename || 'document.pdf';
   try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Download request failed with status ' + response.status);
-    const arrayBuffer = await response.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-    const blobUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      window.URL.revokeObjectURL(blobUrl);
-      if (a.parentNode) document.body.removeChild(a);
-    }, 60000);
+    const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (response.ok) {
+      const blob = await response.blob();
+      if (blob && blob.size > 0) {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = targetName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          window.URL.revokeObjectURL(blobUrl);
+          if (a.parentNode) document.body.removeChild(a);
+        }, 1000);
+        return;
+      }
+    }
   } catch (err) {
     console.warn('Blob download fallback:', err);
-    triggerDirectDownload(url);
   }
+
+  // Fallback direct link
+  triggerDirectDownload(url, targetName);
 }
 
-function triggerDirectDownload(url) {
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = url;
-  document.body.appendChild(iframe);
-  setTimeout(() => { if (iframe.parentNode) document.body.removeChild(iframe); }, 15000);
+function triggerDirectDownload(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  if (filename) a.download = filename;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { if (a.parentNode) document.body.removeChild(a); }, 1000);
 }
 
 function openPdfModal(pdfUrl, title, originalFileName) {

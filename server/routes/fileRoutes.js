@@ -48,8 +48,13 @@ function getMimeType(filePath) {
 function safeResolvePath(requestedPath) {
   if (!requestedPath || typeof requestedPath !== 'string') return null;
 
+  // Strip origin/protocol if passed as absolute URL
+  let clean = requestedPath
+    .replace(/^https?:\/\/[^\/]+/i, '')
+    .trim();
+
   // Clean relative path string
-  let clean = decodeURIComponent(requestedPath)
+  clean = decodeURIComponent(clean)
     .replace(/^(\.\.[\/\\])+/, '')
     .replace(/^[/\\]+/, '')
     .trim();
@@ -57,7 +62,7 @@ function safeResolvePath(requestedPath) {
   // 1. Check relative to client/ (e.g. assets/pdf/Eslam_Yasser_Resume.pdf)
   const clientCandidate = path.resolve(__dirname, '../../client', clean);
   for (const root of ALLOWED_ROOTS) {
-    if (clientCandidate.startsWith(root) && fs.existsSync(clientCandidate) && fs.statSync(clientCandidate).isFile()) {
+    if (clientCandidate.toLowerCase().startsWith(root.toLowerCase()) && fs.existsSync(clientCandidate) && fs.statSync(clientCandidate).isFile()) {
       return clientCandidate;
     }
   }
@@ -65,7 +70,7 @@ function safeResolvePath(requestedPath) {
   // 2. Check relative to server/ (e.g. uploads/cv/filename.pdf)
   const serverCandidate = path.resolve(__dirname, '..', clean);
   for (const root of ALLOWED_ROOTS) {
-    if (serverCandidate.startsWith(root) && fs.existsSync(serverCandidate) && fs.statSync(serverCandidate).isFile()) {
+    if (serverCandidate.toLowerCase().startsWith(root.toLowerCase()) && fs.existsSync(serverCandidate) && fs.statSync(serverCandidate).isFile()) {
       return serverCandidate;
     }
   }
@@ -75,7 +80,7 @@ function safeResolvePath(requestedPath) {
   const subdirs = ['cv', 'certificates', 'projects', 'documents', 'videos', 'images'];
   for (const sub of subdirs) {
     const candidate = path.resolve(baseUploadDir, sub, fileName);
-    if (candidate.startsWith(baseUploadDir) && fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+    if (candidate.toLowerCase().startsWith(baseUploadDir.toLowerCase()) && fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
       return candidate;
     }
   }
@@ -84,6 +89,13 @@ function safeResolvePath(requestedPath) {
   const clientPdfCandidate = path.resolve(__dirname, '../../client/assets/pdf', fileName);
   if (fs.existsSync(clientPdfCandidate) && fs.statSync(clientPdfCandidate).isFile()) {
     return clientPdfCandidate;
+  }
+
+  // 5. If it's a resume/cv request and DEFAULT_RESUME_PATH exists, return it
+  if (clean.toLowerCase().includes('resume') || clean.toLowerCase().includes('cv') || fileName.toLowerCase().endsWith('.pdf')) {
+    if (fs.existsSync(DEFAULT_RESUME_PATH)) {
+      return DEFAULT_RESUME_PATH;
+    }
   }
 
   return null;
