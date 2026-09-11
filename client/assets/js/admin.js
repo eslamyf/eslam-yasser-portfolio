@@ -1383,43 +1383,118 @@ async function deleteCv(id) {
   }
 }
 
-async function downloadFileBlob(url, filename) {
-  const targetName = filename || 'document.pdf';
-  try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
-    if (response.ok) {
-      const blob = await response.blob();
-      if (blob && blob.size > 0) {
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = targetName;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          window.URL.revokeObjectURL(blobUrl);
-          if (a.parentNode) document.body.removeChild(a);
-        }, 1000);
-        return;
-      }
-    }
-  } catch (err) {
-    console.warn('Blob download fallback:', err);
+/* ==================== BULLETPROOF PDF DOWNLOAD & VIEWER ENGINE ==================== */
+
+const STATIC_ADMIN_CV_PATH = 'assets/pdf/Eslam_Yasser_Resume.pdf';
+
+/**
+ * Resolves any raw PDF path to candidate URLs (API download, API view, direct asset)
+ */
+function resolveAdminPdfUrls(rawPath, fileName) {
+  const targetName = fileName || 'Eslam_Yasser_Resume.pdf';
+  let pathStr = (rawPath || STATIC_ADMIN_CV_PATH).trim();
+
+  if (pathStr.startsWith('http://') || pathStr.startsWith('https://')) {
+    return {
+      directUrl: pathStr,
+      viewUrl: pathStr,
+      downloadUrl: pathStr,
+      fileName: targetName
+    };
   }
 
-  // Fallback direct link
-  triggerDirectDownload(url, targetName);
+  const clean = pathStr.replace(/^[/\\]+/, '');
+  const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
+  const viewUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(clean)}`;
+  const directUrl = clean.startsWith('uploads/') ? `/${clean}` : `/${clean}`;
+
+  return {
+    clean,
+    directUrl,
+    viewUrl,
+    downloadUrl,
+    fileName: targetName
+  };
+}
+
+/**
+ * 100% Fail-Safe PDF Downloader
+ * Does not revoke blob prematurely, uses direct binary download, and supports all browsers.
+ */
+async function downloadFileBlob(urlOrPath, filename) {
+  const targetName = filename || 'Eslam_Yasser_Resume.pdf';
+  const resolved = resolveAdminPdfUrls(urlOrPath, targetName);
+
+  showToast(`جاري تحميل ${targetName}...`, 'info');
+
+  const candidateUrls = [
+    resolved.downloadUrl,
+    resolved.viewUrl,
+    resolved.directUrl,
+    `/${STATIC_ADMIN_CV_PATH}`,
+    STATIC_ADMIN_CV_PATH
+  ].filter(Boolean);
+
+  // Strategy 1: Programmatic Binary Blob Download (with safe retention)
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (res.ok) {
+        const blob = await res.blob();
+        if (blob && blob.size > 100) {
+          const blobUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = blobUrl;
+          a.download = targetName;
+          document.body.appendChild(a);
+          a.click();
+          
+          // Retain blob for 60 seconds to allow Chromium download pipeline to complete smoothly
+          setTimeout(() => {
+            try {
+              if (a.parentNode) document.body.removeChild(a);
+              window.URL.revokeObjectURL(blobUrl);
+            } catch (e) {}
+          }, 60000);
+
+          showToast(`تم تنزيل ${targetName} بنجاح!`, 'success');
+          return;
+        }
+      }
+    } catch (err) {
+      // Continue to next fallback
+    }
+  }
+
+  // Strategy 2: Direct Anchor Trigger Fallback
+  try {
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = resolved.downloadUrl || `/${STATIC_ADMIN_CV_PATH}`;
+    a.download = targetName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      try { if (a.parentNode) document.body.removeChild(a); } catch (e) {}
+    }, 5000);
+    showToast(`بدأ تنزيل ${targetName}`, 'success');
+  } catch (err) {
+    console.error('Download fallback error:', err);
+    window.open(resolved.downloadUrl || `/${STATIC_ADMIN_CV_PATH}`, '_blank');
+  }
 }
 
 function triggerDirectDownload(url, filename) {
-  const a = document.createElement('a');
-  a.href = url;
-  if (filename) a.download = filename;
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { if (a.parentNode) document.body.removeChild(a); }, 1000);
+  downloadFileBlob(url, filename);
 }
+
+/* ==================== STATEFUL HIGH-DPI PDF VIEWER ==================== */
+let _adminPdfDoc = null;
+let _adminPdfScale = 1.15;
+let _adminPdfPath = null;
+let _adminPdfName = null;
+let _adminPdfMode = 'canvas'; // 'canvas' | 'native'
 
 function openPdfModal(pdfUrl, title, originalFileName) {
   const modal = document.getElementById("pdf-viewer-modal");
@@ -1429,117 +1504,230 @@ function openPdfModal(pdfUrl, title, originalFileName) {
 
   if (!modal || !container) return;
 
-  const fileName = originalFileName || (title ? `${title}.pdf` : 'Eslam_Yasser_Resume.pdf');
-  const viewUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(pdfUrl)}`;
-  const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(pdfUrl)}&name=${encodeURIComponent(fileName)}`;
+  _adminPdfPath = pdfUrl || STATIC_ADMIN_CV_PATH;
+  _adminPdfName = originalFileName || (title ? `${title}.pdf` : 'Eslam_Yasser_Resume.pdf');
+  _adminPdfScale = window.innerWidth < 768 ? 0.8 : 1.15;
+  _adminPdfMode = 'canvas';
 
-  if (titleEl) titleEl.innerHTML = `<i class="ri-file-pdf-2-line text-primary"></i> ${title || 'معاينة المستند'}`;
+  const resolved = resolveAdminPdfUrls(_adminPdfPath, _adminPdfName);
+
+  if (titleEl) {
+    titleEl.innerHTML = `<i class="ri-file-pdf-2-line text-primary"></i> ${title || _adminPdfName}`;
+  }
+
   if (downloadBtn) {
-    downloadBtn.href = downloadUrl;
     downloadBtn.onclick = (e) => {
       e.preventDefault();
-      downloadFileBlob(downloadUrl, fileName);
+      downloadFileBlob(resolved.downloadUrl, _adminPdfName);
     };
   }
 
+  modal.style.display = "flex";
+  renderAdminPdfViewerUI(resolved);
+}
+
+function renderAdminPdfViewerUI(resolved) {
+  const container = document.getElementById('pdf-modal-container');
+  if (!container) return;
+
   container.innerHTML = `
-    <div id="pdf-viewer-wrapper" style="width:100%; height:100%; display:flex; flex-direction:column; background:#0f172a; border-radius:0 0 12px 12px; overflow:hidden;">
-      <div style="padding:10px 15px; background:#1e293b; display:flex; justify-between; align-items:center; border-bottom:1px solid #334155; flex-wrap:wrap; gap:10px;">
-        <span style="color:#94a3b8; font-size:0.85rem;"><i class="ri-information-line"></i> استعراض المستند المباشر في النافذة</span>
-        <div style="display:flex; gap:8px;">
-          <button id="btn-mode-native" class="btn btn-sm btn-primary" onclick="switchPdfViewMode('native', '${viewUrl}')"><i class="ri-pages-line"></i> العرض الأصلي المباشر</button>
-          <button id="btn-mode-canvas" class="btn btn-sm btn-secondary" onclick="switchPdfViewMode('canvas', '${viewUrl}')"><i class="ri-image-line"></i> عرض Canvas HD</button>
-        </div>
+    <div class="pdf-modal-toolbar">
+      <div class="pdf-toolbar-group">
+        <button type="button" class="pdf-tool-btn" onclick="zoomAdminPdfView(-0.15)" title="تصغير">
+          <i class="ri-zoom-out-line"></i>
+        </button>
+        <button type="button" class="pdf-tool-btn" onclick="resetAdminPdfZoom()" title="إعادة ضبط الحجم">
+          <span id="admin-pdf-zoom-level">${Math.round(_adminPdfScale * 100)}%</span>
+        </button>
+        <button type="button" class="pdf-tool-btn" onclick="zoomAdminPdfView(0.15)" title="تكبير">
+          <i class="ri-zoom-in-line"></i>
+        </button>
+        <span id="admin-pdf-page-indicator" class="pdf-page-indicator">جاري التحميل...</span>
       </div>
-      <div id="pdf-view-body" style="flex:1; width:100%; height:100%; min-height:70vh; overflow:hidden;">
-        <object data="${viewUrl}#toolbar=1" type="application/pdf" style="width:100%; height:100%; border:none;">
-          <iframe src="${viewUrl}" style="width:100%; height:100%; border:none;"></iframe>
-        </object>
+
+      <div class="pdf-toolbar-group">
+        <button type="button" class="pdf-tool-btn" id="admin-pdf-toggle-btn" onclick="toggleAdminPdfMode()" title="تبديل وضع العرض">
+          <i class="ri-pages-line"></i> العرض الأصلي
+        </button>
+        <a href="${resolved.viewUrl}" target="_blank" class="pdf-tool-btn" title="فتح في نافذة جديدة">
+          <i class="ri-external-link-line"></i> نافذة جديدة
+        </a>
+      </div>
+    </div>
+
+    <div id="admin-pdf-viewport" class="pdf-viewport">
+      <div class="pdf-loading-state" id="admin-pdf-loading">
+        <div class="pdf-loading-spinner"></div>
+        <p>جاري معالجة مستند الـ PDF وعرض الصفحات بدقة عالية (HD)...</p>
       </div>
     </div>
   `;
 
-  modal.style.display = "flex";
+  loadAndRenderAdminPdf(resolved);
 }
 
-function switchPdfViewMode(mode, viewUrl) {
-  const body = document.getElementById('pdf-view-body');
-  const btnNative = document.getElementById('btn-mode-native');
-  const btnCanvas = document.getElementById('btn-mode-canvas');
-  if (!body) return;
+async function loadAndRenderAdminPdf(resolved) {
+  const viewport = document.getElementById('admin-pdf-viewport');
+  const pageIndicator = document.getElementById('admin-pdf-page-indicator');
+  if (!viewport) return;
 
-  if (mode === 'native') {
-    if (btnNative) { btnNative.className = 'btn btn-sm btn-primary'; }
-    if (btnCanvas) { btnCanvas.className = 'btn btn-sm btn-secondary'; }
-    body.innerHTML = `
-      <object data="${viewUrl}#toolbar=1" type="application/pdf" style="width:100%; height:100%; border:none;">
-        <iframe src="${viewUrl}" style="width:100%; height:100%; border:none;"></iframe>
-      </object>
-    `;
-  } else if (mode === 'canvas') {
-    if (btnNative) { btnNative.className = 'btn btn-sm btn-secondary'; }
-    if (btnCanvas) { btnCanvas.className = 'btn btn-sm btn-primary'; }
-    body.innerHTML = `
-      <div id="pdf-scroll-box" style="width:100%; height:100%; overflow-y:auto; padding:20px; display:flex; flex-direction:column; align-items:center; gap:20px; background:#0f172a;">
-        <div id="pdf-loading-msg" style="color:#93c5fd; padding:20px; font-size:0.9rem; text-align:center;">
-          <i class="ri-loader-4-line animate-spin" style="font-size:1.5rem; display:block; margin-bottom:8px;"></i>
-          جاري معالجة صفحات الـ PDF بدقة HD...
-        </div>
-        <div id="pdf-canvas-container" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:20px;"></div>
-      </div>
-    `;
+  const candidateUrls = [
+    resolved.viewUrl,
+    resolved.directUrl,
+    resolved.downloadUrl,
+    `/${STATIC_ADMIN_CV_PATH}`,
+    STATIC_ADMIN_CV_PATH
+  ].filter(Boolean);
 
-    if (typeof pdfjsLib !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  if (typeof pdfjsLib === 'undefined') {
+    renderAdminNativeFallback(resolved);
+    return;
+  }
 
-      fetch(viewUrl)
-        .then(r => r.arrayBuffer())
-        .then(buffer => {
-          return pdfjsLib.getDocument({
-            data: buffer,
-            cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-            cMapPacked: true,
-            standardFontDataUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/standard_fonts/'
-          }).promise;
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  } catch (e) {}
+
+  let pdfBuffer = null;
+
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) {
+        const buf = await res.arrayBuffer();
+        if (buf && buf.byteLength > 100) {
+          pdfBuffer = buf;
+          break;
+        }
+      }
+    } catch (e) {}
+  }
+
+  try {
+    const loadingTask = pdfBuffer
+      ? pdfjsLib.getDocument({
+          data: pdfBuffer,
+          cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+          cMapPacked: true,
+          standardFontDataUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/standard_fonts/'
         })
-        .then(pdf => {
-          const loadingEl = document.getElementById('pdf-loading-msg');
-          if (loadingEl) loadingEl.style.display = 'none';
-          const container = document.getElementById('pdf-canvas-container');
-          if (!container) return;
-          container.innerHTML = '';
+      : pdfjsLib.getDocument(resolved.viewUrl || resolved.directUrl);
 
-          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            pdf.getPage(pageNum).then(page => {
-              const canvas = document.createElement('canvas');
-              canvas.style.maxWidth = '100%';
-              canvas.style.height = 'auto';
-              canvas.style.borderRadius = '8px';
-              canvas.style.boxShadow = '0 8px 25px rgba(0,0,0,0.5)';
+    _adminPdfDoc = await loadingTask.promise;
+    const totalPages = _adminPdfDoc.numPages;
 
-              const scale = 1.5;
-              const viewport = page.getViewport({ scale: scale });
-              const outputScale = window.devicePixelRatio || 1;
-
-              canvas.width = Math.floor(viewport.width * outputScale);
-              canvas.height = Math.floor(viewport.height * outputScale);
-              canvas.style.width = Math.floor(viewport.width) + "px";
-              canvas.style.height = Math.floor(viewport.height) + "px";
-
-              const ctx = canvas.getContext('2d');
-              const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
-
-              container.appendChild(canvas);
-              page.render({ canvasContext: ctx, transform: transform, viewport: viewport });
-            });
-          }
-        })
-        .catch(err => {
-          console.error('Canvas render error:', err);
-          const loadingEl = document.getElementById('pdf-loading-msg');
-          if (loadingEl) loadingEl.innerHTML = `<div style="color:#f87171; padding:15px;">تعذر المعالجة المحلية. يمكنك التبديل للعرض الأصلي المباشر.</div>`;
-        });
+    if (pageIndicator) {
+      pageIndicator.textContent = `عدد الصفحات: ${totalPages}`;
     }
+
+    renderAllAdminPdfPages(_adminPdfDoc, _adminPdfScale);
+  } catch (err) {
+    console.warn('[Admin PDF.js Render Fallback]:', err);
+    renderAdminNativeFallback(resolved);
+  }
+}
+
+async function renderAllAdminPdfPages(pdfDoc, scale) {
+  const viewport = document.getElementById('admin-pdf-viewport');
+  if (!viewport || !pdfDoc) return;
+
+  viewport.innerHTML = '';
+  const dpr = window.devicePixelRatio || 1;
+
+  for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+    try {
+      const page = await pdfDoc.getPage(pageNum);
+      const initialViewport = page.getViewport({ scale: 1 });
+
+      let effectiveScale = scale;
+      if (window.innerWidth < 768) {
+        const availableWidth = Math.min(window.innerWidth - 48, 800);
+        effectiveScale = (availableWidth / initialViewport.width) * scale;
+      }
+
+      const pageViewport = page.getViewport({ scale: effectiveScale });
+
+      const pageBox = document.createElement('div');
+      pageBox.className = 'pdf-page-container';
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'pdf-canvas';
+      const ctx = canvas.getContext('2d', { alpha: false });
+
+      canvas.width = Math.floor(pageViewport.width * dpr);
+      canvas.height = Math.floor(pageViewport.height * dpr);
+      canvas.style.width = `${Math.floor(pageViewport.width)}px`;
+      canvas.style.height = `${Math.floor(pageViewport.height)}px`;
+
+      ctx.scale(dpr, dpr);
+      pageBox.appendChild(canvas);
+      viewport.appendChild(pageBox);
+
+      await page.render({
+        canvasContext: ctx,
+        viewport: pageViewport
+      }).promise;
+    } catch (err) {
+      console.error(`Page ${pageNum} render error:`, err);
+    }
+  }
+}
+
+function renderAdminNativeFallback(resolved) {
+  const viewport = document.getElementById('admin-pdf-viewport');
+  const toggleBtn = document.getElementById('admin-pdf-toggle-btn');
+  const pageIndicator = document.getElementById('admin-pdf-page-indicator');
+  if (!viewport) return;
+
+  if (pageIndicator) pageIndicator.textContent = 'العرض المباشر';
+  if (toggleBtn) toggleBtn.innerHTML = '<i class="ri-image-line"></i> عرض Canvas HD';
+
+  viewport.innerHTML = `
+    <div style="width:100%; height:100%; min-height:75vh; border-radius:8px; overflow:hidden;">
+      <iframe src="${resolved.viewUrl}#toolbar=1" style="width:100%; height:100%; min-height:75vh; border:none;" title="PDF Preview">
+        <div class="pdf-loading-state">
+          <p>تعذر العرض المباشر في المتصفح.</p>
+          <button class="btn btn-primary" onclick="downloadFileBlob('${resolved.downloadUrl}', '${_adminPdfName}')">
+            <i class="ri-download-line"></i> تحميل ملف الـ PDF
+          </button>
+        </div>
+      </iframe>
+    </div>
+  `;
+}
+
+function zoomAdminPdfView(delta) {
+  _adminPdfScale = Math.max(0.5, Math.min(2.5, _adminPdfScale + delta));
+  const zoomLevelEl = document.getElementById('admin-pdf-zoom-level');
+  if (zoomLevelEl) zoomLevelEl.textContent = `${Math.round(_adminPdfScale * 100)}%`;
+
+  if (_adminPdfDoc && _adminPdfMode === 'canvas') {
+    renderAllAdminPdfPages(_adminPdfDoc, _adminPdfScale);
+  }
+}
+
+function resetAdminPdfZoom() {
+  _adminPdfScale = window.innerWidth < 768 ? 0.8 : 1.15;
+  const zoomLevelEl = document.getElementById('admin-pdf-zoom-level');
+  if (zoomLevelEl) zoomLevelEl.textContent = `${Math.round(_adminPdfScale * 100)}%`;
+
+  if (_adminPdfDoc && _adminPdfMode === 'canvas') {
+    renderAllAdminPdfPages(_adminPdfDoc, _adminPdfScale);
+  }
+}
+
+function toggleAdminPdfMode() {
+  const resolved = resolveAdminPdfUrls(_adminPdfPath, _adminPdfName);
+  const toggleBtn = document.getElementById('admin-pdf-toggle-btn');
+
+  if (_adminPdfMode === 'canvas') {
+    _adminPdfMode = 'native';
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="ri-image-line"></i> عرض Canvas HD';
+    renderAdminNativeFallback(resolved);
+  } else {
+    _adminPdfMode = 'canvas';
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="ri-pages-line"></i> العرض الأصلي';
+    loadAndRenderAdminPdf(resolved);
   }
 }
 
@@ -1550,6 +1738,7 @@ function closePdfModal() {
     if (container) container.innerHTML = "";
     modal.style.display = "none";
   }
+  _adminPdfDoc = null;
 }
 
 function handleActiveCvView() {

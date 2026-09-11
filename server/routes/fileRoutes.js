@@ -46,9 +46,11 @@ function getMimeType(filePath) {
  * Prevents path traversal vulnerabilities (e.g., ../../etc/passwd).
  */
 function safeResolvePath(requestedPath) {
-  if (!requestedPath || typeof requestedPath !== 'string') return null;
+  if (!requestedPath || typeof requestedPath !== 'string') {
+    return fs.existsSync(DEFAULT_RESUME_PATH) ? DEFAULT_RESUME_PATH : null;
+  }
 
-  // Strip origin/protocol if passed as absolute URL
+  // Strip origin/protocol if passed as absolute URL (e.g. http://localhost:5000/assets/pdf/...)
   let clean = requestedPath
     .replace(/^https?:\/\/[^\/]+/i, '')
     .trim();
@@ -59,7 +61,10 @@ function safeResolvePath(requestedPath) {
     .replace(/^[/\\]+/, '')
     .trim();
 
-  // 1. Check relative to client/ (e.g. assets/pdf/Eslam_Yasser_Resume.pdf)
+  // Remove leading 'client/' or 'server/' or 'public/' if present
+  clean = clean.replace(/^(client|server|public)[/\\]+/i, '');
+
+  // 1. Direct check in client/assets (e.g. assets/pdf/Eslam_Yasser_Resume.pdf)
   const clientCandidate = path.resolve(__dirname, '../../client', clean);
   for (const root of ALLOWED_ROOTS) {
     if (clientCandidate.toLowerCase().startsWith(root.toLowerCase()) && fs.existsSync(clientCandidate) && fs.statSync(clientCandidate).isFile()) {
@@ -67,7 +72,13 @@ function safeResolvePath(requestedPath) {
     }
   }
 
-  // 2. Check relative to server/ (e.g. uploads/cv/filename.pdf)
+  // 2. Direct check in client/assets/pdf/
+  const clientAssetsPdf = path.resolve(__dirname, '../../client/assets/pdf', path.basename(clean));
+  if (fs.existsSync(clientAssetsPdf) && fs.statSync(clientAssetsPdf).isFile()) {
+    return clientAssetsPdf;
+  }
+
+  // 3. Check relative to server/ (e.g. uploads/cv/filename.pdf)
   const serverCandidate = path.resolve(__dirname, '..', clean);
   for (const root of ALLOWED_ROOTS) {
     if (serverCandidate.toLowerCase().startsWith(root.toLowerCase()) && fs.existsSync(serverCandidate) && fs.statSync(serverCandidate).isFile()) {
@@ -75,9 +86,9 @@ function safeResolvePath(requestedPath) {
     }
   }
 
-  // 3. Check inside uploads subdirectories by base filename
+  // 4. Check inside uploads subdirectories by base filename
   const fileName = path.basename(clean);
-  const subdirs = ['cv', 'certificates', 'projects', 'documents', 'videos', 'images'];
+  const subdirs = ['cv', 'certificates', 'documents', 'projects', 'videos', 'images'];
   for (const sub of subdirs) {
     const candidate = path.resolve(baseUploadDir, sub, fileName);
     if (candidate.toLowerCase().startsWith(baseUploadDir.toLowerCase()) && fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
@@ -85,14 +96,8 @@ function safeResolvePath(requestedPath) {
     }
   }
 
-  // 4. Check inside client/assets/pdf/
-  const clientPdfCandidate = path.resolve(__dirname, '../../client/assets/pdf', fileName);
-  if (fs.existsSync(clientPdfCandidate) && fs.statSync(clientPdfCandidate).isFile()) {
-    return clientPdfCandidate;
-  }
-
-  // 5. If it's a resume/cv request and DEFAULT_RESUME_PATH exists, return it
-  if (clean.toLowerCase().includes('resume') || clean.toLowerCase().includes('cv') || fileName.toLowerCase().endsWith('.pdf')) {
+  // 5. Fallback for any CV / Resume / PDF request to default resume
+  if (clean.toLowerCase().includes('resume') || clean.toLowerCase().includes('cv') || fileName.toLowerCase().endsWith('.pdf') || !clean) {
     if (fs.existsSync(DEFAULT_RESUME_PATH)) {
       return DEFAULT_RESUME_PATH;
     }
@@ -103,15 +108,15 @@ function safeResolvePath(requestedPath) {
 
 /**
  * GET /api/files/download
- * Guaranteed Binary Download Endpoint
+ * Guaranteed Binary Download Endpoint with RFC 5987 UTF-8 Filename Support
  */
 router.get('/download', (req, res) => {
   try {
-    const requestedPath = req.query.filePath || req.query.path || req.query.file;
+    const requestedPath = req.query.filePath || req.query.path || req.query.file || req.query.url;
     let absolutePath = safeResolvePath(requestedPath);
 
-    // If requested CV/resume or path not provided, fallback to default canonical resume
-    if (!absolutePath && (!requestedPath || requestedPath.toLowerCase().includes('resume') || requestedPath.toLowerCase().includes('cv'))) {
+    // Fallback to default canonical resume
+    if (!absolutePath || !fs.existsSync(absolutePath)) {
       if (fs.existsSync(DEFAULT_RESUME_PATH)) {
         absolutePath = DEFAULT_RESUME_PATH;
       }
@@ -123,15 +128,20 @@ router.get('/download', (req, res) => {
 
     const stat = fs.statSync(absolutePath);
     const mimeType = getMimeType(absolutePath);
-    const rawName = req.query.name || path.basename(absolutePath);
-    const sanitizedName = rawName.replace(/[^\w\s.()\'\u0600-\u06FF-]/g, '_');
+    let rawName = req.query.name || path.basename(absolutePath);
+    if (!path.extname(rawName)) {
+      rawName += path.extname(absolutePath);
+    }
+    const cleanAsciiName = rawName.replace(/[^\w\s.()\-]/g, '_');
+    const utf8EncodedName = encodeURIComponent(rawName);
 
     res.setHeader('Content-Type', mimeType);
     res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(sanitizedName)}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${cleanAsciiName}"; filename*=UTF-8''${utf8EncodedName}`);
     res.setHeader('Accept-Ranges', 'bytes');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Length, Accept-Ranges');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
 
     const fileStream = fs.createReadStream(absolutePath);
     fileStream.on('error', (err) => {
@@ -151,11 +161,11 @@ router.get('/download', (req, res) => {
  */
 const handleFileView = (req, res) => {
   try {
-    const requestedPath = req.query.filePath || req.query.path || req.query.file;
+    const requestedPath = req.query.filePath || req.query.path || req.query.file || req.query.url;
     let absolutePath = safeResolvePath(requestedPath);
 
     // Fallback for CV/Resume if requested path unresolved
-    if (!absolutePath && (!requestedPath || requestedPath.toLowerCase().includes('resume') || requestedPath.toLowerCase().includes('cv'))) {
+    if (!absolutePath || !fs.existsSync(absolutePath)) {
       if (fs.existsSync(DEFAULT_RESUME_PATH)) {
         absolutePath = DEFAULT_RESUME_PATH;
       }
@@ -169,6 +179,8 @@ const handleFileView = (req, res) => {
     const fileSize = stat.size;
     const mimeType = getMimeType(absolutePath);
     const fileName = path.basename(absolutePath);
+    const cleanAsciiName = fileName.replace(/[^\w\s.()\-]/g, '_');
+    const utf8EncodedName = encodeURIComponent(fileName);
     const range = req.headers.range;
 
     // Support 206 Partial Content for byte-range streaming (PDF scrubbing & HTML5 Video)
@@ -190,7 +202,7 @@ const handleFileView = (req, res) => {
         'Accept-Ranges': 'bytes',
         'Content-Length': chunkSize,
         'Content-Type': mimeType,
-        'Content-Disposition': `inline; filename="${encodeURIComponent(fileName)}"`,
+        'Content-Disposition': `inline; filename="${cleanAsciiName}"; filename*=UTF-8''${utf8EncodedName}`,
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Expose-Headers': 'Content-Disposition, Content-Length, Content-Range, Accept-Ranges'
       });
@@ -199,7 +211,7 @@ const handleFileView = (req, res) => {
       res.writeHead(200, {
         'Content-Length': fileSize,
         'Content-Type': mimeType,
-        'Content-Disposition': `inline; filename="${encodeURIComponent(fileName)}"`,
+        'Content-Disposition': `inline; filename="${cleanAsciiName}"; filename*=UTF-8''${utf8EncodedName}`,
         'Accept-Ranges': 'bytes',
         'Cache-Control': 'public, max-age=3600',
         'Access-Control-Allow-Origin': '*',

@@ -483,26 +483,26 @@ function resolvePdfUrl(rawPath, fileName) {
 
     // 2. Static client asset (assets/pdf/...)
     if (clean.startsWith('assets/')) {
-        const directUrl = `${window.location.origin}/${clean}`;
+        const directUrl = `/${clean}`;
         const localRelative = clean;
-        const apiUrl = `${API_BASE}/files/view?filePath=${encodeURIComponent(clean)}`;
+        const apiUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(clean)}`;
         const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
         return { directUrl: localRelative, fullDirectUrl: directUrl, apiUrl, downloadUrl, fileName: targetName };
     }
 
     // 3. Uploaded server asset (uploads/...)
     if (clean.startsWith('uploads/')) {
-        const directUrl = `${SERVER_BASE}/${clean}`;
-        const apiUrl = `${API_BASE}/files/view?filePath=${encodeURIComponent(clean)}`;
+        const directUrl = `/${clean}`;
+        const apiUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(clean)}`;
         const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
         return { directUrl, fullDirectUrl: directUrl, apiUrl, downloadUrl, fileName: targetName };
     }
 
     // 4. Default / Bare filename
     const directUrl = STATIC_CV_PATH;
-    const apiUrl = `${API_BASE}/files/view?filePath=${encodeURIComponent(clean)}`;
+    const apiUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(clean)}`;
     const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
-    return { directUrl, fullDirectUrl: `${window.location.origin}/${STATIC_CV_PATH}`, apiUrl, downloadUrl, fileName: targetName };
+    return { directUrl, fullDirectUrl: `/${STATIC_CV_PATH}`, apiUrl, downloadUrl, fileName: targetName };
 }
 
 /**
@@ -543,17 +543,18 @@ async function downloadFile(filePath, fileName) {
 
     // Ordered list of candidate download sources
     const candidateUrls = [
-        resolved.directUrl,
-        resolved.fullDirectUrl,
         resolved.downloadUrl,
         resolved.apiUrl,
+        resolved.directUrl,
+        resolved.fullDirectUrl,
+        `/${STATIC_CV_PATH}`,
         STATIC_CV_PATH
     ].filter(Boolean);
 
     // Strategy 1: Fetch as binary Blob and trigger instantaneous programmatic download
     for (const url of candidateUrls) {
         try {
-            const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+            const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
             if (res.ok) {
                 const blob = await res.blob();
                 if (blob && blob.size > 100) {
@@ -564,10 +565,15 @@ async function downloadFile(filePath, fileName) {
                     a.download = targetName;
                     document.body.appendChild(a);
                     a.click();
+                    
+                    // Retain blob for 60 seconds to allow Chromium download pipeline to complete smoothly
                     setTimeout(() => {
-                        if (a.parentNode) document.body.removeChild(a);
-                        window.URL.revokeObjectURL(blobUrl);
-                    }, 1000);
+                        try {
+                            if (a.parentNode) document.body.removeChild(a);
+                            window.URL.revokeObjectURL(blobUrl);
+                        } catch (e) {}
+                    }, 60000);
+
                     showToast(`تم تحميل ${targetName} بنجاح!`, 'ri-checkbox-circle-line');
                     return;
                 }
@@ -577,22 +583,23 @@ async function downloadFile(filePath, fileName) {
         }
     }
 
-    // Strategy 2: Direct Anchor trigger fallback
+    // Strategy 2: Direct Anchor trigger fallback (without conflicting target="_blank")
     try {
         const fallbackA = document.createElement('a');
         fallbackA.style.display = 'none';
-        fallbackA.href = resolved.directUrl || STATIC_CV_PATH;
+        fallbackA.href = resolved.downloadUrl || resolved.directUrl || STATIC_CV_PATH;
         fallbackA.download = targetName;
-        fallbackA.target = '_blank';
         document.body.appendChild(fallbackA);
         fallbackA.click();
         setTimeout(() => {
-            if (fallbackA.parentNode) document.body.removeChild(fallbackA);
-        }, 1000);
+            try {
+                if (fallbackA.parentNode) document.body.removeChild(fallbackA);
+            } catch (e) {}
+        }, 5000);
         showToast(`بدأ تحميل ${targetName}`, 'ri-checkbox-circle-line');
     } catch (err) {
         console.error('[Download Fallback Error]:', err);
-        window.open(resolved.directUrl || STATIC_CV_PATH, '_blank');
+        window.open(resolved.downloadUrl || resolved.directUrl || STATIC_CV_PATH, '_blank');
     }
 }
 
