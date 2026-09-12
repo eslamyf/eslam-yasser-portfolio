@@ -1,12 +1,23 @@
 [
   {
+    "_id": "cv-1789217904930",
+    "name": "Eslam_Yasser_FULL-STACK WEB DEVELOPER _ WEB DEVELOPMENT INSTRUCTOR_resume.pdf",
+    "version": "v2",
+    "pdfFile": "/uploads/cv/Eslam_Yasser_FULL-STACK_WEB_DEVELOPER___WEB_DEVELO-1789217899428-142961.pdf",
+    "originalName": "Eslam_Yasser_FULL-STACK WEB DEVELOPER _ WEB DEVELOPMENT INSTRUCTOR_resume.pdf",
+    "fileSize": 0,
+    "active": true,
+    "createdAt": "2026-09-12T12:58:24.930Z",
+    "updatedAt": "2026-09-12T12:58:24.930Z"
+  },
+  {
     "_id": "default-cv-id",
     "name": "Eslam Yasser - Resume.pdf",
     "version": "v1.0",
     "pdfFile": "assets/pdf/Eslam_Yasser_Resume.pdf",
     "originalName": "Eslam_Yasser_Resume.pdf",
     "fileSize": 143708,
-    "active": true,
+    "active": false,
     "createdAt": "2026-09-08T00:00:00.000Z",
     "updatedAt": "2026-09-08T00:00:00.000Z"
   }

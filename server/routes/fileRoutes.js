@@ -113,6 +113,11 @@ function safeResolvePath(requestedPath) {
 router.get('/download', (req, res) => {
   try {
     const requestedPath = req.query.filePath || req.query.path || req.query.file || req.query.url;
+    
+    if (requestedPath && (requestedPath.startsWith('http://') || requestedPath.startsWith('https://'))) {
+      return res.redirect(requestedPath);
+    }
+
     let absolutePath = safeResolvePath(requestedPath);
 
     // Fallback to default canonical resume
@@ -162,6 +167,11 @@ router.get('/download', (req, res) => {
 const handleFileView = (req, res) => {
   try {
     const requestedPath = req.query.filePath || req.query.path || req.query.file || req.query.url;
+
+    if (requestedPath && (requestedPath.startsWith('http://') || requestedPath.startsWith('https://'))) {
+      return res.redirect(requestedPath);
+    }
+
     let absolutePath = safeResolvePath(requestedPath);
 
     // Fallback for CV/Resume if requested path unresolved

@@ -26,18 +26,15 @@ const isCloudinaryConfigured = () => {
 const uploadToCloudinary = async (filePath, folder = 'portfolio/projects', resourceType = 'auto') => {
   if (!isCloudinaryConfigured()) return null;
   try {
-    const result = await cloudinary.uploader.upload(filePath, {
+    const uploadOptions = {
       folder,
-      resource_type: resourceType,
-      quality: 'auto:good',
-      fetch_format: 'auto'
-    });
-    // Clean up local temp file after successful upload
-    if (fs.existsSync(filePath)) {
-      fs.unlink(filePath, (err) => {
-        if (err) console.warn('[Cloudinary] Could not delete temp file:', err.message);
-      });
+      resource_type: resourceType
+    };
+    if (resourceType === 'image') {
+      uploadOptions.quality = 'auto:good';
+      uploadOptions.fetch_format = 'auto';
     }
+    const result = await cloudinary.uploader.upload(filePath, uploadOptions);
     return result;
   } catch (err) {
     console.warn('[Cloudinary] Upload warning:', err.message);
