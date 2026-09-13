@@ -45,11 +45,12 @@ router.post('/', contactLimiter, async (req, res) => {
 
     const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
+    let createdInq = null;
     if (isMongoReady()) {
       const inquiry = new Inquiry({ name, email, subject: subject || 'Portfolio Contact Inquiry', message, ipAddress });
-      await inquiry.save();
+      createdInq = await inquiry.save();
     } else {
-      fallbackInquiries.unshift({
+      createdInq = {
         _id: 'inq-' + Date.now(),
         name,
         email,
@@ -58,12 +59,14 @@ router.post('/', contactLimiter, async (req, res) => {
         status: 'unread',
         createdAt: new Date(),
         ipAddress
-      });
+      };
+      fallbackInquiries.unshift(createdInq);
     }
 
     res.status(201).json({
       success: true,
-      message: 'Thank you! Your message has been sent successfully. (تم إرسال رسالتك بنجاح وسنقوم بالرد عليك في أقرب وقت)'
+      message: 'Thank you! Your message has been sent successfully. (تم إرسال رسالتك بنجاح وسنقوم بالرد عليك في أقرب وقت)',
+      data: createdInq
     });
   } catch (error) {
     console.error('Error submitting inquiry:', error);
@@ -99,22 +102,27 @@ router.get('/admin/inquiries', protect, handleGetInquiries);
 
 const handleUpdateInquiryStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const status = req.body && req.body.status ? req.body.status : (req.path.includes('read') ? 'read' : 'read');
     const id = req.params.id;
+    let updated = null;
 
     if (isMongoReady()) {
-      await Inquiry.findByIdAndUpdate(id, { status });
+      updated = await Inquiry.findByIdAndUpdate(id, { status }, { new: true });
     }
     const item = fallbackInquiries.find(i => i._id === id);
     if (item) item.status = status;
-    res.json({ success: true, message: 'Status updated' });
+    res.json({ success: true, message: 'Status updated', data: updated || item || { _id: id, status } });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
 router.patch('/:id/status', protect, handleUpdateInquiryStatus);
+router.put('/:id/status', protect, handleUpdateInquiryStatus);
+router.patch('/:id/read', protect, handleUpdateInquiryStatus);
+router.put('/:id/read', protect, handleUpdateInquiryStatus);
 router.patch('/admin/inquiries/:id/status', protect, handleUpdateInquiryStatus);
+router.put('/admin/inquiries/:id/status', protect, handleUpdateInquiryStatus);
 
 const handleDeleteInquiry = async (req, res) => {
   try {

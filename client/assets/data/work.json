@@ -1,6 +1,16 @@
 {
     "experience": [
         {
+            "_id": "exp-1789326218367",
+            "subtitle": "Test Corp",
+            "company": "Test Corp",
+            "year": "2026 - Present",
+            "startDate": "2026",
+            "endDate": "Present",
+            "description": "Testing verification flow",
+            "orderIndex": 3
+        },
+        {
             "title": "MEAN Stack Web Developer Trainee",
             "subtitle": "NTI - Creativa Innovation Hubs (DEY Initiative), Egypt - Qena",
             "year": "January 2026 - May 2026",
@@ -17,6 +27,18 @@
     ],
     "education": [
         {
+            "_id": "edu-1789326218372",
+            "title": "B.Sc. in Computer Science",
+            "degree": "B.Sc. in Computer Science",
+            "subtitle": "Test University",
+            "institution": "Test University",
+            "year": "2024 - 2028",
+            "startDate": "2024",
+            "endDate": "2028",
+            "description": "",
+            "orderIndex": 2
+        },
+        {
             "title": "Bachelor’s Degree in Computers and Information",
             "subtitle": "Qena University, Egypt - Qena",
             "year": "September 2024 - June 2028",
@@ -25,6 +47,18 @@
         }
     ],
     "volunteering": [
+        {
+            "_id": "vol-1789326218375",
+            "title": "Community Mentor",
+            "role": "Community Mentor",
+            "subtitle": "Tech Community",
+            "organization": "Tech Community",
+            "year": "2026 - Present",
+            "startDate": "2026",
+            "endDate": "Present",
+            "description": "",
+            "orderIndex": 4
+        },
         {
             "title": "Web Development Instructor",
             "subtitle": "Support Web Program, Qena, Egypt",
@@ -48,6 +82,18 @@
         }
     ],
     "certificates": [
+        {
+            "_id": "cert-1789326218379",
+            "title": "AWS Certified Solutions Architect",
+            "name": "AWS Certified Solutions Architect",
+            "subtitle": "Amazon Web Services",
+            "issuer": "Amazon Web Services",
+            "year": "2026",
+            "issueDate": "2026",
+            "description": "",
+            "pdfFile": "/assets/pdf/Eslam_Yasser_Resume.pdf",
+            "orderIndex": 8
+        },
         {
             "title": "Cybersecurity Academy (Undergraduate Level)",
             "subtitle": "NTI & EG-CERT",

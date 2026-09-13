@@ -9,37 +9,49 @@ const { initialCv, loadCvsFromFile, saveCvsToFile } = require('../utils/cvStore'
 const mongoose = require('mongoose');
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
+// Format CV item to include url property
+const formatCvItem = (item) => {
+  if (!item) return item;
+  const obj = typeof item.toObject === 'function' ? item.toObject() : { ...item };
+  obj.url = obj.pdfFile || obj.url || '/assets/pdf/Eslam_Yasser_Resume.pdf';
+  return obj;
+};
+
 // GET /api/cv/active - Public (Get Active CV for Portfolio)
 router.get('/active', async (req, res) => {
   try {
     if (isMongoReady()) {
       let cv = await CV.findOne({ active: true });
       if (!cv) cv = await CV.findOne().sort({ createdAt: -1 });
-      if (cv) return res.json({ success: true, data: cv });
+      if (cv) return res.json({ success: true, data: formatCvItem(cv) });
     }
     const fileCvs = loadCvsFromFile();
     const activeCv = fileCvs.find(x => x.active) || fileCvs[0] || initialCv;
-    return res.json({ success: true, data: activeCv });
+    return res.json({ success: true, data: formatCvItem(activeCv) });
   } catch (err) {
     const fileCvs = loadCvsFromFile();
-    return res.json({ success: true, data: fileCvs[0] || initialCv });
+    return res.json({ success: true, data: formatCvItem(fileCvs[0] || initialCv) });
   }
 });
 
-// GET /api/cv - Public List All
-router.get('/', async (req, res) => {
+// GET /api/cv or /api/cv/all - Public List All
+const handleListCvs = async (req, res) => {
   try {
     if (isMongoReady()) {
       const cvs = await CV.find().sort({ createdAt: -1 });
-      if (cvs.length > 0) return res.json({ success: true, count: cvs.length, data: cvs });
+      if (cvs.length > 0) return res.json({ success: true, count: cvs.length, data: cvs.map(formatCvItem) });
     }
     const fileCvs = loadCvsFromFile();
-    return res.json({ success: true, count: fileCvs.length, data: fileCvs });
+    return res.json({ success: true, count: fileCvs.length, data: fileCvs.map(formatCvItem) });
   } catch (err) {
     const fileCvs = loadCvsFromFile();
-    return res.json({ success: true, count: fileCvs.length, data: fileCvs });
+    return res.json({ success: true, count: fileCvs.length, data: fileCvs.map(formatCvItem) });
   }
-});
+};
+
+router.get('/', handleListCvs);
+router.get('/all', handleListCvs);
+router.get('/admin/cv', handleListCvs);
 
 // Create / Save CV Record (Supports both JSON payload and direct Multer file upload)
 const handleSaveCv = async (req, res) => {

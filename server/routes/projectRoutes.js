@@ -82,10 +82,10 @@ router.get('/:id', async (req, res) => {
 
 // ==================== ADMIN PROTECTED ROUTES ====================
 
-// @route   POST /api/admin/projects
+// @route   POST /api/projects or /api/projects/admin/projects
 // @desc    Create new project
 // @access  Private (Admin)
-router.post('/admin/projects', protect, async (req, res) => {
+const handleCreateProject = async (req, res) => {
   try {
     const {
       title,
@@ -172,12 +172,15 @@ router.post('/admin/projects', protect, async (req, res) => {
     console.error('Error creating project:', error);
     res.status(500).json({ success: false, message: error.message || 'Server error creating project' });
   }
-});
+};
 
-// @route   PUT /api/admin/projects/:id
+router.post('/', protect, handleCreateProject);
+router.post('/admin/projects', protect, handleCreateProject);
+
+// @route   PUT /api/projects/:id or /api/projects/admin/projects/:id
 // @desc    Update project
 // @access  Private (Admin)
-router.put('/admin/projects/:id', protect, async (req, res) => {
+const handleUpdateProject = async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -218,12 +221,15 @@ router.put('/admin/projects/:id', protect, async (req, res) => {
     console.error('Error updating project:', error);
     res.status(500).json({ success: false, message: error.message || 'Server error updating project' });
   }
-});
+};
 
-// @route   DELETE /api/admin/projects/:id
+router.put('/:id', protect, handleUpdateProject);
+router.put('/admin/projects/:id', protect, handleUpdateProject);
+
+// @route   DELETE /api/projects/:id or /api/projects/admin/projects/:id
 // @desc    Delete project
 // @access  Private (Admin)
-router.delete('/admin/projects/:id', protect, async (req, res) => {
+const handleDeleteProject = async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -249,12 +255,15 @@ router.delete('/admin/projects/:id', protect, async (req, res) => {
     console.error('Error deleting project:', error);
     res.status(500).json({ success: false, message: 'Server error deleting project' });
   }
-});
+};
 
-// @route   POST /api/admin/upload
+router.delete('/:id', protect, handleDeleteProject);
+router.delete('/admin/projects/:id', protect, handleDeleteProject);
+
+// @route   POST /api/projects/upload or /api/projects/admin/upload
 // @desc    Upload single project image (local fallback or Cloudinary)
 // @access  Private (Admin)
-router.post('/admin/upload', protect, upload.single('image'), async (req, res) => {
+const handleUpload = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'Please upload an image file' });
@@ -285,12 +294,15 @@ router.post('/admin/upload', protect, upload.single('image'), async (req, res) =
     console.error('Upload error:', error);
     res.status(500).json({ success: false, message: 'Failed to upload image' });
   }
-});
+};
 
-// @route   POST /api/admin/upload-multiple
+router.post('/upload', protect, upload.single('image'), handleUpload);
+router.post('/admin/upload', protect, upload.single('image'), handleUpload);
+
+// @route   POST /api/projects/upload-multiple or /api/projects/admin/upload-multiple
 // @desc    Upload multiple project images (gallery support)
 // @access  Private (Admin)
-router.post('/admin/upload-multiple', protect, upload.array('images', 10), async (req, res) => {
+const handleUploadMultiple = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: 'Please upload at least one image' });
@@ -320,6 +332,9 @@ router.post('/admin/upload-multiple', protect, upload.array('images', 10), async
     console.error('Multi-upload error:', error);
     res.status(500).json({ success: false, message: 'Failed to upload images' });
   }
-});
+};
+
+router.post('/upload-multiple', protect, upload.array('images', 10), handleUploadMultiple);
+router.post('/admin/upload-multiple', protect, upload.array('images', 10), handleUploadMultiple);
 
 module.exports = router;

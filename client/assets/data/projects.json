@@ -1,5 +1,28 @@
 [
     {
+        "title": "Test Integration Project",
+        "category": "ai-agents",
+        "description": "Automated test project for portfolio verification",
+        "subtitle": "",
+        "fullDescription": "",
+        "image": "assets/img/backend_api.jpg",
+        "images": [],
+        "date": "2026",
+        "demo": "",
+        "github": "",
+        "youtubeUrl": "",
+        "videoUrl": "",
+        "technologies": [
+            "Node.js",
+            "Express"
+        ],
+        "isFeatured": false,
+        "status": "published",
+        "orderIndex": 0,
+        "id": "1789326218361",
+        "_id": "1789326218361"
+    },
+    {
         "id": "01",
         "category": "MEAN Stack",
         "title": "Aqario Luxe",
