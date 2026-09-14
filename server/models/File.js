@@ -8,7 +8,10 @@ const fileSchema = new mongoose.Schema({
   path: { type: String, required: true },
   category: { type: String, enum: ['cv', 'certificate', 'video', 'image', 'document'], default: 'document' },
   relatedSection: { type: String, default: 'General' },
-  status: { type: String, enum: ['active', 'archived'], default: 'active' }
+  status: { type: String, enum: ['active', 'archived'], default: 'active' },
+  fileData: { type: String, default: '' }, // Base64 encoded binary data for persistent serverless storage
+  cloudinaryUrl: { type: String, default: '' },
+  cloudinaryPublicId: { type: String, default: '' }
 }, {
   timestamps: true
 });

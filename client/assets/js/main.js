@@ -460,9 +460,48 @@ function renderProjects(projects) {
 // Constant direct static path - Canonical Master Resume
 const STATIC_CV_PATH = 'assets/pdf/EslamCV.pdf';
 
+/*=============== DYNAMIC ACTIVE CV INITIALIZATION ===============*/
+async function initActiveCv() {
+    try {
+        const res = await fetch(`${API_BASE}/cv/active`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.data) {
+            const cv = data.data;
+            const downloadHref = `${API_BASE}/cv/download`;
+            const viewHref = `${API_BASE}/cv/view`;
+            const fileName = cv.originalName || cv.name || 'EslamCV.pdf';
+
+            // 1. Home hero CV button
+            const homeCvBtn = document.getElementById('home-cv-btn');
+            if (homeCvBtn) {
+                homeCvBtn.href = downloadHref;
+                homeCvBtn.setAttribute('download', fileName);
+            }
+
+            // 2. About section preview CV button
+            const cvPreviewBtn = document.getElementById('cv-preview-btn');
+            if (cvPreviewBtn) {
+                cvPreviewBtn.href = viewHref;
+                cvPreviewBtn.target = '_blank';
+                cvPreviewBtn.rel = 'noopener noreferrer';
+            }
+
+            // 3. About section download CV button
+            const cvDownloadBtn = document.getElementById('cv-download-btn');
+            if (cvDownloadBtn) {
+                cvDownloadBtn.href = downloadHref;
+                cvDownloadBtn.setAttribute('download', fileName);
+            }
+        }
+    } catch (err) {
+        console.warn('Using static CV fallback:', err);
+    }
+}
+initActiveCv();
+
 /**
  * Robust URL resolver for PDF and document assets.
- * Works seamlessly across Live Server (5500/5501), Express server (5000), file protocol, and static production.
  */
 function resolvePdfUrl(rawPath, fileName) {
     const targetName = fileName || 'EslamCV.pdf';
@@ -527,14 +566,13 @@ function showToast(message, icon = 'ri-information-line') {
 
 /**
  * Direct & Reliable File Downloader
- * Uses native browser download mechanism without intermediary canvas or popups.
  */
 function downloadFile(filePath, fileName) {
     const targetName = fileName || 'EslamCV.pdf';
     let downloadLink = filePath;
 
     if (!downloadLink || downloadLink === STATIC_CV_PATH) {
-        downloadLink = `${API_BASE}/files/download?filePath=uploads/cv/EslamCV.pdf&name=${encodeURIComponent(targetName)}`;
+        downloadLink = `${API_BASE}/cv/download`;
     } else if (downloadLink.startsWith('http://') || downloadLink.startsWith('https://')) {
         // Keep external URL as is
     } else {
@@ -565,10 +603,10 @@ function downloadFileBlob(url, filename) {
 }
 
 /**
- * Direct Native PDF Viewer (Opens instantly in browser native tab)
+ * Direct Native PDF Viewer
  */
 function openPdfModal(pdfUrl, title, originalFileName) {
-    let targetPath = pdfUrl || '/assets/pdf/EslamCV.pdf';
+    let targetPath = pdfUrl || `${API_BASE}/cv/view`;
     if (!targetPath.startsWith('http://') && !targetPath.startsWith('https://') && !targetPath.startsWith('/')) {
         targetPath = `/${targetPath}`;
     }

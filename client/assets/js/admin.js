@@ -1224,6 +1224,36 @@ async function deleteVideo(id) {
 
 /* ==================== TAB 8: CV MANAGEMENT ==================== */
 
+let uploadedCvBase64 = '';
+
+function downloadFileBlob(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'download.pdf';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    try {
+      if (a.parentNode) document.body.removeChild(a);
+    } catch (e) {}
+  }, 1000);
+}
+
+function handleActiveCvView() {
+  if (activeCvData && activeCvData._id) {
+    window.open(`${API_BASE}/cv/view/${activeCvData._id}`, '_blank');
+  } else {
+    window.open(`${API_BASE}/cv/view`, '_blank');
+  }
+}
+
+function handleActiveCvDownload() {
+  const url = (activeCvData && activeCvData._id) ? `${API_BASE}/cv/download/${activeCvData._id}` : `${API_BASE}/cv/download`;
+  const name = (activeCvData && (activeCvData.originalName || activeCvData.name)) || 'EslamCV.pdf';
+  downloadFileBlob(url, name);
+}
+
 async function loadCVs() {
   try {
     const res = await fetch(`${API_BASE}/cv`);
@@ -1263,7 +1293,8 @@ function renderCvTable(list) {
       : `<button class="btn btn-sm btn-secondary" onclick="setActiveCv('${cv._id}')">تفعيل الآن</button>`;
 
     const formattedDate = new Date(cv.createdAt || Date.now()).toLocaleDateString('ar-EG');
-    const dlUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(cv.pdfFile)}&name=${encodeURIComponent(cv.originalName || cv.name)}`;
+    const dlUrl = `${API_BASE}/cv/download/${cv._id}`;
+    const viewUrl = `${API_BASE}/cv/view/${cv._id}`;
 
     return `
       <tr>
@@ -1273,6 +1304,7 @@ function renderCvTable(list) {
         <td>${statusBadge}</td>
         <td>
           <div class="action-tools">
+            <button class="btn btn-icon btn-edit" title="معاينة" onclick="window.open('${viewUrl}', '_blank')"><i class="ri-eye-line"></i></button>
             <button class="btn btn-icon btn-edit" title="تحميل" onclick="downloadFileBlob('${dlUrl}', '${(cv.originalName || cv.name).replace(/'/g, "\\'")}')"><i class="ri-download-line"></i></button>
             ${!isActive ? `<button class="btn btn-icon btn-delete" title="حذف" onclick="deleteCv('${cv._id}')"><i class="ri-delete-bin-line"></i></button>` : ''}
           </div>
@@ -1285,6 +1317,7 @@ function renderCvTable(list) {
 function openAddCvModal() {
   document.getElementById('cv-form').reset();
   document.getElementById('cv-upload-status').textContent = '';
+  uploadedCvBase64 = '';
   document.getElementById('cv-modal').style.display = 'flex';
 }
 
@@ -1298,9 +1331,18 @@ async function handleCvUpload(input) {
   const formData = new FormData();
   formData.append('cv', file);
 
+  // Read Base64 locally in browser as guaranteed fallback
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    if (e.target.result) {
+      uploadedCvBase64 = e.target.result.split(',')[1] || '';
+    }
+  };
+  reader.readAsDataURL(file);
+
   const token = localStorage.getItem('admin_token');
   const statusEl = document.getElementById('cv-upload-status');
-  statusEl.textContent = 'جاري رفع ملف السيرة الذاتية...';
+  statusEl.textContent = 'جاري رفع وتخزين ملف السيرة الذاتية...';
 
   try {
     const res = await fetch(`${API_BASE}/files/upload`, {
@@ -1314,7 +1356,7 @@ async function handleCvUpload(input) {
       if (!document.getElementById('cv-name').value) {
         document.getElementById('cv-name').value = data.originalName || file.name;
       }
-      statusEl.textContent = `تم الرفع: ${data.originalName || file.name}`;
+      statusEl.textContent = `تم الرفع بنجاح: ${data.originalName || file.name}`;
       showToast('تم رفع ملف الـ CV بنجاح', 'success');
     }
   } catch (err) {
@@ -1332,7 +1374,8 @@ if (cvForm) {
       name: document.getElementById('cv-name').value.trim(),
       version: document.getElementById('cv-version').value.trim() || 'v1.0',
       pdfFile: document.getElementById('cv-path').value.trim() || '/assets/pdf/EslamCV.pdf',
-      active: document.getElementById('cv-set-active').checked
+      active: document.getElementById('cv-set-active').checked,
+      fileData: uploadedCvBase64
     };
 
     try {
@@ -1371,7 +1414,7 @@ async function setActiveCv(id) {
 }
 
 async function deleteCv(id) {
-  if (!confirm('هل أنت تأكد من رغبتك في حذف نسخة الـ CV هذه؟')) return;
+  if (!confirm('هل أنت متأكد من رغبتك في حذف نسخة الـ CV هذه؟')) return;
   const token = localStorage.getItem('admin_token');
   try {
     const res = await fetch(`${API_BASE}/cv/${id}`, {
