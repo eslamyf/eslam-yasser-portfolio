@@ -32,12 +32,27 @@ const formatCvItem = (item) => {
   return obj;
 };
 
+const connectDB = require('../config/db');
+
+async function ensureDb() {
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (e) {
+      console.warn('[ensureDb Warning]:', e.message);
+    }
+  }
+}
+
 // Helper to get active CV record
 async function getActiveCvDoc() {
-  if (isMongoReady()) {
+  await ensureDb();
+  try {
     let cv = await CV.findOne({ active: true }).sort({ updatedAt: -1, createdAt: -1 });
     if (!cv) cv = await CV.findOne().sort({ updatedAt: -1, createdAt: -1 });
     if (cv) return cv;
+  } catch (err) {
+    console.warn('[Mongo getActiveCvDoc Warning]:', err.message);
   }
   const fileCvs = loadCvsFromFile();
   return fileCvs.find(x => x.active) || fileCvs[0] || initialCv;
@@ -62,16 +77,15 @@ router.get('/active', async (req, res) => {
 // ==========================================
 const handleDownloadCv = async (req, res) => {
   try {
+    await ensureDb();
     const id = req.params.id;
     let cv = null;
 
     if (id && id !== 'active') {
-      if (isMongoReady()) {
-        if (mongoose.Types.ObjectId.isValid(id)) {
-          cv = await CV.findById(id);
-        } else {
-          cv = await CV.findOne({ _id: id });
-        }
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        cv = await CV.findById(id);
+      } else {
+        cv = await CV.findOne({ _id: id });
       }
       if (!cv) {
         const fileCvs = loadCvsFromFile();
@@ -141,16 +155,15 @@ router.get('/download/:id', handleDownloadCv);
 // ==========================================
 const handleViewCv = async (req, res) => {
   try {
+    await ensureDb();
     const id = req.params.id;
     let cv = null;
 
     if (id && id !== 'active') {
-      if (isMongoReady()) {
-        if (mongoose.Types.ObjectId.isValid(id)) {
-          cv = await CV.findById(id);
-        } else {
-          cv = await CV.findOne({ _id: id });
-        }
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        cv = await CV.findById(id);
+      } else {
+        cv = await CV.findOne({ _id: id });
       }
       if (!cv) {
         const fileCvs = loadCvsFromFile();
@@ -215,10 +228,9 @@ router.get('/view/:id', handleViewCv);
 // ==========================================
 const handleListCvs = async (req, res) => {
   try {
-    if (isMongoReady()) {
-      const cvs = await CV.find().sort({ createdAt: -1 });
-      if (cvs.length > 0) return res.json({ success: true, count: cvs.length, data: cvs.map(formatCvItem) });
-    }
+    await ensureDb();
+    const cvs = await CV.find().sort({ createdAt: -1 });
+    if (cvs.length > 0) return res.json({ success: true, count: cvs.length, data: cvs.map(formatCvItem) });
     const fileCvs = loadCvsFromFile();
     return res.json({ success: true, count: fileCvs.length, data: fileCvs.map(formatCvItem) });
   } catch (err) {
@@ -236,6 +248,7 @@ router.get('/admin/cv', handleListCvs);
 // ==========================================
 const handleSaveCv = async (req, res) => {
   try {
+    await ensureDb();
     const { name, version, pdfFile, active, setAsActive, fileData } = req.body || {};
     const isFileActive = active === true || active === 'true' || setAsActive === true || setAsActive === 'true';
 
