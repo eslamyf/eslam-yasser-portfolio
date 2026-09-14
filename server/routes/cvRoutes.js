@@ -335,8 +335,21 @@ const handleSaveCv = async (req, res) => {
   }
 };
 
-router.post('/', authMiddleware, uploadCv.single('pdf'), handleSaveCv);
-router.post('/admin/cv', authMiddleware, uploadCv.single('pdf'), handleSaveCv);
+const optionalCvUpload = (req, res, next) => {
+  const contentType = (req.headers['content-type'] || '').toLowerCase();
+  if (contentType.includes('multipart/form-data')) {
+    return uploadCv.single('pdf')(req, res, (err) => {
+      if (err) {
+        console.warn('[Multer Warning]:', err.message);
+      }
+      next();
+    });
+  }
+  next();
+};
+
+router.post('/', authMiddleware, optionalCvUpload, handleSaveCv);
+router.post('/admin/cv', authMiddleware, optionalCvUpload, handleSaveCv);
 
 // ==========================================
 // 6. PATCH /api/cv/:id/active - Activate CV

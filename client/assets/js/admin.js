@@ -1389,9 +1389,12 @@ if (cvForm) {
         showToast('تم حفظ وتفعيل الـ CV الجديد بنجاح', 'success');
         closeCvModal();
         loadCVs();
+      } else {
+        showToast(data.message || 'حدث خطأ أثناء حفظ الـ CV', 'error');
       }
     } catch (err) {
       console.error('Save CV error:', err);
+      showToast('تعذر الاتصال بالسيرفر لحفظ الـ CV', 'error');
     }
   });
 }
