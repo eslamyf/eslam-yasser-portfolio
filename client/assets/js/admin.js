@@ -100,7 +100,12 @@ if (loginForm) {
         body: JSON.stringify({ username: usernameInput, password: passwordInput })
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        data = { success: false, message: `خطأ في استجابة الخادم (${res.status}). يرجى التأكد من تشغيل السيرفر وقاعدة البيانات.` };
+      }
 
       if (data.success) {
         localStorage.setItem('admin_token', data.token);
@@ -112,7 +117,7 @@ if (loginForm) {
       }
     } catch (err) {
       console.error('Login request error:', err);
-      alertBox.textContent = 'تعذر الاتصال بالسيرفر. يرجى التأكد من تشغيل الباك إند.';
+      alertBox.textContent = 'تعذر الاتصال بالسيرفر. يرجى التأكد من إعدادات الاستضافة.';
       alertBox.style.display = 'block';
     } finally {
       loginBtn.disabled = false;

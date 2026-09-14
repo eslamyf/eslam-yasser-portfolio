@@ -231,8 +231,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
-// Start Server (Only when not running in Vercel Serverless environment)
-if (!process.env.VERCEL) {
+// Start Server (Only when run directly and not in Vercel Serverless environment)
+if (require.main === module && !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`
