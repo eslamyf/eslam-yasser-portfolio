@@ -15,7 +15,14 @@ const ALLOWED_ROOTS = [
   path.resolve(__dirname, '../uploads')
 ];
 
-const DEFAULT_RESUME_PATH = path.resolve(__dirname, '../../client/assets/pdf/Eslam_Yasser_Resume.pdf');
+const DEFAULT_RESUME_PATH = path.resolve(__dirname, '../uploads/cv/EslamCV.pdf');
+const CLIENT_FALLBACK_RESUME = path.resolve(__dirname, '../../client/assets/pdf/EslamCV.pdf');
+
+const getCanonicalResumePath = () => {
+  if (fs.existsSync(DEFAULT_RESUME_PATH)) return DEFAULT_RESUME_PATH;
+  if (fs.existsSync(CLIENT_FALLBACK_RESUME)) return CLIENT_FALLBACK_RESUME;
+  return null;
+};
 
 // Common MIME Types lookup map
 const MIME_TYPES = {
@@ -46,8 +53,9 @@ function getMimeType(filePath) {
  * Prevents path traversal vulnerabilities (e.g., ../../etc/passwd).
  */
 function safeResolvePath(requestedPath) {
+  const defaultCv = getCanonicalResumePath();
   if (!requestedPath || typeof requestedPath !== 'string') {
-    return fs.existsSync(DEFAULT_RESUME_PATH) ? DEFAULT_RESUME_PATH : null;
+    return defaultCv;
   }
 
   // Strip origin/protocol if passed as absolute URL (e.g. http://localhost:5000/assets/pdf/...)
@@ -64,7 +72,15 @@ function safeResolvePath(requestedPath) {
   // Remove leading 'client/' or 'server/' or 'public/' if present
   clean = clean.replace(/^(client|server|public)[/\\]+/i, '');
 
-  // 1. Direct check in client/assets (e.g. assets/pdf/Eslam_Yasser_Resume.pdf)
+  // 1. Direct check relative to server/ (e.g. uploads/cv/EslamCV.pdf)
+  const serverCandidate = path.resolve(__dirname, '..', clean);
+  for (const root of ALLOWED_ROOTS) {
+    if (serverCandidate.toLowerCase().startsWith(root.toLowerCase()) && fs.existsSync(serverCandidate) && fs.statSync(serverCandidate).isFile()) {
+      return serverCandidate;
+    }
+  }
+
+  // 2. Direct check in client/assets (e.g. assets/img/...)
   const clientCandidate = path.resolve(__dirname, '../../client', clean);
   for (const root of ALLOWED_ROOTS) {
     if (clientCandidate.toLowerCase().startsWith(root.toLowerCase()) && fs.existsSync(clientCandidate) && fs.statSync(clientCandidate).isFile()) {
@@ -72,18 +88,10 @@ function safeResolvePath(requestedPath) {
     }
   }
 
-  // 2. Direct check in client/assets/pdf/
+  // 3. Direct check in client/assets/pdf/
   const clientAssetsPdf = path.resolve(__dirname, '../../client/assets/pdf', path.basename(clean));
   if (fs.existsSync(clientAssetsPdf) && fs.statSync(clientAssetsPdf).isFile()) {
     return clientAssetsPdf;
-  }
-
-  // 3. Check relative to server/ (e.g. uploads/cv/filename.pdf)
-  const serverCandidate = path.resolve(__dirname, '..', clean);
-  for (const root of ALLOWED_ROOTS) {
-    if (serverCandidate.toLowerCase().startsWith(root.toLowerCase()) && fs.existsSync(serverCandidate) && fs.statSync(serverCandidate).isFile()) {
-      return serverCandidate;
-    }
   }
 
   // 4. Check inside uploads subdirectories by base filename
@@ -96,11 +104,10 @@ function safeResolvePath(requestedPath) {
     }
   }
 
-  // 5. Fallback for any CV / Resume / PDF request to default resume
-  if (clean.toLowerCase().includes('resume') || clean.toLowerCase().includes('cv') || fileName.toLowerCase().endsWith('.pdf') || !clean) {
-    if (fs.existsSync(DEFAULT_RESUME_PATH)) {
-      return DEFAULT_RESUME_PATH;
-    }
+  // 5. Generic CV / Resume alias fallback (only if generic alias requested)
+  const lowerClean = clean.toLowerCase();
+  if (lowerClean === 'cv' || lowerClean === 'resume' || lowerClean === 'cv.pdf' || lowerClean === 'resume.pdf') {
+    return defaultCv;
   }
 
   return null;
@@ -118,14 +125,7 @@ router.get('/download', (req, res) => {
       return res.redirect(requestedPath);
     }
 
-    let absolutePath = safeResolvePath(requestedPath);
-
-    // Fallback to default canonical resume
-    if (!absolutePath || !fs.existsSync(absolutePath)) {
-      if (fs.existsSync(DEFAULT_RESUME_PATH)) {
-        absolutePath = DEFAULT_RESUME_PATH;
-      }
-    }
+    const absolutePath = safeResolvePath(requestedPath);
 
     if (!absolutePath || !fs.existsSync(absolutePath)) {
       return res.status(404).json({ success: false, message: 'File not found on server.' });
@@ -172,14 +172,7 @@ const handleFileView = (req, res) => {
       return res.redirect(requestedPath);
     }
 
-    let absolutePath = safeResolvePath(requestedPath);
-
-    // Fallback for CV/Resume if requested path unresolved
-    if (!absolutePath || !fs.existsSync(absolutePath)) {
-      if (fs.existsSync(DEFAULT_RESUME_PATH)) {
-        absolutePath = DEFAULT_RESUME_PATH;
-      }
-    }
+    const absolutePath = safeResolvePath(requestedPath);
 
     if (!absolutePath || !fs.existsSync(absolutePath)) {
       return res.status(404).json({ success: false, message: 'File not found on server.' });

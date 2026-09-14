@@ -5,12 +5,12 @@ const dataDir = path.join(__dirname, '../data');
 const dataFilePath = path.join(dataDir, 'cvs.json');
 
 const initialCv = {
-  _id: 'default-cv-id',
-  name: 'Eslam Yasser - Resume.pdf',
-  version: 'v1.0',
-  pdfFile: '/assets/pdf/Eslam_Yasser_Resume.pdf',
-  originalName: 'Eslam_Yasser_Resume.pdf',
-  fileSize: 143708,
+  _id: 'cv-active-eslam',
+  name: 'EslamCV.pdf',
+  version: 'v2.0',
+  pdfFile: '/uploads/cv/EslamCV.pdf',
+  originalName: 'EslamCV.pdf',
+  fileSize: 74803,
   active: true,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()

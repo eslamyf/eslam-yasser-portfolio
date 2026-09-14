@@ -3,7 +3,7 @@ const router = express.Router();
 const CV = require('../models/CV');
 const File = require('../models/File');
 const authMiddleware = require('../middleware/authMiddleware');
-const { upload } = require('../middleware/uploadMiddleware');
+const { uploadCv } = require('../middleware/uploadMiddleware');
 const { initialCv, loadCvsFromFile, saveCvsToFile } = require('../utils/cvStore');
 
 const mongoose = require('mongoose');
@@ -13,7 +13,7 @@ const isMongoReady = () => mongoose.connection.readyState === 1;
 const formatCvItem = (item) => {
   if (!item) return item;
   const obj = typeof item.toObject === 'function' ? item.toObject() : { ...item };
-  obj.url = obj.pdfFile || obj.url || '/assets/pdf/Eslam_Yasser_Resume.pdf';
+  obj.url = obj.pdfFile || obj.url || '/uploads/cv/EslamCV.pdf';
   return obj;
 };
 
@@ -59,9 +59,9 @@ const handleSaveCv = async (req, res) => {
     const { name, version, pdfFile, active, setAsActive } = req.body || {};
     const isFileActive = active === true || active === 'true' || setAsActive === true || setAsActive === 'true';
 
-    let finalPdfPath = pdfFile || '/assets/pdf/Eslam_Yasser_Resume.pdf';
-    let originalName = name || 'Eslam_Yasser_Resume.pdf';
-    let fileSize = 0;
+    let finalPdfPath = pdfFile || '/uploads/cv/EslamCV.pdf';
+    let originalName = name || 'EslamCV.pdf';
+    let fileSize = 74803;
 
     if (req.file) {
       finalPdfPath = `/uploads/cv/${req.file.filename}`;
@@ -77,7 +77,7 @@ const handleSaveCv = async (req, res) => {
       }
       const cv = new CV({
         name: name || originalName,
-        version: version || 'v1.0',
+        version: version || 'v2.0',
         pdfFile: finalPdfPath,
         originalName: originalName,
         fileSize: fileSize,
@@ -94,7 +94,7 @@ const handleSaveCv = async (req, res) => {
     const newFileCv = {
       _id: savedRecord ? savedRecord._id.toString() : 'cv-' + Date.now(),
       name: name || originalName,
-      version: version || 'v1.0',
+      version: version || 'v2.0',
       pdfFile: finalPdfPath,
       originalName: originalName,
       fileSize: fileSize,
@@ -113,8 +113,8 @@ const handleSaveCv = async (req, res) => {
   }
 };
 
-router.post('/', authMiddleware, upload.single('pdf'), handleSaveCv);
-router.post('/admin/cv', authMiddleware, upload.single('pdf'), handleSaveCv);
+router.post('/', authMiddleware, uploadCv.single('pdf'), handleSaveCv);
+router.post('/admin/cv', authMiddleware, uploadCv.single('pdf'), handleSaveCv);
 
 // Activate CV Endpoint
 const handleActivateCv = async (req, res) => {

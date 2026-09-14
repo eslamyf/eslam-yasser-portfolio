@@ -458,20 +458,21 @@ function renderProjects(projects) {
 /*=============== SIMPLE & ROBUST PDF MODAL & DOWNLOAD HANDLERS ===============*/
 
 // Constant direct static path - Canonical Master Resume
-const STATIC_CV_PATH = 'assets/pdf/Eslam_Yasser_Resume.pdf';
+const STATIC_CV_PATH = 'assets/pdf/EslamCV.pdf';
 
 /**
  * Robust URL resolver for PDF and document assets.
  * Works seamlessly across Live Server (5500/5501), Express server (5000), file protocol, and static production.
  */
 function resolvePdfUrl(rawPath, fileName) {
-    const targetName = fileName || 'Eslam_Yasser_Resume.pdf';
+    const targetName = fileName || 'EslamCV.pdf';
     let pathStr = (rawPath || STATIC_CV_PATH).trim();
 
     // 1. External / Full URL (Cloudinary, S3, external)
     if (pathStr.startsWith('http://') || pathStr.startsWith('https://')) {
         return {
             directUrl: pathStr,
+            fullDirectUrl: pathStr,
             apiUrl: pathStr,
             downloadUrl: pathStr,
             fileName: targetName
@@ -483,26 +484,21 @@ function resolvePdfUrl(rawPath, fileName) {
 
     // 2. Static client asset (assets/pdf/...)
     if (clean.startsWith('assets/')) {
-        const directUrl = `/${clean}`;
-        const localRelative = clean;
-        const apiUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(clean)}`;
-        const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
-        return { directUrl: localRelative, fullDirectUrl: directUrl, apiUrl, downloadUrl, fileName: targetName };
+        const directUrl = clean;
+        const fullDirectUrl = `${window.location.origin}/${clean}`;
+        const downloadUrl = clean;
+        return { directUrl, fullDirectUrl, apiUrl: downloadUrl, downloadUrl, fileName: targetName };
     }
 
     // 3. Uploaded server asset (uploads/...)
     if (clean.startsWith('uploads/')) {
-        const directUrl = `/${clean}`;
-        const apiUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(clean)}`;
-        const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
-        return { directUrl, fullDirectUrl: directUrl, apiUrl, downloadUrl, fileName: targetName };
+        const directUrl = `${SERVER_BASE}/${clean}`;
+        const apiUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
+        return { directUrl, fullDirectUrl: directUrl, apiUrl, downloadUrl: directUrl, fileName: targetName };
     }
 
-    // 4. Default / Bare filename
-    const directUrl = STATIC_CV_PATH;
-    const apiUrl = `${API_BASE}/files/view-pdf?filePath=${encodeURIComponent(clean)}`;
-    const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
-    return { directUrl, fullDirectUrl: `/${STATIC_CV_PATH}`, apiUrl, downloadUrl, fileName: targetName };
+    // 4. Default fallback
+    return { directUrl: STATIC_CV_PATH, fullDirectUrl: STATIC_CV_PATH, apiUrl: STATIC_CV_PATH, downloadUrl: STATIC_CV_PATH, fileName: targetName };
 }
 
 /**
@@ -530,76 +526,34 @@ function showToast(message, icon = 'ri-information-line') {
 }
 
 /**
- * Unified Bulletproof File Downloader
- * Tries Blob extraction first, then falls back to direct browser download.
- * Works 100% offline, on Live Server, and with backend.
+ * Direct & Reliable File Downloader
+ * Uses native browser download mechanism without intermediary canvas layers.
  */
-async function downloadFile(filePath, fileName) {
+function downloadFile(filePath, fileName) {
     const targetPath = filePath || STATIC_CV_PATH;
-    const targetName = fileName || 'Eslam_Yasser_Resume.pdf';
+    const targetName = fileName || 'EslamCV.pdf';
     const resolved = resolvePdfUrl(targetPath, targetName);
+    const downloadLink = resolved.downloadUrl || resolved.directUrl || STATIC_CV_PATH;
 
     showToast(`جاري تحميل ${targetName}...`, 'ri-download-2-line');
 
-    // Ordered list of candidate download sources
-    const candidateUrls = [
-        resolved.downloadUrl,
-        resolved.apiUrl,
-        resolved.directUrl,
-        resolved.fullDirectUrl,
-        `/${STATIC_CV_PATH}`,
-        STATIC_CV_PATH
-    ].filter(Boolean);
-
-    // Strategy 1: Fetch as binary Blob and trigger instantaneous programmatic download
-    for (const url of candidateUrls) {
-        try {
-            const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
-            if (res.ok) {
-                const blob = await res.blob();
-                if (blob && blob.size > 100) {
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = blobUrl;
-                    a.download = targetName;
-                    document.body.appendChild(a);
-                    a.click();
-                    
-                    // Retain blob for 60 seconds to allow Chromium download pipeline to complete smoothly
-                    setTimeout(() => {
-                        try {
-                            if (a.parentNode) document.body.removeChild(a);
-                            window.URL.revokeObjectURL(blobUrl);
-                        } catch (e) {}
-                    }, 60000);
-
-                    showToast(`تم تحميل ${targetName} بنجاح!`, 'ri-checkbox-circle-line');
-                    return;
-                }
-            }
-        } catch (err) {
-            // Silently try next fallback URL
-        }
-    }
-
-    // Strategy 2: Direct Anchor trigger fallback (without conflicting target="_blank")
     try {
-        const fallbackA = document.createElement('a');
-        fallbackA.style.display = 'none';
-        fallbackA.href = resolved.downloadUrl || resolved.directUrl || STATIC_CV_PATH;
-        fallbackA.download = targetName;
-        document.body.appendChild(fallbackA);
-        fallbackA.click();
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = downloadLink;
+        a.download = targetName;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+
         setTimeout(() => {
             try {
-                if (fallbackA.parentNode) document.body.removeChild(fallbackA);
+                if (a.parentNode) document.body.removeChild(a);
             } catch (e) {}
-        }, 5000);
-        showToast(`بدأ تحميل ${targetName}`, 'ri-checkbox-circle-line');
+        }, 2000);
+        showToast(`تم بدء تحميل ${targetName}`, 'ri-checkbox-circle-line');
     } catch (err) {
-        console.error('[Download Fallback Error]:', err);
-        window.open(resolved.downloadUrl || resolved.directUrl || STATIC_CV_PATH, '_blank');
+        window.open(downloadLink, '_blank');
     }
 }
 
@@ -608,329 +562,29 @@ function downloadFileBlob(url, filename) {
     downloadFile(url, filename);
 }
 
-/* ==================== HIGH-FIDELITY PDF.JS VIEWER ENGINE ==================== */
-let _pdfDocState = null;
-let _pdfScaleState = 1.15;
-let _pdfTargetPath = null;
-let _pdfTargetName = null;
-let _pdfViewMode = 'canvas'; // 'canvas' | 'native'
-
 /**
- * Unified PDF Viewer Modal with Dual Engine (PDF.js Canvas & Native Embed)
+ * Direct Native PDF Viewer (Opens instantly in browser native tab)
  */
 function openPdfModal(pdfUrl, title, originalFileName) {
-    const modal = document.getElementById('pdf-viewer-modal');
-    const container = document.getElementById('pdf-modal-container');
-    const titleEl = document.getElementById('pdf-modal-title');
-    const downloadBtn = document.getElementById('pdf-modal-download-btn');
-
-    if (!modal || !container) return;
-
-    _pdfTargetPath = pdfUrl || STATIC_CV_PATH;
-    _pdfTargetName = originalFileName || (title ? `${title}.pdf` : 'Eslam_Yasser_Resume.pdf');
-    _pdfScaleState = window.innerWidth < 768 ? 0.8 : 1.15;
-    _pdfViewMode = 'canvas';
-
-    const resolved = resolvePdfUrl(_pdfTargetPath, _pdfTargetName);
-
-    if (titleEl) {
-        titleEl.innerHTML = `<i class="ri-file-pdf-2-line" style="color: var(--first-color);"></i> ${title || 'Document Viewer'}`;
-    }
-
-    if (downloadBtn) {
-        downloadBtn.onclick = (e) => {
-            e.preventDefault();
-            downloadFile(_pdfTargetPath, _pdfTargetName);
-        };
-    }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-
-    renderPdfViewerUI(resolved);
-}
-
-/**
- * Renders the PDF Viewer Toolbar and Viewport Container
- */
-function renderPdfViewerUI(resolved) {
-    const container = document.getElementById('pdf-modal-container');
-    if (!container) return;
-
-    const directUrl = resolved.directUrl || STATIC_CV_PATH;
-
-    container.innerHTML = `
-        <div class="pdf-modal-toolbar">
-            <div class="pdf-toolbar-group">
-                <button type="button" class="pdf-tool-btn" onclick="zoomPdfView(-0.15)" title="تصغير">
-                    <i class="ri-zoom-out-line"></i>
-                </button>
-                <button type="button" class="pdf-tool-btn" onclick="resetPdfZoomView()" title="إعادة ضبط الحجم">
-                    <span id="pdf-zoom-level">${Math.round(_pdfScaleState * 100)}%</span>
-                </button>
-                <button type="button" class="pdf-tool-btn" onclick="zoomPdfView(0.15)" title="تكبير">
-                    <i class="ri-zoom-in-line"></i>
-                </button>
-                <span id="pdf-page-indicator" class="pdf-page-indicator">جاري التحميل...</span>
-            </div>
-
-            <div class="pdf-toolbar-group">
-                <button type="button" class="pdf-tool-btn" id="pdf-toggle-mode-btn" onclick="togglePdfViewMode()" title="تبديل وضع العرض">
-                    <i class="ri-pages-line"></i> العرض المباشر
-                </button>
-                <a href="${directUrl}" target="_blank" class="pdf-tool-btn" title="فتح في نافذة جديدة">
-                    <i class="ri-external-link-line"></i> نافذة جديدة
-                </a>
-            </div>
-        </div>
-
-        <div id="pdf-viewport-area" class="pdf-viewport">
-            <div class="pdf-loading-state" id="pdf-loading-box">
-                <div class="pdf-loading-spinner"></div>
-                <p>جاري معالجة مستند الـ PDF وعرض الصفحات بدقة عالية...</p>
-            </div>
-        </div>
-    `;
-
-    loadAndRenderPdfDocument(resolved);
-}
-
-/**
- * Loads the PDF document using PDF.js and renders all pages
- */
-async function loadAndRenderPdfDocument(resolved) {
-    const viewport = document.getElementById('pdf-viewport-area');
-    const pageIndicator = document.getElementById('pdf-page-indicator');
-    if (!viewport) return;
-
-    const candidateUrls = [
-        resolved.directUrl,
-        resolved.apiUrl,
-        resolved.fullDirectUrl,
-        STATIC_CV_PATH
-    ].filter(Boolean);
-
-    // Verify PDF.js library presence
-    if (typeof pdfjsLib === 'undefined') {
-        renderNativePdfFallback(resolved);
-        return;
-    }
-
-    try {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    } catch (e) {
-        // Continue if worker fails
-    }
-
-    let pdfBuffer = null;
-
-    // Fetch array buffer from candidate URLs
-    for (const url of candidateUrls) {
-        try {
-            const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
-            if (res.ok) {
-                const buf = await res.arrayBuffer();
-                if (buf && buf.byteLength > 100) {
-                    pdfBuffer = buf;
-                    break;
-                }
-            }
-        } catch (e) {
-            // try next url
-        }
-    }
-
-    try {
-        const loadingTask = pdfBuffer
-            ? pdfjsLib.getDocument({
-                data: pdfBuffer,
-                cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-                cMapPacked: true,
-                standardFontDataUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/standard_fonts/'
-            })
-            : pdfjsLib.getDocument(resolved.directUrl || STATIC_CV_PATH);
-
-        _pdfDocState = await loadingTask.promise;
-        const totalPages = _pdfDocState.numPages;
-
-        if (pageIndicator) {
-            pageIndicator.textContent = `عدد الصفحات: ${totalPages}`;
-        }
-
-        renderAllPdfPages(_pdfDocState, _pdfScaleState);
-    } catch (err) {
-        console.warn('[PDF.js Render Fallback]:', err);
-        renderNativePdfFallback(resolved);
-    }
-}
-
-/**
- * Renders all pages of the active PDF document to canvas
- */
-async function renderAllPdfPages(pdfDoc, scale) {
-    const viewport = document.getElementById('pdf-viewport-area');
-    if (!viewport || !pdfDoc) return;
-
-    viewport.innerHTML = '';
-
-    const dpr = window.devicePixelRatio || 1;
-
-    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-        try {
-            const page = await pdfDoc.getPage(pageNum);
-            const initialViewport = page.getViewport({ scale: 1 });
-
-            // Calculate auto-scale for mobile screens
-            let effectiveScale = scale;
-            if (window.innerWidth < 768) {
-                const availableWidth = Math.min(window.innerWidth - 48, 800);
-                effectiveScale = (availableWidth / initialViewport.width) * scale;
-            }
-
-            const pageViewport = page.getViewport({ scale: effectiveScale });
-
-            const pageBox = document.createElement('div');
-            pageBox.className = 'pdf-page-container';
-
-            const canvas = document.createElement('canvas');
-            canvas.className = 'pdf-canvas';
-            const ctx = canvas.getContext('2d', { alpha: false });
-
-            // High-DPI Sharp Rendering
-            canvas.width = Math.floor(pageViewport.width * dpr);
-            canvas.height = Math.floor(pageViewport.height * dpr);
-            canvas.style.width = `${Math.floor(pageViewport.width)}px`;
-            canvas.style.height = `${Math.floor(pageViewport.height)}px`;
-
-            ctx.scale(dpr, dpr);
-
-            pageBox.appendChild(canvas);
-            viewport.appendChild(pageBox);
-
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: pageViewport
-            };
-
-            await page.render(renderContext).promise;
-        } catch (renderError) {
-            console.error(`Error rendering PDF page ${pageNum}:`, renderError);
-        }
-    }
-}
-
-/**
- * Fallback Embed viewer (Native Iframe / Object)
- */
-function renderNativePdfFallback(resolved) {
-    const viewport = document.getElementById('pdf-viewport-area');
-    const toggleBtn = document.getElementById('pdf-toggle-mode-btn');
-    const pageIndicator = document.getElementById('pdf-page-indicator');
-    if (!viewport) return;
-
-    const url = resolved.directUrl || STATIC_CV_PATH;
-
-    if (pageIndicator) pageIndicator.textContent = 'العرض الأصلي';
-    if (toggleBtn) toggleBtn.innerHTML = '<i class="ri-image-line"></i> عرض Canvas HD';
-
-    viewport.innerHTML = `
-        <div style="width:100%; height:100%; min-height:75vh; border-radius:8px; overflow:hidden;">
-            <iframe src="${url}#toolbar=1" style="width:100%; height:100%; min-height:75vh; border:none;" title="PDF Preview">
-                <div class="pdf-error-state">
-                    <i class="ri-file-warning-line"></i>
-                    <h3>تعذر العرض المباشر في المتصفح</h3>
-                    <p>يمكنك تحميل المستند مباشرة بجودة أصلية والاطلاع عليه على جهازك.</p>
-                    <button class="pdf-tool-btn pdf-tool-btn--primary" onclick="downloadFile('${_pdfTargetPath}', '${_pdfTargetName}')">
-                        <i class="ri-download-line"></i> تحميل ملف الـ PDF الآن
-                    </button>
-                </div>
-            </iframe>
-        </div>
-    `;
-}
-
-/**
- * Zoom In / Zoom Out Controller
- */
-function zoomPdfView(delta) {
-    _pdfScaleState = Math.max(0.5, Math.min(2.5, _pdfScaleState + delta));
-    const zoomLevelEl = document.getElementById('pdf-zoom-level');
-    if (zoomLevelEl) zoomLevelEl.textContent = `${Math.round(_pdfScaleState * 100)}%`;
-
-    if (_pdfDocState && _pdfViewMode === 'canvas') {
-        renderAllPdfPages(_pdfDocState, _pdfScaleState);
-    }
-}
-
-/**
- * Reset Zoom to Default Fit
- */
-function resetPdfZoomView() {
-    _pdfScaleState = window.innerWidth < 768 ? 0.8 : 1.15;
-    const zoomLevelEl = document.getElementById('pdf-zoom-level');
-    if (zoomLevelEl) zoomLevelEl.textContent = `${Math.round(_pdfScaleState * 100)}%`;
-
-    if (_pdfDocState && _pdfViewMode === 'canvas') {
-        renderAllPdfPages(_pdfDocState, _pdfScaleState);
-    }
-}
-
-/**
- * Toggle between PDF.js Canvas and Native Browser View
- */
-function togglePdfViewMode() {
-    const resolved = resolvePdfUrl(_pdfTargetPath, _pdfTargetName);
-    const toggleBtn = document.getElementById('pdf-toggle-mode-btn');
-
-    if (_pdfViewMode === 'canvas') {
-        _pdfViewMode = 'native';
-        renderNativePdfFallback(resolved);
-    } else {
-        _pdfViewMode = 'canvas';
-        if (toggleBtn) toggleBtn.innerHTML = '<i class="ri-pages-line"></i> العرض المباشر';
-        loadAndRenderPdfDocument(resolved);
-    }
+    const targetPath = pdfUrl || STATIC_CV_PATH;
+    const targetName = originalFileName || (title ? `${title}.pdf` : 'EslamCV.pdf');
+    const resolved = resolvePdfUrl(targetPath, targetName);
+    const viewUrl = resolved.directUrl || resolved.fullDirectUrl || STATIC_CV_PATH;
+    window.open(viewUrl, '_blank');
 }
 
 function closePdfModal() {
-    const modal = document.getElementById("pdf-viewer-modal");
-    const container = document.getElementById("pdf-modal-container");
-    if (modal) {
-        if (container) container.innerHTML = "";
-        modal.style.display = "none";
-        document.body.style.overflow = "";
-    }
-    _pdfDocState = null;
+    // No-op for modal cleanup
 }
 
 function handleCvView(e) {
     if (e) e.preventDefault();
-    fetch(`${API_BASE}/cv/active`, { signal: AbortSignal.timeout(1200) })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success && res.data && res.data.pdfFile) {
-                openPdfModal(res.data.pdfFile, res.data.name, res.data.originalName);
-            } else {
-                openPdfModal(STATIC_CV_PATH, 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
-            }
-        })
-        .catch(() => {
-            openPdfModal(STATIC_CV_PATH, 'Eslam Yasser - Resume', 'Eslam_Yasser_Resume.pdf');
-        });
+    window.open(STATIC_CV_PATH, '_blank');
 }
 
 function handleCvDownload(e) {
     if (e) e.preventDefault();
-    fetch(`${API_BASE}/cv/active`, { signal: AbortSignal.timeout(1200) })
-        .then(r => r.json())
-        .then(res => {
-            const path = (res.success && res.data && res.data.pdfFile) ? res.data.pdfFile : STATIC_CV_PATH;
-            const name = (res.success && res.data && res.data.originalName) ? res.data.originalName : 'Eslam_Yasser_Resume.pdf';
-            downloadFile(path, name);
-        })
-        .catch(() => {
-            downloadFile(STATIC_CV_PATH, 'Eslam_Yasser_Resume.pdf');
-        });
+    downloadFile(STATIC_CV_PATH, 'EslamCV.pdf');
 }
 
 function openVideoModal(videoUrl, title) {

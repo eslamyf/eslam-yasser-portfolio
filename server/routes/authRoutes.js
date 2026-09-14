@@ -9,7 +9,10 @@ const isMongoReady = () => mongoose.connection.readyState === 1;
 
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'eslam_portfolio_super_secret_jwt_key_2026_x987!', {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured on the server');
+  }
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '7d'
   });
 };
@@ -22,8 +25,8 @@ const handleLogin = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please enter username and password' });
     }
 
-    const defaultAdminUsername = process.env.ADMIN_USERNAME || 'admin';
-    const defaultAdminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const envAdminUsername = process.env.ADMIN_USERNAME;
+    const envAdminPassword = process.env.ADMIN_PASSWORD;
 
     if (isMongoReady()) {
       const user = await User.findOne({ username });
@@ -36,11 +39,12 @@ const handleLogin = async (req, res) => {
       }
     }
 
-    if (username === defaultAdminUsername && password === defaultAdminPassword) {
+    // Fallback authentication check using ONLY configured environment variables
+    if (envAdminUsername && envAdminPassword && username === envAdminUsername && password === envAdminPassword) {
       return res.json({
         success: true,
         token: generateToken('fallback-admin-id-123'),
-        user: { id: 'fallback-admin-id-123', username: defaultAdminUsername, role: 'admin' }
+        user: { id: 'fallback-admin-id-123', username: envAdminUsername, role: 'admin' }
       });
     }
 

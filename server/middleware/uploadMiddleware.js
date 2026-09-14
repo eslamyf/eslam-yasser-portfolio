@@ -75,11 +75,28 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit for videos and archives
+  limits: { fileSize: 100 * 1024 * 1024 } // 100MB general limit
+});
+
+// Dedicated strict CV Upload Middleware (PDF only, max 10MB)
+const cvFileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (file.mimetype === 'application/pdf' && ext === '.pdf') {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file format: Only valid PDF documents (.pdf) are allowed for CV upload.'), false);
+  }
+};
+
+const uploadCv = multer({
+  storage: storage,
+  fileFilter: cvFileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB strict limit for CV
 });
 
 module.exports = {
   upload,
+  uploadCv,
   baseUploadDir,
   dirs
 };

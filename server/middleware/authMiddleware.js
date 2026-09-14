@@ -7,8 +7,12 @@ const protect = async (req, res, next) => {
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
+      if (!process.env.JWT_SECRET) {
+        return res.status(500).json({ success: false, message: 'Server authentication configuration error' });
+      }
+
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'eslam_portfolio_super_secret_jwt_key_2026_x987!');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       if (mongoose.connection.readyState === 1 && decoded.id !== 'fallback-admin-id-123') {
         req.user = await User.findById(decoded.id).select('-password');
@@ -21,7 +25,7 @@ const protect = async (req, res, next) => {
       return next();
     } catch (error) {
       console.error('JWT Auth Error:', error.message);
-      return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
+      return res.status(401).json({ success: false, message: 'Not authorized, token invalid or expired' });
     }
   }
 

@@ -40,7 +40,7 @@ const getFallbackCertificates = () => {
     issuer: x.subtitle || x.issuer || 'NTI',
     issueDate: x.year || x.issueDate || '2026',
     description: x.description || '',
-    pdfFile: x.pdfFile || '/assets/pdf/Eslam_Yasser_Resume.pdf',
+    pdfFile: x.pdfFile || '/assets/pdf/EslamCV.pdf',
     orderIndex: x.orderIndex || idx + 1
   }));
 };
@@ -123,7 +123,7 @@ const handleCreateCertificate = async (req, res) => {
       year: data.issueDate || '2026',
       issueDate: data.issueDate || '2026',
       description: data.description || '',
-      pdfFile: data.pdfFile || '/assets/pdf/Eslam_Yasser_Resume.pdf',
+      pdfFile: data.pdfFile || '/assets/pdf/EslamCV.pdf',
       orderIndex: data.orderIndex ? parseInt(data.orderIndex) : workData.certificates.length + 1
     };
     workData.certificates.unshift(newEntry);

@@ -174,9 +174,9 @@
                         </div>
                     </div>
 
-                    <button onclick="handleCvView(event)" class="home__cv" id="home-cv-btn">
-                        RESUME <i class="ri-file-list-2-line"></i>
-                    </button>
+                    <a href="assets/pdf/EslamCV.pdf" download="EslamCV.pdf" class="home__cv" id="home-cv-btn">
+                        RESUME <i class="ri-download-2-line"></i>
+                    </a>
                 </div>
             </div>
         </section>
@@ -237,12 +237,12 @@
 
                     <!-- Action Buttons -->
                     <div class="about__buttons">
-                        <button onclick="handleCvView(event)" class="button" id="cv-preview-btn">
-                            <i class="ri-eye-line"></i> Preview CV
-                        </button>
-                        <button onclick="handleCvDownload(event)" class="button button--ghost" id="cv-download-btn">
+                        <a href="assets/pdf/EslamCV.pdf" target="_blank" class="button" id="cv-preview-btn">
+                            <i class="ri-external-link-line"></i> View CV
+                        </a>
+                        <a href="assets/pdf/EslamCV.pdf" download="EslamCV.pdf" class="button button--ghost" id="cv-download-btn">
                             <i class="ri-download-2-line"></i> Download CV
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -698,23 +698,7 @@
         </div>
     </div>
 
-    <!--========== ENHANCED PDF VIEWER MODAL ==========-->
-    <div id="pdf-viewer-modal" class="yt-modal" style="display: none;">
-        <div class="yt-modal__overlay" onclick="closePdfModal()"></div>
-        <div class="yt-modal__content">
-            <div class="yt-modal__header">
-                <h3 id="pdf-modal-title"><i class="ri-file-pdf-2-line" style="color: var(--first-color);"></i> Document Viewer</h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button id="pdf-modal-download-btn" class="pdf-tool-btn pdf-tool-btn--primary">
-                        <i class="ri-download-line"></i> Download
-                    </button>
-                    <button class="yt-modal__close" onclick="closePdfModal()"><i class="ri-close-line"></i></button>
-                </div>
-            </div>
-            <div id="pdf-modal-container" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #090d16;">
-            </div>
-        </div>
-    </div>
+
 
     <!--========== NATIVE HTML5 VIDEO PLAYER MODAL ==========-->
     <div id="video-player-modal" class="yt-modal" style="display: none;">
@@ -753,8 +737,6 @@
 
     <!--=============== SWIPER JS ===============-->
     <script src="assets/js/swiper-bundle.min.js"></script>
-    <!--=============== PDF.JS FOR RELIABLE PDF RENDERING ===============-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!--=============== MAIN JS ===============-->
     <script src="assets/js/main.js"></script>
 </body>

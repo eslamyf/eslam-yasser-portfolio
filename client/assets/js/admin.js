@@ -1240,7 +1240,7 @@ function renderActiveCvBanner(cv) {
     document.getElementById('active-cv-meta').textContent = 'قم برفع ملف PDF وتفعيله كـ CV للموقع';
     return;
   }
-  document.getElementById('active-cv-name').textContent = cv.name || cv.originalName || 'Eslam_Yasser_Resume.pdf';
+  document.getElementById('active-cv-name').textContent = cv.name || cv.originalName || 'EslamCV.pdf';
   document.getElementById('active-cv-meta').textContent = `نسخة ${cv.version || 'v1.0'} | مرفوعة في ${new Date(cv.createdAt || Date.now()).toLocaleDateString('ar-EG')}`;
 }
 
@@ -1326,7 +1326,7 @@ if (cvForm) {
     const payload = {
       name: document.getElementById('cv-name').value.trim(),
       version: document.getElementById('cv-version').value.trim() || 'v1.0',
-      pdfFile: document.getElementById('cv-path').value.trim() || '/assets/pdf/Eslam_Yasser_Resume.pdf',
+      pdfFile: document.getElementById('cv-path').value.trim() || '/assets/pdf/EslamCV.pdf',
       active: document.getElementById('cv-set-active').checked
     };
 
@@ -1383,15 +1383,15 @@ async function deleteCv(id) {
   }
 }
 
-/* ==================== BULLETPROOF PDF DOWNLOAD & VIEWER ENGINE ==================== */
+/* ==================== DIRECT NATIVE PDF VIEWER & DOWNLOAD ENGINE ==================== */
 
-const STATIC_ADMIN_CV_PATH = 'assets/pdf/Eslam_Yasser_Resume.pdf';
+const STATIC_ADMIN_CV_PATH = 'assets/pdf/EslamCV.pdf';
 
 /**
  * Resolves any raw PDF path to candidate URLs (API download, API view, direct asset)
  */
 function resolveAdminPdfUrls(rawPath, fileName) {
-  const targetName = fileName || 'Eslam_Yasser_Resume.pdf';
+  const targetName = fileName || 'EslamCV.pdf';
   let pathStr = (rawPath || STATIC_ADMIN_CV_PATH).trim();
 
   if (pathStr.startsWith('http://') || pathStr.startsWith('https://')) {
@@ -1418,70 +1418,26 @@ function resolveAdminPdfUrls(rawPath, fileName) {
 }
 
 /**
- * 100% Fail-Safe PDF Downloader
- * Does not revoke blob prematurely, uses direct binary download, and supports all browsers.
+ * Direct & Reliable File Downloader for Admin
  */
-async function downloadFileBlob(urlOrPath, filename) {
-  const targetName = filename || 'Eslam_Yasser_Resume.pdf';
-  const resolved = resolveAdminPdfUrls(urlOrPath, targetName);
+function downloadFileBlob(url, filename) {
+  const targetName = filename || 'EslamCV.pdf';
+  showToast(`جاري تنزيل ${targetName}...`, 'info');
 
-  showToast(`جاري تحميل ${targetName}...`, 'info');
-
-  const candidateUrls = [
-    resolved.downloadUrl,
-    resolved.viewUrl,
-    resolved.directUrl,
-    `/${STATIC_ADMIN_CV_PATH}`,
-    STATIC_ADMIN_CV_PATH
-  ].filter(Boolean);
-
-  // Strategy 1: Programmatic Binary Blob Download (with safe retention)
-  for (const url of candidateUrls) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
-      if (res.ok) {
-        const blob = await res.blob();
-        if (blob && blob.size > 100) {
-          const blobUrl = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = blobUrl;
-          a.download = targetName;
-          document.body.appendChild(a);
-          a.click();
-          
-          // Retain blob for 60 seconds to allow Chromium download pipeline to complete smoothly
-          setTimeout(() => {
-            try {
-              if (a.parentNode) document.body.removeChild(a);
-              window.URL.revokeObjectURL(blobUrl);
-            } catch (e) {}
-          }, 60000);
-
-          showToast(`تم تنزيل ${targetName} بنجاح!`, 'success');
-          return;
-        }
-      }
-    } catch (err) {
-      // Continue to next fallback
-    }
-  }
-
-  // Strategy 2: Direct Anchor Trigger Fallback
   try {
     const a = document.createElement('a');
     a.style.display = 'none';
-    a.href = resolved.downloadUrl || `/${STATIC_ADMIN_CV_PATH}`;
+    a.href = url || `/${STATIC_ADMIN_CV_PATH}`;
     a.download = targetName;
+    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
       try { if (a.parentNode) document.body.removeChild(a); } catch (e) {}
-    }, 5000);
-    showToast(`بدأ تنزيل ${targetName}`, 'success');
+    }, 2000);
+    showToast(`تم بدء تنزيل ${targetName}`, 'success');
   } catch (err) {
-    console.error('Download fallback error:', err);
-    window.open(resolved.downloadUrl || `/${STATIC_ADMIN_CV_PATH}`, '_blank');
+    window.open(url || `/${STATIC_ADMIN_CV_PATH}`, '_blank');
   }
 }
 
@@ -1742,14 +1698,14 @@ function closePdfModal() {
 }
 
 function handleActiveCvView() {
-  const path = activeCvData ? activeCvData.pdfFile : '/assets/pdf/Eslam_Yasser_Resume.pdf';
-  const name = activeCvData ? (activeCvData.originalName || activeCvData.name) : 'Eslam_Yasser_Resume.pdf';
+  const path = activeCvData ? activeCvData.pdfFile : 'assets/pdf/EslamCV.pdf';
+  const name = activeCvData ? (activeCvData.originalName || activeCvData.name) : 'EslamCV.pdf';
   openPdfModal(path, name, name);
 }
 
 function handleActiveCvDownload() {
-  const path = activeCvData ? activeCvData.pdfFile : '/assets/pdf/Eslam_Yasser_Resume.pdf';
-  const name = activeCvData ? (activeCvData.originalName || activeCvData.name) : 'Eslam_Yasser_Resume.pdf';
+  const path = activeCvData ? activeCvData.pdfFile : 'assets/pdf/EslamCV.pdf';
+  const name = activeCvData ? (activeCvData.originalName || activeCvData.name) : 'EslamCV.pdf';
   const cleanName = name.toLowerCase().endsWith('.pdf') ? name : `${name}.pdf`;
   const downloadUrl = `${API_BASE}/files/download?filePath=${encodeURIComponent(path)}&name=${encodeURIComponent(cleanName)}`;
 

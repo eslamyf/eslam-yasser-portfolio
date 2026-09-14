@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Project = require('../models/Project');
 const { protect } = require('../middleware/authMiddleware');
@@ -27,34 +28,53 @@ const saveFallbackProjects = (projects) => {
 // Check if MongoDB connection is ready
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
+// Helper to check if caller has valid admin token
+const isAuthorizedAdmin = (req) => {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') && process.env.JWT_SECRET) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      jwt.verify(token, process.env.JWT_SECRET);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+};
+
 // @route   GET /api/projects
-// @desc    Get all published projects (or all if admin query present)
-// @access  Public
+// @desc    Get all published projects (or all drafts if authenticated admin)
+// @access  Public (Drafts restricted to Authenticated Admin)
 router.get('/', async (req, res) => {
   try {
-    const { includeDrafts } = req.query;
+    const includeDraftsRequested = req.query.includeDrafts === 'true';
+    const allowDrafts = includeDraftsRequested && isAuthorizedAdmin(req);
 
     if (isMongoReady()) {
-      let query = { status: 'published' };
-      if (includeDrafts === 'true') {
-        query = {};
-      }
+      const query = allowDrafts ? {} : { status: 'published' };
       let projects = await Project.find(query).sort({ orderIndex: 1, createdAt: -1 });
       if (projects.length === 0) {
         projects = getFallbackProjects();
+        if (!allowDrafts) {
+          projects = projects.filter(p => p.status !== 'draft');
+        }
       }
       return res.json({ success: true, count: projects.length, data: projects });
     } else {
       // Fallback mode using JSON file
       let projects = getFallbackProjects();
-      if (includeDrafts !== 'true') {
+      if (!allowDrafts) {
         projects = projects.filter(p => p.status !== 'draft');
       }
       return res.json({ success: true, count: projects.length, data: projects });
     }
   } catch (error) {
     console.warn('MongoDB error, using fallback JSON projects:', error.message);
-    const projects = getFallbackProjects();
+    const allowDrafts = req.query.includeDrafts === 'true' && isAuthorizedAdmin(req);
+    let projects = getFallbackProjects();
+    if (!allowDrafts) {
+      projects = projects.filter(p => p.status !== 'draft');
+    }
     return res.json({ success: true, count: projects.length, data: projects });
   }
 });

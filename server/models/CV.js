@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const cvSchema = new mongoose.Schema({
-  name: { type: String, required: true, default: 'Eslam Yasser - CV.pdf' },
+  name: { type: String, required: true, default: 'EslamCV.pdf' },
   version: { type: String, default: '1.0' },
   pdfFile: { type: String, required: true },
   originalName: { type: String, required: true },

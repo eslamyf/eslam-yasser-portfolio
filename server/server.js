@@ -4,6 +4,18 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+// Fail-Fast: Validate critical environment variables
+function validateEnvironment() {
+  const requiredVars = ['JWT_SECRET'];
+  const missing = requiredVars.filter(v => !process.env[v] || !process.env[v].trim());
+  if (missing.length > 0) {
+    console.error(`\n❌ [FATAL CONFIG ERROR] Missing required environment variable(s): ${missing.join(', ')}`);
+    console.error('The server cannot start safely without these variables defined in server/.env.\n');
+    process.exit(1);
+  }
+}
+validateEnvironment();
+
 const connectDB = require('./config/db');
 const User = require('./models/User');
 const Project = require('./models/Project');
@@ -17,10 +29,34 @@ const CV = require('./models/CV');
 // Initialize Express App
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS Configuration with Whitelist
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
+  : ['http://localhost:5000', 'http://127.0.0.1:5000', 'http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:5501', 'http://127.0.0.1:5501'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow non-browser requests (curl, server-to-server) or explicitly whitelisted origins
+    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Blocked by CORS policy: Origin "${origin}" is not allowed`));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request Logger for Audit and Live Debugging
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - Status: ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+});
 
 // Serve Static Assets & Uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -150,10 +186,11 @@ async function seedInitialData() {
     // 4. Seed Active CV if empty
     if (await CV.countDocuments() === 0) {
       await CV.create({
-        name: 'Eslam Yasser - Resume.pdf',
-        version: '1.0',
-        pdfFile: '/assets/pdf/Eslam_Yasser_Resume.pdf',
-        originalName: 'Eslam_Yasser_Resume.pdf',
+        name: 'EslamCV.pdf',
+        version: 'v2.0',
+        pdfFile: '/uploads/cv/EslamCV.pdf',
+        originalName: 'EslamCV.pdf',
+        fileSize: 74803,
         active: true
       });
       console.log('[Seed] Created default Active CV record.');
