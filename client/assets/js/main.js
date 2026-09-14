@@ -527,33 +527,35 @@ function showToast(message, icon = 'ri-information-line') {
 
 /**
  * Direct & Reliable File Downloader
- * Uses native browser download mechanism without intermediary canvas layers.
+ * Uses native browser download mechanism without intermediary canvas or popups.
  */
 function downloadFile(filePath, fileName) {
-    const targetPath = filePath || STATIC_CV_PATH;
     const targetName = fileName || 'EslamCV.pdf';
-    const resolved = resolvePdfUrl(targetPath, targetName);
-    const downloadLink = resolved.downloadUrl || resolved.directUrl || STATIC_CV_PATH;
+    let downloadLink = filePath;
 
-    showToast(`جاري تحميل ${targetName}...`, 'ri-download-2-line');
+    if (!downloadLink || downloadLink === STATIC_CV_PATH) {
+        downloadLink = `${API_BASE}/files/download?filePath=uploads/cv/EslamCV.pdf&name=${encodeURIComponent(targetName)}`;
+    } else if (downloadLink.startsWith('http://') || downloadLink.startsWith('https://')) {
+        // Keep external URL as is
+    } else {
+        const clean = downloadLink.replace(/^[/\\]+/, '');
+        downloadLink = `${API_BASE}/files/download?filePath=${encodeURIComponent(clean)}&name=${encodeURIComponent(targetName)}`;
+    }
 
     try {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = downloadLink;
         a.download = targetName;
-        a.target = '_blank';
         document.body.appendChild(a);
         a.click();
-
         setTimeout(() => {
             try {
                 if (a.parentNode) document.body.removeChild(a);
             } catch (e) {}
-        }, 2000);
-        showToast(`تم بدء تحميل ${targetName}`, 'ri-checkbox-circle-line');
+        }, 500);
     } catch (err) {
-        window.open(downloadLink, '_blank');
+        window.location.href = downloadLink;
     }
 }
 
@@ -566,25 +568,23 @@ function downloadFileBlob(url, filename) {
  * Direct Native PDF Viewer (Opens instantly in browser native tab)
  */
 function openPdfModal(pdfUrl, title, originalFileName) {
-    const targetPath = pdfUrl || STATIC_CV_PATH;
-    const targetName = originalFileName || (title ? `${title}.pdf` : 'EslamCV.pdf');
-    const resolved = resolvePdfUrl(targetPath, targetName);
-    const viewUrl = resolved.directUrl || resolved.fullDirectUrl || STATIC_CV_PATH;
-    window.open(viewUrl, '_blank');
+    let targetPath = pdfUrl || '/assets/pdf/EslamCV.pdf';
+    if (!targetPath.startsWith('http://') && !targetPath.startsWith('https://') && !targetPath.startsWith('/')) {
+        targetPath = `/${targetPath}`;
+    }
+    window.open(targetPath, '_blank', 'noopener,noreferrer');
 }
 
 function closePdfModal() {
-    // No-op for modal cleanup
+    // No-op
 }
 
 function handleCvView(e) {
-    if (e) e.preventDefault();
-    window.open(STATIC_CV_PATH, '_blank');
+    // Let native link handle navigation
 }
 
 function handleCvDownload(e) {
-    if (e) e.preventDefault();
-    downloadFile(STATIC_CV_PATH, 'EslamCV.pdf');
+    // Let native link handle download
 }
 
 function openVideoModal(videoUrl, title) {

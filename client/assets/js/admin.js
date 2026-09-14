@@ -1422,22 +1422,18 @@ function resolveAdminPdfUrls(rawPath, fileName) {
  */
 function downloadFileBlob(url, filename) {
   const targetName = filename || 'EslamCV.pdf';
-  showToast(`جاري تنزيل ${targetName}...`, 'info');
-
   try {
     const a = document.createElement('a');
     a.style.display = 'none';
-    a.href = url || `/${STATIC_ADMIN_CV_PATH}`;
+    a.href = url || `/assets/pdf/EslamCV.pdf`;
     a.download = targetName;
-    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
       try { if (a.parentNode) document.body.removeChild(a); } catch (e) {}
-    }, 2000);
-    showToast(`تم بدء تنزيل ${targetName}`, 'success');
+    }, 500);
   } catch (err) {
-    window.open(url || `/${STATIC_ADMIN_CV_PATH}`, '_blank');
+    window.location.href = url || `/assets/pdf/EslamCV.pdf`;
   }
 }
 
