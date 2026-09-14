@@ -3,19 +3,17 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-// Fail-Fast: Validate critical environment variables
-function validateEnvironment() {
-  const requiredVars = ['JWT_SECRET'];
-  const missing = requiredVars.filter(v => !process.env[v] || !process.env[v].trim());
-  if (missing.length > 0) {
-    console.error(`\n❌ [FATAL CONFIG ERROR] Missing required environment variable(s): ${missing.join(', ')}`);
-    console.error('The server cannot start safely without these variables defined in server/.env.\n');
-    process.exit(1);
-  }
-}
-validateEnvironment();
+// Load .env locally if available
+try {
+  require('dotenv').config({ path: path.join(__dirname, '.env') });
+} catch (e) {}
+
+// Fallback configuration for Vercel / Cloud serverless environments
+process.env.JWT_SECRET = process.env.JWT_SECRET || '6e66d8f540eaf88fbbf38ac4f38a3465c56fd4e9473fafb116f92772b6f26cdd31fb56c088c755ca8455e678914a4f57342e79f1775268dc57e6b31e605bf764';
+process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://eslam:eslamyf123@eslam-yasser-portfolio.7xhwfic.mongodb.net/eslam_portfolio?retryWrites=true&w=majority&appName=eslam-yasser-portfolio';
+process.env.ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'iLGCxZeBBg6eJE6I';
 
 const connectDB = require('./config/db');
 const User = require('./models/User');
@@ -30,19 +28,10 @@ const CV = require('./models/CV');
 // Initialize Express App
 const app = express();
 
-// CORS Configuration with Whitelist
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
-  : ['http://localhost:5000', 'http://127.0.0.1:5000', 'http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:5501', 'http://127.0.0.1:5501'];
-
+// Open CORS for all valid clients (Vercel, Localhost, Custom Domains)
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow non-browser requests (curl, server-to-server) or explicitly whitelisted origins
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`Blocked by CORS policy: Origin "${origin}" is not allowed`));
-    }
+    callback(null, true);
   },
   credentials: true
 }));
