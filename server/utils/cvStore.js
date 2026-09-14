@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const dataDir = path.join(__dirname, '../data');
+const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const dataDir = isVercel ? path.join('/tmp', 'data') : path.join(__dirname, '../data');
 const dataFilePath = path.join(dataDir, 'cvs.json');
 
 const initialCv = {
@@ -17,24 +18,30 @@ const initialCv = {
 };
 
 function ensureFileExists() {
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  if (!fs.existsSync(dataFilePath)) {
-    fs.writeFileSync(dataFilePath, JSON.stringify([initialCv], null, 2), 'utf8');
+  try {
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    if (!fs.existsSync(dataFilePath)) {
+      fs.writeFileSync(dataFilePath, JSON.stringify([initialCv], null, 2), 'utf8');
+    }
+  } catch (err) {
+    // Graceful fallback for read-only environments
   }
 }
 
 function loadCvsFromFile() {
   ensureFileExists();
   try {
-    const raw = fs.readFileSync(dataFilePath, 'utf8');
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+    if (fs.existsSync(dataFilePath)) {
+      const raw = fs.readFileSync(dataFilePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     }
   } catch (err) {
-    console.error('Error reading cvs.json:', err);
+    console.warn('Notice: Error reading cvs.json fallback:', err.message);
   }
   return [initialCv];
 }
@@ -44,7 +51,7 @@ function saveCvsToFile(cvList) {
   try {
     fs.writeFileSync(dataFilePath, JSON.stringify(cvList, null, 2), 'utf8');
   } catch (err) {
-    console.error('Error writing cvs.json:', err);
+    console.warn('Notice: Error writing cvs.json fallback:', err.message);
   }
 }
 

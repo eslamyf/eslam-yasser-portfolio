@@ -13,16 +13,24 @@ const jsonPath = path.join(__dirname, '../../client/assets/data/projects.json');
 
 // Helper to read fallback JSON projects
 const getFallbackProjects = () => {
-  if (fs.existsSync(jsonPath)) {
-    const raw = fs.readFileSync(jsonPath, 'utf8');
-    return JSON.parse(raw);
+  try {
+    if (fs.existsSync(jsonPath)) {
+      const raw = fs.readFileSync(jsonPath, 'utf8');
+      return JSON.parse(raw);
+    }
+  } catch (err) {
+    console.warn('Notice: Error reading projects.json fallback:', err.message);
   }
   return [];
 };
 
 // Helper to write fallback JSON projects
 const saveFallbackProjects = (projects) => {
-  fs.writeFileSync(jsonPath, JSON.stringify(projects, null, 4), 'utf8');
+  try {
+    fs.writeFileSync(jsonPath, JSON.stringify(projects, null, 4), 'utf8');
+  } catch (err) {
+    console.warn('Notice: Error writing projects.json fallback:', err.message);
+  }
 };
 
 // Check if MongoDB connection is ready

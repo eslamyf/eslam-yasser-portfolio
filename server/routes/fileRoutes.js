@@ -12,15 +12,19 @@ const isMongoReady = () => mongoose.connection.readyState === 1;
 // Allowed roots for public and uploaded files
 const ALLOWED_ROOTS = [
   path.resolve(__dirname, '../../client/assets'),
-  path.resolve(__dirname, '../uploads')
+  path.resolve(__dirname, '../client/assets'),
+  path.resolve(__dirname, '../uploads'),
+  baseUploadDir
 ];
 
 const DEFAULT_RESUME_PATH = path.resolve(__dirname, '../uploads/cv/EslamCV.pdf');
 const CLIENT_FALLBACK_RESUME = path.resolve(__dirname, '../../client/assets/pdf/EslamCV.pdf');
+const CLIENT_FALLBACK_RESUME_ALT = path.resolve(__dirname, '../client/assets/pdf/EslamCV.pdf');
 
 const getCanonicalResumePath = () => {
   if (fs.existsSync(DEFAULT_RESUME_PATH)) return DEFAULT_RESUME_PATH;
   if (fs.existsSync(CLIENT_FALLBACK_RESUME)) return CLIENT_FALLBACK_RESUME;
+  if (fs.existsSync(CLIENT_FALLBACK_RESUME_ALT)) return CLIENT_FALLBACK_RESUME_ALT;
   return null;
 };
 

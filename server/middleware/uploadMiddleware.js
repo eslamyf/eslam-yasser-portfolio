@@ -2,8 +2,9 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Base uploads directory inside server
-const baseUploadDir = path.join(__dirname, '../uploads');
+// Base uploads directory inside server, or /tmp in serverless environments (Vercel)
+const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const baseUploadDir = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, '../uploads');
 
 // Clean category directories
 const dirs = {
@@ -15,12 +16,19 @@ const dirs = {
   images: path.join(baseUploadDir, 'images')
 };
 
-// Ensure all upload directories exist
-Object.values(dirs).forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+// Safe directory creator
+const ensureDir = (dirPath) => {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  } catch (e) {
+    // Ignore error in read-only environment
   }
-});
+};
+
+// Ensure all upload directories exist safely without throwing errors on import
+Object.values(dirs).forEach(ensureDir);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -28,21 +36,21 @@ const storage = multer.diskStorage({
     const fieldname = file.fieldname ? file.fieldname.toLowerCase() : '';
     const originalName = file.originalname ? file.originalname.toLowerCase() : '';
 
+    let targetDir = dirs.documents;
     if (category === 'cv' || fieldname === 'cv' || originalName.includes('cv') || req.baseUrl.includes('cv')) {
-      cb(null, dirs.cv);
+      targetDir = dirs.cv;
     } else if (category === 'certificates' || category === 'certificate' || fieldname === 'certificate' || req.baseUrl.includes('certificate')) {
-      cb(null, dirs.certificates);
+      targetDir = dirs.certificates;
     } else if (category === 'projects' || category === 'project' || req.baseUrl.includes('project')) {
-      cb(null, dirs.projects);
+      targetDir = dirs.projects;
     } else if (file.mimetype.startsWith('image/')) {
-      cb(null, dirs.images);
+      targetDir = dirs.images;
     } else if (file.mimetype.startsWith('video/')) {
-      cb(null, dirs.videos);
-    } else if (file.mimetype === 'application/pdf') {
-      cb(null, dirs.documents);
-    } else {
-      cb(null, dirs.documents);
+      targetDir = dirs.videos;
     }
+
+    ensureDir(targetDir);
+    cb(null, targetDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e6);
