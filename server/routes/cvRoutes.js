@@ -35,8 +35,8 @@ const formatCvItem = (item) => {
 // Helper to get active CV record
 async function getActiveCvDoc() {
   if (isMongoReady()) {
-    let cv = await CV.findOne({ active: true });
-    if (!cv) cv = await CV.findOne().sort({ createdAt: -1 });
+    let cv = await CV.findOne({ active: true }).sort({ updatedAt: -1, createdAt: -1 });
+    if (!cv) cv = await CV.findOne().sort({ updatedAt: -1, createdAt: -1 });
     if (cv) return cv;
   }
   const fileCvs = loadCvsFromFile();
