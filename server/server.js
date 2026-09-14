@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Fail-Fast: Validate critical environment variables
@@ -71,6 +72,16 @@ connectDB().then(connected => {
   if (connected) {
     seedInitialData();
   }
+});
+
+// Middleware to ensure Database is connected on Serverless invocations (Vercel)
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (e) {}
+  }
+  next();
 });
 
 // Helper function to seed initial admin user & default records from JSON files
@@ -231,14 +242,18 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`
+// Start Server (Only when not running in Vercel Serverless environment)
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`
 =====================================================
 🚀 Full-Stack Portfolio Server Running!
 📡 PORT: http://localhost:${PORT}
 🔐 Admin Dashboard: http://localhost:${PORT}/admin
 =====================================================
-  `);
-});
+    `);
+  });
+}
+
+module.exports = app;

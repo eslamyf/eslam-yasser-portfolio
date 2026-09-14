@@ -2,13 +2,14 @@
     "experience": [
         {
             "_id": "exp-1789326218367",
-            "subtitle": "Test Corp",
-            "company": "Test Corp",
+            "title": "Full-Stack Web Developer",
+            "subtitle": "Freelance & Solutions",
+            "company": "Freelance",
             "year": "2026 - Present",
             "startDate": "2026",
             "endDate": "Present",
-            "description": "Testing verification flow",
-            "orderIndex": 3
+            "description": "Building scalable web solutions and RESTful backend architectures.",
+            "orderIndex": 1
         },
         {
             "title": "MEAN Stack Web Developer Trainee",
