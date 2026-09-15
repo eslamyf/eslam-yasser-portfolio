@@ -297,11 +297,6 @@ html.lenis body {
     padding-block: 6rem 3rem;
 }
 
-/* Override tech-scroll from full 100vh height */
-.tech-scroll {
-    min-height: auto !important;
-    padding-block: 4rem 2rem !important;
-}
 
 .section__title {
     text-align: center;
@@ -630,7 +625,8 @@ html.lenis body {
 .tech-scroll {
     overflow: hidden;
     position: relative;
-    padding-block: 2rem;
+    padding-block: 2.5rem;
+    z-index: 2;
 }
 
 .tech-scroll__container {
@@ -641,17 +637,19 @@ html.lenis body {
 .tech-row {
     overflow: hidden;
     position: relative;
+    padding-block: 0.25rem;
 }
 
 .tech-track {
     display: flex;
     width: max-content;
-    gap: 3rem;
-    animation: scrollLeft 20s linear infinite;
+    gap: 3.5rem;
+    align-items: center;
+    animation: scrollLeft 25s linear infinite;
 }
 
 .tech-row--right .tech-track {
-    animation: scrollRight 20s linear infinite;
+    animation: scrollRight 25s linear infinite;
 }
 
 .tech-row:hover .tech-track {
@@ -663,17 +661,18 @@ html.lenis body {
 }
 
 .tech-track img {
-    width: 60px;
-    height: 60px;
-    transition: 0.4s;
-    filter: brightness(0) saturate(100%) invert(63%) sepia(58%) saturate(450%) hue-rotate(calc(var(--hue) * 1deg)) brightness(95%) contrast(90%);
-    opacity: 0.85;
+    width: 52px;
+    height: 52px;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease, opacity 0.35s ease;
+    filter: brightness(0) saturate(100%) invert(62%) sepia(80%) saturate(2000%) hue-rotate(calc(var(--hue) * 1deg - 40deg)) brightness(102%) contrast(101%);
+    opacity: 0.8;
+    cursor: pointer;
 }
 
 .tech-track img:hover {
-    filter: none;
+    filter: brightness(0) saturate(100%) invert(80%) sepia(50%) saturate(2500%) hue-rotate(calc(var(--hue) * 1deg - 40deg)) brightness(115%) contrast(105%) drop-shadow(0 0 12px var(--first-color));
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1.18);
 }
 
 @keyframes scrollLeft {
@@ -701,7 +700,7 @@ html.lenis body {
     content: "";
     position: absolute;
     top: 0;
-    width: 100px;
+    width: 120px;
     height: 100%;
     z-index: 2;
     pointer-events: none;
