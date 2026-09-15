@@ -894,9 +894,29 @@ function escapeXml(unsafe) {
     });
 }
 
-function getCertificateVisual(item) {
-    if (item.image && item.image.trim() !== '') return item.image;
-    
+function isImageResource(url) {
+    if (!url || typeof url !== 'string') return false;
+    const clean = url.trim().toLowerCase().split('?')[0].split('#')[0];
+    if (clean.startsWith('data:image/')) return true;
+    if (clean.includes('/image/upload/')) return true;
+    if (clean.includes('/uploads/images/')) return true;
+    if (/\.(png|jpe?g|webp|gif|svg|avif|bmp|ico)$/i.test(clean)) return true;
+    return false;
+}
+
+function isPdfResource(url) {
+    if (!url || typeof url !== 'string') return false;
+    const clean = url.trim().toLowerCase().split('?')[0].split('#')[0];
+    if (clean.startsWith('data:application/pdf')) return true;
+    if (clean.includes('/raw/upload/') && clean.endsWith('.pdf')) return true;
+    if (clean.includes('/uploads/certificates/') && clean.endsWith('.pdf')) return true;
+    if (clean.includes('/assets/pdf/')) return true;
+    if (/\.pdf$/i.test(clean)) return true;
+    return false;
+}
+
+function generateCertificateSvg(item) {
+    if (!item) return '';
     const title = item.name || item.title || "Certification of Completion";
     const issuer = item.issuer || item.subtitle || "Authorized Issuer";
     const date = item.issueDate || item.year || "2026";
@@ -938,9 +958,53 @@ function getCertificateVisual(item) {
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
+function getCertificateVisual(item) {
+    if (!item) return '';
+
+    // Direct image properties
+    if (item.image && typeof item.image === 'string' && item.image.trim() !== '') {
+        return item.image.trim();
+    }
+    if (item.imageUrl && typeof item.imageUrl === 'string' && item.imageUrl.trim() !== '') {
+        return item.imageUrl.trim();
+    }
+
+    // Check if pdfFile / fileUrl / certificateFile / filePath / thumbnail / link contains an image URL
+    const candidates = [
+        item.thumbnail,
+        item.previewUrl,
+        item.pdfFile,
+        item.fileUrl,
+        item.certificateFile,
+        item.filePath,
+        item.link
+    ];
+
+    for (const c of candidates) {
+        if (c && typeof c === 'string' && c.trim() !== '' && isImageResource(c)) {
+            return c.trim();
+        }
+    }
+
+    return generateCertificateSvg(item);
+}
+
+let currentCertificatesList = [];
+
+function handleCertImgError(img, idx) {
+    if (!img) return;
+    img.onerror = null;
+    const item = currentCertificatesList && currentCertificatesList[idx];
+    if (item) {
+        img.src = generateCertificateSvg(item);
+    }
+}
+
 function renderCertificateItems(items, container) {
     const targetContainer = container || document.getElementById("certificates-grid") || document.getElementById("certificates");
     if (!targetContainer || !items || !items.length) return;
+
+    currentCertificatesList = items;
 
     targetContainer.innerHTML = items
         .map((item, idx) => {
@@ -958,7 +1022,7 @@ function renderCertificateItems(items, container) {
             } else {
                 skillsArr = ["Software Engineering", "Problem Solving"];
             }
-            const skillsHtml = skillsArr.slice(0, 3).map(s => `<span class="cert-skill-tag">${s}</span>`).join("");
+            const skillsHtml = skillsArr.slice(0, 3).map(s => `<span class="cert-skill-tag">${escapeXml(s)}</span>`).join("");
 
             const issuerLower = issuer.toLowerCase();
             const logo = item.issuerLogo || (
@@ -971,25 +1035,14 @@ function renderCertificateItems(items, container) {
                 ""
             );
 
-            const isPdf = item.pdfFile && item.pdfFile.trim() !== '';
-            const isImage = item.image && item.image.trim() !== '';
-            const originalName = item.originalPdfName || `${title}.pdf`;
-            const verifyLink = item.link || item.verifyUrl || "";
             const certVisual = getCertificateVisual(item);
-
-            let viewAction = "";
-            if (isPdf) {
-                viewAction = `openPdfModal('${item.pdfFile.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')`;
-            } else if (isImage) {
-                viewAction = `openLightboxModal('${item.image.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}')`;
-            } else if (verifyLink && verifyLink !== "#") {
-                viewAction = `window.open('${verifyLink.replace(/'/g, "\\'")}', '_blank', 'noopener,noreferrer')`;
-            } else {
-                viewAction = `openLightboxModal('${certVisual.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}')`;
-            }
+            const isUploadedImage = isImageResource(certVisual) || (item.image && item.image.trim() !== '');
+            const rawFile = item.pdfFile || item.fileUrl || item.certificateFile || item.filePath || "";
+            const isPdf = !isUploadedImage && isPdfResource(rawFile);
+            const verifyLink = item.link || item.verifyUrl || "";
 
             return `
-        <div class="cert-card" tabindex="0" role="region" aria-label="Certificate: ${title}">
+        <div class="cert-card" data-idx="${idx}" tabindex="0" role="region" aria-label="Certificate: ${escapeXml(title)}">
             <div class="cert-card__inner">
                 <!-- FRONT FACE (All details live here) -->
                 <div class="cert-card__face cert-card__face--front">
@@ -998,7 +1051,7 @@ function renderCertificateItems(items, container) {
                             <i class="ri-shield-check-fill"></i> Verified Credential
                         </span>
                         ${logo ? `
-                        <img src="${logo}" alt="${issuer} logo" class="cert-front__logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img src="${logo}" alt="${escapeXml(issuer)} logo" class="cert-front__logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="cert-front__logo-fallback" style="display:none;"><i class="ri-award-line"></i></div>
                         ` : `
                         <div class="cert-front__logo-fallback"><i class="ri-award-line"></i></div>
@@ -1006,21 +1059,21 @@ function renderCertificateItems(items, container) {
                     </div>
 
                     <div class="cert-front__body">
-                        <h3 class="cert-front__title">${title}</h3>
-                        <p class="cert-front__issuer"><i class="ri-building-line"></i> ${issuer}</p>
+                        <h3 class="cert-front__title">${escapeXml(title)}</h3>
+                        <p class="cert-front__issuer"><i class="ri-building-line"></i> ${escapeXml(issuer)}</p>
 
                         <div class="cert-front__meta-grid">
                             <div class="cert-front__meta-item">
                                 <span class="cert-meta-label">Duration</span>
-                                <span class="cert-meta-value"><i class="ri-time-line"></i> ${duration}</span>
+                                <span class="cert-meta-value"><i class="ri-time-line"></i> ${escapeXml(duration)}</span>
                             </div>
                             <div class="cert-front__meta-item">
                                 <span class="cert-meta-label">Date</span>
-                                <span class="cert-meta-value"><i class="ri-calendar-line"></i> ${issueDate}</span>
+                                <span class="cert-meta-value"><i class="ri-calendar-line"></i> ${escapeXml(issueDate)}</span>
                             </div>
                             <div class="cert-front__meta-item cert-front__meta-item--full">
                                 <span class="cert-meta-label">Credential ID</span>
-                                <span class="cert-meta-value font-mono">${credentialId}</span>
+                                <span class="cert-meta-value font-mono">${escapeXml(credentialId)}</span>
                             </div>
                         </div>
 
@@ -1040,19 +1093,19 @@ function renderCertificateItems(items, container) {
                 </div>
 
                 <!-- BACK FACE (Dedicated purely to the Certificate Image) -->
-                <div class="cert-card__face cert-card__face--back" onclick="${viewAction}">
+                <div class="cert-card__face cert-card__face--back" data-idx="${idx}">
                     <div class="cert-back__image-wrapper">
-                        <img src="${certVisual}" alt="${title}" class="cert-back__image" loading="lazy">
+                        <img src="${escapeXml(certVisual)}" alt="${escapeXml(title)}" class="cert-back__image" loading="lazy" onerror="handleCertImgError(this, ${idx})">
                         
                         <div class="cert-back__overlay">
                             <span class="cert-back__zoom-tag">
-                                <i class="ri-zoom-in-line"></i> Fullscreen
+                                <i class="ri-${isPdf ? 'file-pdf-line' : 'zoom-in-line'}"></i> ${isPdf ? 'View PDF' : 'Fullscreen'}
                             </span>
                         </div>
 
-                        <div class="cert-back__controls" onclick="event.stopPropagation();">
+                        <div class="cert-back__controls">
                             ${verifyLink && verifyLink !== '#' ? `
-                            <a href="${verifyLink}" target="_blank" rel="noopener noreferrer" class="cert-back__verify-link" title="Verify Online">
+                            <a href="${escapeXml(verifyLink)}" target="_blank" rel="noopener noreferrer" class="cert-back__verify-link" title="Verify Online">
                                 <i class="ri-external-link-line"></i>
                             </a>` : ''}
                             <button type="button" class="cert-btn--flip-back" aria-label="Flip back" onclick="flipBackCard(this)">
@@ -1065,14 +1118,43 @@ function renderCertificateItems(items, container) {
         </div>`;
         }).join("");
 
-    attachCertInteractions();
+    attachCertInteractions(items);
 }
 
-function attachCertInteractions() {
+function attachCertInteractions(items) {
+    const list = items || currentCertificatesList;
     const cards = document.querySelectorAll(".cert-card");
     cards.forEach((card) => {
+        const idx = parseInt(card.getAttribute("data-idx"), 10);
+        const item = list && list[idx] ? list[idx] : null;
+
+        const backFace = card.querySelector(".cert-card__face--back");
+        if (backFace && item) {
+            backFace.addEventListener("click", (e) => {
+                if (e.target.closest(".cert-back__controls, .cert-btn--flip-back, a")) return;
+                
+                const title = item.name || item.title || "Certificate";
+                const certVisual = getCertificateVisual(item);
+                const isUploadedImage = isImageResource(certVisual) || (item.image && item.image.trim() !== '');
+                const rawFile = item.pdfFile || item.fileUrl || item.certificateFile || item.filePath || "";
+                const isPdf = !isUploadedImage && isPdfResource(rawFile);
+                const originalName = item.originalPdfName || `${title}.pdf`;
+                const verifyLink = item.link || item.verifyUrl || "";
+
+                if (isUploadedImage) {
+                    openLightboxModal(certVisual, title);
+                } else if (isPdf) {
+                    openPdfModal(rawFile, title, originalName);
+                } else if (verifyLink && verifyLink !== "#" && !verifyLink.includes("example.com")) {
+                    window.open(verifyLink, "_blank", "noopener,noreferrer");
+                } else {
+                    openLightboxModal(certVisual, title);
+                }
+            });
+        }
+
         card.addEventListener("click", (e) => {
-            if (e.target.closest("a, button, .cert-back__preview")) return;
+            if (e.target.closest("a, button, .cert-card__face--back, .cert-back__controls")) return;
             card.classList.toggle("is-flipped");
         });
 

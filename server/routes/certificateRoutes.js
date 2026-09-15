@@ -32,17 +32,37 @@ const saveWorkData = (data) => {
   }
 };
 
+const isImgUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  const clean = url.trim().toLowerCase().split('?')[0].split('#')[0];
+  return clean.startsWith('data:image/') || clean.includes('/image/upload/') || clean.includes('/uploads/images/') || /\.(png|jpe?g|webp|gif|svg|avif|bmp|ico)$/i.test(clean);
+};
+
 const getFallbackCertificates = () => {
   const data = getWorkData();
-  return (data.certificates || []).map((x, idx) => ({
-    _id: x._id || `cert-${idx}`,
-    name: x.title || x.name,
-    issuer: x.subtitle || x.issuer || 'NTI',
-    issueDate: x.year || x.issueDate || '2026',
-    description: x.description || '',
-    pdfFile: x.pdfFile || '/assets/pdf/EslamCV.pdf',
-    orderIndex: x.orderIndex || idx + 1
-  }));
+  return (data.certificates || []).map((x, idx) => {
+    const isImage = isImgUrl(x.image) || isImgUrl(x.pdfFile) || isImgUrl(x.fileUrl);
+    const imageUrl = x.image || (isImage ? (x.pdfFile || x.fileUrl) : '');
+    return {
+      _id: x._id || `cert-${idx}`,
+      title: x.title || x.name || 'Certificate',
+      name: x.name || x.title || 'Certificate',
+      subtitle: x.subtitle || x.issuer || 'Issuer',
+      issuer: x.issuer || x.subtitle || 'Issuer',
+      issuerLogo: x.issuerLogo || '',
+      year: x.year || x.issueDate || '2026',
+      issueDate: x.issueDate || x.year || '2026',
+      duration: x.duration || 'Verified Credential',
+      credentialId: x.credentialId || `CERT-${idx + 101}`,
+      skills: x.skills || ['Software Engineering', 'Problem Solving'],
+      description: x.description || '',
+      image: imageUrl || '',
+      pdfFile: x.pdfFile || (isImage ? imageUrl : '/assets/pdf/EslamCV.pdf'),
+      originalPdfName: x.originalPdfName || '',
+      link: x.link || '',
+      orderIndex: x.orderIndex || idx + 1
+    };
+  });
 };
 
 // GET /api/certificates - Public
@@ -106,6 +126,12 @@ const handleCreateCertificate = async (req, res) => {
       }
     }
 
+    if (data.pdfFile && isImgUrl(data.pdfFile) && !data.image) {
+      data.image = data.pdfFile;
+    } else if (data.image && !data.pdfFile) {
+      data.pdfFile = data.image;
+    }
+
     if (isMongoReady()) {
       const item = new Certificate(data);
       await item.save();
@@ -116,14 +142,21 @@ const handleCreateCertificate = async (req, res) => {
     if (!workData.certificates) workData.certificates = [];
     const newEntry = {
       _id: `cert-${Date.now()}`,
-      title: data.name,
-      name: data.name,
-      subtitle: data.issuer,
-      issuer: data.issuer,
-      year: data.issueDate || '2026',
-      issueDate: data.issueDate || '2026',
+      title: data.name || data.title,
+      name: data.name || data.title,
+      subtitle: data.issuer || data.subtitle,
+      issuer: data.issuer || data.subtitle,
+      issuerLogo: data.issuerLogo || '',
+      year: data.issueDate || data.year || '2026',
+      issueDate: data.issueDate || data.year || '2026',
+      duration: data.duration || 'Verified Credential',
+      credentialId: data.credentialId || `CERT-${Date.now().toString().slice(-6)}`,
+      skills: Array.isArray(data.skills) ? data.skills : (typeof data.skills === 'string' ? data.skills.split(',').map(s=>s.trim()) : []),
       description: data.description || '',
-      pdfFile: data.pdfFile || '/assets/pdf/EslamCV.pdf',
+      image: data.image || '',
+      pdfFile: data.pdfFile || (data.image ? data.image : '/assets/pdf/EslamCV.pdf'),
+      originalPdfName: data.originalPdfName || '',
+      link: data.link || '',
       orderIndex: data.orderIndex ? parseInt(data.orderIndex) : workData.certificates.length + 1
     };
     workData.certificates.unshift(newEntry);
@@ -177,6 +210,12 @@ const handleUpdateCertificate = async (req, res) => {
       }
     }
 
+    if (data.pdfFile && isImgUrl(data.pdfFile) && !data.image) {
+      data.image = data.pdfFile;
+    } else if (data.image && !data.pdfFile) {
+      data.pdfFile = data.image;
+    }
+
     if (isMongoReady()) {
       const item = await Certificate.findByIdAndUpdate(id, data, { new: true });
       if (item) {
@@ -190,13 +229,20 @@ const handleUpdateCertificate = async (req, res) => {
       if (index !== -1) {
         workData.certificates[index] = {
           ...workData.certificates[index],
-          title: data.name || workData.certificates[index].title,
-          name: data.name || workData.certificates[index].name,
-          subtitle: data.issuer || workData.certificates[index].subtitle,
-          issuer: data.issuer || workData.certificates[index].issuer,
-          year: data.issueDate || workData.certificates[index].year,
-          issueDate: data.issueDate || workData.certificates[index].issueDate,
+          title: data.name || data.title || workData.certificates[index].title,
+          name: data.name || data.title || workData.certificates[index].name,
+          subtitle: data.issuer || data.subtitle || workData.certificates[index].subtitle,
+          issuer: data.issuer || data.subtitle || workData.certificates[index].issuer,
+          issuerLogo: data.issuerLogo !== undefined ? data.issuerLogo : workData.certificates[index].issuerLogo,
+          year: data.issueDate || data.year || workData.certificates[index].year,
+          issueDate: data.issueDate || data.year || workData.certificates[index].issueDate,
+          duration: data.duration !== undefined ? data.duration : workData.certificates[index].duration,
+          credentialId: data.credentialId !== undefined ? data.credentialId : workData.certificates[index].credentialId,
+          skills: data.skills !== undefined ? (Array.isArray(data.skills) ? data.skills : (typeof data.skills === 'string' ? data.skills.split(',').map(s=>s.trim()) : workData.certificates[index].skills)) : workData.certificates[index].skills,
+          image: data.image !== undefined ? data.image : workData.certificates[index].image,
           pdfFile: data.pdfFile || workData.certificates[index].pdfFile,
+          originalPdfName: data.originalPdfName !== undefined ? data.originalPdfName : workData.certificates[index].originalPdfName,
+          link: data.link !== undefined ? data.link : workData.certificates[index].link,
           description: data.description !== undefined ? data.description : workData.certificates[index].description
         };
         saveWorkData(workData);

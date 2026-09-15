@@ -172,11 +172,15 @@ async function seedInitialData() {
         for (let i = 0; i < workData.certificates.length; i++) {
           const item = workData.certificates[i];
           await Certificate.create({
-            name: item.title,
-            issuer: item.subtitle || 'NTI',
-            issueDate: item.year || '2026',
+            name: item.title || item.name,
+            issuer: item.subtitle || item.issuer || 'NTI',
+            issueDate: item.year || item.issueDate || '2026',
+            credentialId: item.credentialId || '',
             description: item.description || '',
-            orderIndex: i + 1
+            image: item.image || '',
+            pdfFile: item.pdfFile || '',
+            originalPdfName: item.originalPdfName || '',
+            orderIndex: item.orderIndex || (i + 1)
           });
         }
         console.log('[Seed] Imported Certificate records.');

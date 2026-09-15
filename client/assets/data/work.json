@@ -172,6 +172,8 @@
             "credentialId": "CREATIVA-PY-102",
             "skills": ["Python 3", "OOP", "Data Structures", "Scripting"],
             "description": "Completed intensive training in Python core programming, data structures, and script automation.",
+            "image": "https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png",
+            "pdfFile": "https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png",
             "link": "https://creativa.gov.eg/",
             "orderIndex": 6
         },

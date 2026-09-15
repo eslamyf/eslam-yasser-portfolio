@@ -927,11 +927,19 @@ function renderCertificatesTable(list) {
     return;
   }
   tbody.innerHTML = list.map(item => {
-    const hasPdf = item.pdfFile || item.fileUrl;
-    const previewBtn = hasPdf
-      ? `<button onclick="openPdfModal('${hasPdf}', '${item.name.replace(/'/g, "\\'")}')" class="btn btn-sm btn-secondary"><i class="ri-eye-line"></i> معاينة</button>
-         <a href="${API_BASE}/files/download?filePath=${encodeURIComponent(hasPdf)}&name=${encodeURIComponent(item.name)}" class="btn btn-sm btn-primary" download><i class="ri-download-line"></i> تحميل</a>`
-      : `<span class="text-muted">-</span>`;
+    const fileUrl = item.image || item.pdfFile || item.fileUrl || '';
+    const isImg = fileUrl.startsWith('data:image/') || fileUrl.includes('/image/upload/') || fileUrl.includes('/uploads/images/') || /\.(png|jpe?g|webp|gif|svg|avif|bmp|ico)$/i.test(fileUrl.split('?')[0]);
+    
+    let previewBtn = `<span class="text-muted">-</span>`;
+    if (fileUrl) {
+      if (isImg) {
+        previewBtn = `<button onclick="openLightboxModal('${fileUrl.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="btn btn-sm btn-secondary"><i class="ri-image-line"></i> معاينة الصورة</button>
+                      <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-primary" download><i class="ri-download-line"></i> تحميل</a>`;
+      } else {
+        previewBtn = `<button onclick="openPdfModal('${fileUrl.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="btn btn-sm btn-secondary"><i class="ri-file-pdf-line"></i> معاينة PDF</button>
+                      <a href="${API_BASE}/files/download?filePath=${encodeURIComponent(fileUrl)}&name=${encodeURIComponent(item.name)}" class="btn btn-sm btn-primary" download><i class="ri-download-line"></i> تحميل</a>`;
+      }
+    }
 
     return `
       <tr>
@@ -968,10 +976,10 @@ function openEditCertificateModal(id) {
   setVal('cert-id', item._id || item.id);
   const titleEl = document.getElementById('cert-modal-title');
   if (titleEl) titleEl.innerHTML = `<i class="ri-edit-line"></i> تعديل بيانات الشهادة`;
-  setVal('cert-name', item.name);
-  setVal('cert-issuer', item.issuer);
-  setVal('cert-date', item.issueDate);
-  setVal('cert-file', item.pdfFile || item.fileUrl || '');
+  setVal('cert-name', item.name || item.title || '');
+  setVal('cert-issuer', item.issuer || item.subtitle || '');
+  setVal('cert-date', item.issueDate || item.year || '');
+  setVal('cert-file', item.image || item.pdfFile || item.fileUrl || '');
   const modal = document.getElementById('certificate-modal');
   if (modal) modal.style.display = 'flex';
 }
@@ -1013,12 +1021,15 @@ if (certForm) {
     e.preventDefault();
     const id = document.getElementById('cert-id').value;
     const token = localStorage.getItem('admin_token');
+    const fileVal = document.getElementById('cert-file').value.trim();
+    const isImg = fileVal.startsWith('data:image/') || fileVal.includes('/image/upload/') || fileVal.includes('/uploads/images/') || /\.(png|jpe?g|webp|gif|svg|avif|bmp|ico)$/i.test(fileVal.split('?')[0]);
 
     const payload = {
       name: document.getElementById('cert-name').value.trim(),
       issuer: document.getElementById('cert-issuer').value.trim(),
       issueDate: document.getElementById('cert-date').value.trim(),
-      pdfFile: document.getElementById('cert-file').value.trim()
+      pdfFile: fileVal,
+      image: isImg ? fileVal : ''
     };
 
     try {
