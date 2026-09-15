@@ -776,7 +776,7 @@ function initSwiper() {
 const experienceContainer = document.getElementById("experience"),
     educationContainer = document.getElementById("education"),
     volunteeringContainer = document.getElementById("volunteering"),
-    certificatesContainer = document.getElementById("certificates");
+    certificatesContainer = document.getElementById("certificates-grid") || document.getElementById("certificates");
 
 async function loadAllWorkData() {
     try {
@@ -811,7 +811,7 @@ function fallbackToStaticWork() {
             renderWorkItems(data.experience, experienceContainer);
             renderWorkItems(data.education, educationContainer);
             renderWorkItems(data.volunteering, volunteeringContainer);
-            renderWorkItems(data.certificates, certificatesContainer);
+            renderCertificateItems(data.certificates, certificatesContainer);
             initWorkTabs();
             if (ScrollTrigger) ScrollTrigger.refresh();
         })
@@ -881,41 +881,215 @@ function renderVolunteeringItems(items, container) {
         }).join("");
 }
 
+function escapeXml(unsafe) {
+    if (!unsafe) return '';
+    return String(unsafe).replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
+}
+
+function getCertificateVisual(item) {
+    if (item.image && item.image.trim() !== '') return item.image;
+    
+    const title = item.name || item.title || "Certification of Completion";
+    const issuer = item.issuer || item.subtitle || "Authorized Issuer";
+    const date = item.issueDate || item.year || "2026";
+    const credId = item.credentialId || "VERIFIED";
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" width="100%" height="100%">
+      <defs>
+        <linearGradient id="cbg_${credId.replace(/[^a-zA-Z0-9]/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0d1b30"/>
+          <stop offset="100%" stop-color="#040a14"/>
+        </linearGradient>
+        <linearGradient id="cborder_${credId.replace(/[^a-zA-Z0-9]/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4db2ff"/>
+          <stop offset="100%" stop-color="#0066cc"/>
+        </linearGradient>
+      </defs>
+      <rect width="600" height="420" rx="14" fill="url(#cbg_${credId.replace(/[^a-zA-Z0-9]/g, '')})"/>
+      <rect x="14" y="14" width="572" height="392" rx="10" fill="none" stroke="url(#cborder_${credId.replace(/[^a-zA-Z0-9]/g, '')})" stroke-width="2" stroke-opacity="0.5"/>
+      <rect x="20" y="20" width="560" height="380" rx="8" fill="none" stroke="#4db2ff" stroke-width="1" stroke-dasharray="5,4" stroke-opacity="0.3"/>
+      
+      <circle cx="300" cy="70" r="26" fill="#0d243f" stroke="#4db2ff" stroke-width="2"/>
+      <polygon points="300,52 305,66 320,66 308,75 312,90 300,80 288,90 292,75 280,66 295,66" fill="#4db2ff"/>
+      
+      <text x="300" y="118" text-anchor="middle" fill="#80c8ff" font-family="sans-serif" font-size="13" font-weight="700" letter-spacing="3">CERTIFICATE OF ACHIEVEMENT</text>
+      <text x="300" y="145" text-anchor="middle" fill="#7a92b2" font-family="sans-serif" font-size="11">PROUDLY PRESENTED TO</text>
+      
+      <text x="300" y="185" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="20" font-weight="800" letter-spacing="1">ESLAM YASSER</text>
+      <line x1="180" y1="198" x2="420" y2="198" stroke="#4db2ff" stroke-width="1.5" stroke-opacity="0.6"/>
+      
+      <text x="300" y="235" text-anchor="middle" fill="#4db2ff" font-family="sans-serif" font-size="15" font-weight="700">${escapeXml(title)}</text>
+      <text x="300" y="260" text-anchor="middle" fill="#9cb2ce" font-family="sans-serif" font-size="12">Issued by: ${escapeXml(issuer)}</text>
+      
+      <text x="45" y="370" text-anchor="start" fill="#526a88" font-family="monospace" font-size="11">ID: ${escapeXml(credId)}</text>
+      <text x="555" y="370" text-anchor="end" fill="#526a88" font-family="sans-serif" font-size="11">Date: ${escapeXml(date)}</text>
+      
+      <circle cx="300" cy="340" r="22" fill="#0a1d33" stroke="#4db2ff" stroke-width="1.5"/>
+      <text x="300" y="344" text-anchor="middle" fill="#4db2ff" font-family="sans-serif" font-size="8" font-weight="bold">OFFICIAL</text>
+    </svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 function renderCertificateItems(items, container) {
-    if (!container || !items) return;
-    container.innerHTML = items
-        .map((item) => {
+    const targetContainer = container || document.getElementById("certificates-grid") || document.getElementById("certificates");
+    if (!targetContainer || !items || !items.length) return;
+
+    targetContainer.innerHTML = items
+        .map((item, idx) => {
+            const title = item.name || item.title || "Certificate";
+            const issuer = item.issuer || item.subtitle || "Issuer";
+            const issueDate = item.issueDate || item.year || "";
+            const duration = item.duration || "Verified Credential";
+            const credentialId = item.credentialId || (item._id ? item._id.substring(0, 10).toUpperCase() : `CERT-${idx + 101}`);
+
+            let skillsArr = [];
+            if (Array.isArray(item.skills)) {
+                skillsArr = item.skills;
+            } else if (typeof item.skills === 'string' && item.skills.trim()) {
+                skillsArr = item.skills.split(',').map(s => s.trim());
+            } else {
+                skillsArr = ["Software Engineering", "Problem Solving"];
+            }
+            const skillsHtml = skillsArr.slice(0, 3).map(s => `<span class="cert-skill-tag">${s}</span>`).join("");
+
+            const issuerLower = issuer.toLowerCase();
+            const logo = item.issuerLogo || (
+                issuerLower.includes("aws") || issuerLower.includes("amazon") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" :
+                issuerLower.includes("google") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg" :
+                issuerLower.includes("python") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" :
+                issuerLower.includes("c++") || issuerLower.includes("icpc") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" :
+                issuerLower.includes("udemy") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-plain.svg" :
+                issuerLower.includes("nti") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" :
+                ""
+            );
+
             const isPdf = item.pdfFile && item.pdfFile.trim() !== '';
             const isImage = item.image && item.image.trim() !== '';
-            const originalName = item.originalPdfName || `${item.name}.pdf`;
+            const originalName = item.originalPdfName || `${title}.pdf`;
+            const verifyLink = item.link || item.verifyUrl || "";
+            const certVisual = getCertificateVisual(item);
 
-            let viewBtn = '';
-            let downloadBtn = '';
-
+            let viewAction = "";
             if (isPdf) {
-                viewBtn = `<button onclick="openPdfModal('${item.pdfFile.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-file-pdf-2-line"></i> View Certificate</button>`;
-                downloadBtn = `<button onclick="downloadFile('${item.pdfFile.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn work__link-btn--live"><i class="ri-download-line"></i> Download</button>`;
+                viewAction = `openPdfModal('${item.pdfFile.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')`;
             } else if (isImage) {
-                viewBtn = `<button onclick="openLightboxModal('${item.image.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="work__link-btn"><i class="ri-image-line"></i> View Image</button>`;
-                downloadBtn = `<button onclick="downloadFile('${item.image.replace(/'/g, "\\'")}', '${originalName.replace(/'/g, "\\'")}')" class="work__link-btn work__link-btn--live"><i class="ri-download-line"></i> Download</button>`;
+                viewAction = `openLightboxModal('${item.image.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}')`;
+            } else if (verifyLink && verifyLink !== "#") {
+                viewAction = `window.open('${verifyLink.replace(/'/g, "\\'")}', '_blank', 'noopener,noreferrer')`;
+            } else {
+                viewAction = `openLightboxModal('${certVisual.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}')`;
             }
 
             return `
-        <div class="work__card">
-            <div class="work__data">
-                <div>
-                    <h1 class="work__title">${item.name}</h1>
-                    <h3 class="work__subtitle">${item.issuer} ${item.credentialId ? `(ID: ${item.credentialId})` : ''}</h3>
+        <div class="cert-card" tabindex="0" role="region" aria-label="Certificate: ${title}">
+            <div class="cert-card__inner">
+                <!-- FRONT FACE (All details live here) -->
+                <div class="cert-card__face cert-card__face--front">
+                    <div class="cert-front__header">
+                        <span class="cert-front__badge">
+                            <i class="ri-shield-check-fill"></i> Verified Credential
+                        </span>
+                        ${logo ? `
+                        <img src="${logo}" alt="${issuer} logo" class="cert-front__logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="cert-front__logo-fallback" style="display:none;"><i class="ri-award-line"></i></div>
+                        ` : `
+                        <div class="cert-front__logo-fallback"><i class="ri-award-line"></i></div>
+                        `}
+                    </div>
+
+                    <div class="cert-front__body">
+                        <h3 class="cert-front__title">${title}</h3>
+                        <p class="cert-front__issuer"><i class="ri-building-line"></i> ${issuer}</p>
+
+                        <div class="cert-front__meta-grid">
+                            <div class="cert-front__meta-item">
+                                <span class="cert-meta-label">Duration</span>
+                                <span class="cert-meta-value"><i class="ri-time-line"></i> ${duration}</span>
+                            </div>
+                            <div class="cert-front__meta-item">
+                                <span class="cert-meta-label">Date</span>
+                                <span class="cert-meta-value"><i class="ri-calendar-line"></i> ${issueDate}</span>
+                            </div>
+                            <div class="cert-front__meta-item cert-front__meta-item--full">
+                                <span class="cert-meta-label">Credential ID</span>
+                                <span class="cert-meta-value font-mono">${credentialId}</span>
+                            </div>
+                        </div>
+
+                        <div class="cert-front__skills">
+                            ${skillsHtml}
+                        </div>
+                    </div>
+
+                    <div class="cert-front__footer">
+                        <span class="cert-front__hint">
+                            <i class="ri-image-line"></i> View Certificate
+                        </span>
+                        <span class="cert-front__flip-icon">
+                            <i class="ri-arrow-left-right-line"></i>
+                        </span>
+                    </div>
                 </div>
-                <h2 class="work__year">${item.issueDate || ''}</h2>
-            </div>
-            <p class="work__description">${item.description || ''}</p>
-            <div class="work__link-wrapper" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem;">
-                ${viewBtn}
-                ${downloadBtn}
+
+                <!-- BACK FACE (Dedicated purely to the Certificate Image) -->
+                <div class="cert-card__face cert-card__face--back" onclick="${viewAction}">
+                    <div class="cert-back__image-wrapper">
+                        <img src="${certVisual}" alt="${title}" class="cert-back__image" loading="lazy">
+                        
+                        <div class="cert-back__overlay">
+                            <span class="cert-back__zoom-tag">
+                                <i class="ri-zoom-in-line"></i> Fullscreen
+                            </span>
+                        </div>
+
+                        <div class="cert-back__controls" onclick="event.stopPropagation();">
+                            ${verifyLink && verifyLink !== '#' ? `
+                            <a href="${verifyLink}" target="_blank" rel="noopener noreferrer" class="cert-back__verify-link" title="Verify Online">
+                                <i class="ri-external-link-line"></i>
+                            </a>` : ''}
+                            <button type="button" class="cert-btn--flip-back" aria-label="Flip back" onclick="flipBackCard(this)">
+                                <i class="ri-arrow-go-back-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>`;
         }).join("");
+
+    attachCertInteractions();
+}
+
+function attachCertInteractions() {
+    const cards = document.querySelectorAll(".cert-card");
+    cards.forEach((card) => {
+        card.addEventListener("click", (e) => {
+            if (e.target.closest("a, button, .cert-back__preview")) return;
+            card.classList.toggle("is-flipped");
+        });
+
+        card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                if (e.target.tagName !== "BUTTON" && e.target.tagName !== "A") {
+                    e.preventDefault();
+                    card.classList.toggle("is-flipped");
+                }
+            }
+        });
+    });
+}
+
+function flipBackCard(button) {
+    const card = button.closest(".cert-card");
+    if (card) card.classList.remove("is-flipped");
 }
 
 function renderWorkItems(items, container) {
