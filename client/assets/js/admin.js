@@ -933,11 +933,17 @@ function renderCertificatesTable(list) {
     let previewBtn = `<span class="text-muted">-</span>`;
     if (fileUrl) {
       if (isImg) {
-        previewBtn = `<button onclick="openLightboxModal('${fileUrl.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="btn btn-sm btn-secondary"><i class="ri-image-line"></i> معاينة الصورة</button>
-                      <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-primary" download><i class="ri-download-line"></i> تحميل</a>`;
+        previewBtn = `
+          <div class="table-btn-group">
+            <button type="button" onclick="openLightboxModal('${fileUrl.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="btn btn-sm btn-info" title="معاينة الصورة"><i class="ri-image-line"></i> معاينة الصورة</button>
+            <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-primary" download title="تحميل"><i class="ri-download-line"></i> تحميل</a>
+          </div>`;
       } else {
-        previewBtn = `<button onclick="openPdfModal('${fileUrl.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="btn btn-sm btn-secondary"><i class="ri-file-pdf-line"></i> معاينة PDF</button>
-                      <a href="${API_BASE}/files/download?filePath=${encodeURIComponent(fileUrl)}&name=${encodeURIComponent(item.name)}" class="btn btn-sm btn-primary" download><i class="ri-download-line"></i> تحميل</a>`;
+        previewBtn = `
+          <div class="table-btn-group">
+            <button type="button" onclick="openPdfModal('${fileUrl.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="btn btn-sm btn-info" title="معاينة PDF"><i class="ri-file-pdf-line"></i> معاينة PDF</button>
+            <a href="${API_BASE}/files/download?filePath=${encodeURIComponent(fileUrl)}&name=${encodeURIComponent(item.name)}" class="btn btn-sm btn-primary" download title="تحميل"><i class="ri-download-line"></i> تحميل</a>
+          </div>`;
       }
     }
 
@@ -945,12 +951,12 @@ function renderCertificatesTable(list) {
       <tr>
         <td><strong>${item.name}</strong></td>
         <td><span class="badge badge-info">${item.issuer}</span></td>
-        <td><small>${item.issueDate || '-'}</small></td>
+        <td><small class="text-muted">${item.issueDate || '-'}</small></td>
         <td>${previewBtn}</td>
         <td>
           <div class="action-tools">
-            <button class="btn btn-icon btn-edit" onclick="openEditCertificateModal('${item._id}')"><i class="ri-edit-line"></i></button>
-            <button class="btn btn-icon btn-delete" onclick="deleteCertificate('${item._id}')"><i class="ri-delete-bin-line"></i></button>
+            <button type="button" class="btn btn-icon btn-edit" title="تعديل بيانات الشهادة" onclick="openEditCertificateModal('${item._id}')"><i class="ri-edit-line"></i></button>
+            <button type="button" class="btn btn-icon btn-delete" title="حذف الشهادة" onclick="deleteCertificate('${item._id}')"><i class="ri-delete-bin-line"></i></button>
           </div>
         </td>
       </tr>
@@ -2154,3 +2160,72 @@ function showToast(message, type = 'success') {
     toast.remove();
   }, 4000);
 }
+
+/* ==================== LIGHTBOX MODAL ==================== */
+function openLightboxModal(imageUrl, title) {
+  const modal = document.getElementById("image-lightbox-modal");
+  const imgEl = document.getElementById("lightbox-modal-img");
+  const titleEl = document.getElementById("lightbox-modal-title");
+  const downloadBtn = document.getElementById("lightbox-modal-download-btn");
+
+  if (!modal || !imgEl) return;
+
+  if (titleEl) {
+    titleEl.innerHTML = `<i class="ri-image-line text-primary"></i> ${title || 'معاينة الصورة'}`;
+  }
+  imgEl.src = imageUrl;
+  if (downloadBtn) {
+    downloadBtn.href = imageUrl;
+    downloadBtn.download = (title ? `${title.replace(/[^\w\s\u0600-\u06FF-]/g, '_')}.png` : 'certificate.png');
+  }
+  modal.style.display = "flex";
+}
+
+function closeLightboxModal() {
+  const modal = document.getElementById("image-lightbox-modal");
+  if (modal) {
+    modal.style.display = "none";
+    const imgEl = document.getElementById("lightbox-modal-img");
+    if (imgEl) imgEl.src = "";
+  }
+}
+
+function closePdfModal() {
+  const modal = document.getElementById("pdf-viewer-modal");
+  if (modal) modal.style.display = "none";
+  const container = document.getElementById("pdf-modal-container");
+  if (container) container.innerHTML = "";
+}
+
+function toggleSidebarMobile(forceState) {
+  const sidebar = document.querySelector(".sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  if (!sidebar) return;
+
+  if (typeof forceState === 'boolean') {
+    if (forceState) {
+      sidebar.classList.add("show");
+      if (overlay) overlay.style.display = "block";
+    } else {
+      sidebar.classList.remove("show");
+      if (overlay) overlay.style.display = "none";
+    }
+  } else {
+    const isShowing = sidebar.classList.toggle("show");
+    if (overlay) overlay.style.display = isShowing ? "block" : "none";
+  }
+}
+
+// Close modals on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeLightboxModal();
+    closePdfModal();
+    const modals = document.querySelectorAll('.modal-overlay');
+    modals.forEach(m => {
+      if (m.style.display === 'flex' || m.style.display === 'block') {
+        m.style.display = 'none';
+      }
+    });
+  }
+});

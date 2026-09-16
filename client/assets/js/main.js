@@ -1589,20 +1589,28 @@ const init3DTilt = () => {
 };
 
 /*=============== INTERACTIVE PARTICLES CANVAS ===============*/
+let _particleCanvasInitialized = false;
 const initParticleCanvas = () => {
+    if (_particleCanvasInitialized) return;
     const canvas = document.getElementById("particle-canvas");
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
 
+    _particleCanvasInitialized = true;
     let particles = [];
     let mouse = { x: null, y: null, radius: 120 };
 
-    const resizeCanvas = () => {
+    const handleResize = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+        particles = [];
+        const numParticles = Math.min(Math.floor((canvas.width * canvas.height) / 16000), 80);
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(new Particle());
+        }
     };
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+
+    window.addEventListener("resize", handleResize);
 
     window.addEventListener("mousemove", (e) => {
         mouse.x = e.clientX;
@@ -1679,13 +1687,7 @@ const initParticleCanvas = () => {
         }
     }
 
-    const init = () => {
-        particles = [];
-        const numParticles = Math.min(Math.floor((canvas.width * canvas.height) / 16000), 80);
-        for (let i = 0; i < numParticles; i++) {
-            particles.push(new Particle());
-        }
-    };
+    handleResize();
 
     const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1696,43 +1698,96 @@ const initParticleCanvas = () => {
         requestAnimationFrame(animate);
     };
 
-    init();
     animate();
-    window.addEventListener("resize", init);
 };
 
-/*=============== DIGITAL SCRAMBLE TEXT EFFECT ===============*/
+/*=============== DIGITAL SCRAMBLE TEXT EFFECT (ROCK-SOLID & RESILIENT) ===============*/
+// WeakMap to store pristine text for text nodes to prevent corruption on multiple triggers/fast scroll
+const _pristineTextMap = new WeakMap();
+// WeakMap to track active animation cleanup functions per element
+const _activeScrambleMap = new WeakMap();
+
 const scrambleTextNode = (node) => {
-    const originalText = node.nodeValue;
-    if (!originalText || !originalText.trim()) return;
+    // 1. Get or cache the absolute pristine text for this node
+    let originalText = _pristineTextMap.get(node);
+    if (!originalText) {
+        originalText = node.nodeValue || "";
+        _pristineTextMap.set(node, originalText);
+    }
+
+    if (!originalText || !originalText.trim()) {
+        return () => {};
+    }
 
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$%#@*&?-+=^![]{}/~0123456789";
-    let iterations = 0;
+    const textLen = originalText.length;
+    let iteration = 0;
+    let isFinished = false;
+
+    // Hard fail-safe: forcibly restore true text if anything hangs or after max 1.5 seconds
+    const safetyTimeout = setTimeout(() => {
+        if (!isFinished) {
+            isFinished = true;
+            node.nodeValue = originalText;
+        }
+    }, 1500);
 
     const interval = setInterval(() => {
+        if (isFinished) {
+            clearInterval(interval);
+            clearTimeout(safetyTimeout);
+            return;
+        }
+
         node.nodeValue = originalText
             .split("")
             .map((char, index) => {
-                if (char === " " || char === "\n") return char;
-                if (index < iterations) {
+                if (char === " " || char === "\n" || char === "\t") return char;
+                if (index < iteration) {
                     return originalText[index];
                 }
                 return chars[Math.floor(Math.random() * chars.length)];
             })
             .join("");
 
-        if (iterations >= originalText.length) {
+        if (iteration >= textLen) {
+            isFinished = true;
             clearInterval(interval);
-            node.nodeValue = originalText;
+            clearTimeout(safetyTimeout);
+            node.nodeValue = originalText; // 100% Guaranteed pristine text
         }
-        iterations += 0.3; // Slower speed (was 1/2)
-    }, 35); // Slower tick interval (was 25ms)
+
+        iteration += 0.5; // Smooth, crisp decoding speed
+    }, 30);
+
+    // Return cleanup function
+    return () => {
+        if (!isFinished) {
+            isFinished = true;
+            clearInterval(interval);
+            clearTimeout(safetyTimeout);
+            node.nodeValue = originalText; // Immediately restore true text on cleanup
+        }
+    };
 };
 
 const scrambleText = (element) => {
+    if (!element) return;
+
+    // If an animation is already running on this element, cancel it immediately and restore true text
+    if (_activeScrambleMap.has(element)) {
+        const cleanup = _activeScrambleMap.get(element);
+        if (typeof cleanup === "function") cleanup();
+        _activeScrambleMap.delete(element);
+    }
+
     const textNodes = [];
     const getTextNodes = (node) => {
         if (node.nodeType === Node.TEXT_NODE) {
+            // Pre-cache pristine value on discovery if not already cached
+            if (!_pristineTextMap.has(node)) {
+                _pristineTextMap.set(node, node.nodeValue || "");
+            }
             textNodes.push(node);
         } else {
             for (let child of node.childNodes) {
@@ -1741,7 +1796,19 @@ const scrambleText = (element) => {
         }
     };
     getTextNodes(element);
-    textNodes.forEach(scrambleTextNode);
+
+    if (textNodes.length === 0) return;
+
+    const cleanups = [];
+    textNodes.forEach((node) => {
+        const cleanup = scrambleTextNode(node);
+        cleanups.push(cleanup);
+    });
+
+    // Store combined cleanup function on the element
+    _activeScrambleMap.set(element, () => {
+        cleanups.forEach((fn) => fn && fn());
+    });
 };
 
 /*=============== GSAP SCROLLTRIGGER REVEAL ANIMATIONS ===============*/
