@@ -505,6 +505,18 @@ html.lenis body {
     display: grid;
     align-content: center;
     padding-block: var(--header-height) 2rem;
+    overflow: hidden;
+}
+
+.home__three-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.65;
 }
 
 .home__container {
@@ -4035,354 +4047,681 @@ button.home__cv:hover {
     }
 }
 
-/*=============== TESTIMONIALS SECTION ===============*/
+/*=============== THREEUI 3D FLOATING SCREENS SHOWCASE ===============*/
 .testimonials {
     position: relative;
+    padding-block: 6.5rem 4rem;
     overflow: hidden;
+}
+
+.testimonials::before {
+    content: "";
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 450px;
+    background: radial-gradient(ellipse at center, rgba(0, 242, 254, 0.08) 0%, rgba(56, 189, 248, 0.03) 50%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .testimonials__header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 2;
 }
 
-.testimonials__header .section__subtitle {
-    display: inline-block;
-    font-size: var(--small-font-size);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--first-color);
-    margin-bottom: 0.5rem;
+.testimonials__header .section__title {
+    margin-bottom: 0.75rem;
+    font-size: var(--h1-font-size);
 }
 
 .testimonials__description {
-    max-width: 620px;
-    margin: 0.75rem auto 0;
+    max-width: 650px;
+    margin: 0 auto;
+    color: var(--text-color);
     font-size: var(--normal-font-size);
-    color: var(--text-color-light);
     line-height: 1.6;
 }
 
-.testimonials__wrapper {
-    position: relative;
-    max-width: 1140px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.testimonials__carousel-container {
-    position: relative;
-    display: flex;
+.testimonials__hint-badge {
+    display: inline-flex;
     align-items: center;
-    gap: 1rem;
+    gap: 8px;
+    margin-top: 1.25rem;
+    padding: 0.45rem 1.2rem;
+    border-radius: 2rem;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: #38bdf8;
+    font-family: var(--second-font);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.12);
+    animation: hintPulse 3s infinite ease-in-out;
 }
 
-.testimonials__track-window {
+@keyframes hintPulse {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
+        border-color: rgba(56, 189, 248, 0.25);
+    }
+    50% {
+        box-shadow: 0 0 22px rgba(0, 242, 254, 0.35);
+        border-color: rgba(0, 242, 254, 0.55);
+    }
+}
+
+/* 3D Floating Infinite Stage */
+.testimonials__floating-stage {
+    position: relative;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
     overflow: hidden;
-    width: 100%;
-    padding: 1.5rem 0.5rem;
-    border-radius: 1.5rem;
+    padding-block: 3.5rem 4.5rem;
+    perspective: 1800px;
+    transform-style: preserve-3d;
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    cursor: grab;
+    user-select: none;
 }
 
-.testimonials__track {
+.testimonials__floating-stage:active {
+    cursor: grabbing;
+}
+
+.testimonials__ambient-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Infinite Floating Stream Track */
+.testimonials__floating-track {
     display: flex;
-    gap: 1.5rem;
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    gap: 2.5rem;
+    width: max-content;
     will-change: transform;
+    transform-style: preserve-3d;
+    animation: floatDrift 45s linear infinite;
+    padding-inline: 2rem;
+    align-items: center;
 }
 
-.testimonial__card {
-    flex: 0 0 calc(33.333% - 1rem);
-    min-width: 0;
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.25rem;
-    padding: 2rem 1.75rem;
+/* Hover Freeze on Stream Track */
+.testimonials__floating-track:hover,
+.testimonials__floating-track.is-paused {
+    animation-play-state: paused !important;
+}
+
+@keyframes floatDrift {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Floating Cyber Screen Card (ThreeUI Window Mockup) */
+.floating-screen__card {
+    flex: 0 0 420px;
+    width: 420px;
+    min-width: 420px;
+    background: linear-gradient(150deg, rgba(13, 24, 42, 0.92) 0%, rgba(5, 12, 22, 0.98) 100%);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1.5px solid rgba(56, 189, 248, 0.22);
+    border-radius: 1.5rem;
+    padding: 1.6rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 1.5rem;
+    gap: 1.25rem;
     position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
-                border-color 0.35s ease, 
-                box-shadow 0.35s ease;
+    transform-style: preserve-3d;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 25px rgba(0, 242, 254, 0.08);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.4s ease,
+                box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.4s ease;
+    cursor: pointer;
+    overflow: hidden;
 }
 
-.testimonial__card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(56, 189, 248, 0.4);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55), 0 0 25px rgba(56, 189, 248, 0.15);
-}
-
-.testimonial__quote-watermark {
+/* Top Neon Cyber Edge */
+.floating-screen__card::before {
+    content: "";
     position: absolute;
-    top: 1.25rem;
-    right: 1.5rem;
-    font-size: 3rem;
-    line-height: 1;
-    color: rgba(255, 255, 255, 0.04);
-    pointer-events: none;
-    font-family: serif;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--secondary-color), var(--first-color), transparent);
+    opacity: 0.65;
+    transition: opacity 0.35s ease;
+    border-radius: 1.5rem 1.5rem 0 0;
 }
 
-.testimonial__top {
+/* Staggered Floating Wave Bobbing */
+.floating-screen__card:nth-child(odd) {
+    animation: screenBobOdd 7s ease-in-out infinite;
+}
+
+.floating-screen__card:nth-child(even) {
+    animation: screenBobEven 8s ease-in-out infinite 1.2s;
+}
+
+.floating-screen__card:nth-child(3n) {
+    animation: screenBobTri 7.5s ease-in-out infinite 2.4s;
+}
+
+@keyframes screenBobOdd {
+    0%, 100% {
+        transform: translateY(0px) rotateZ(0deg) rotateY(0deg);
+    }
+    50% {
+        transform: translateY(-14px) rotateZ(0.75deg) rotateY(-1.5deg);
+    }
+}
+
+@keyframes screenBobEven {
+    0%, 100% {
+        transform: translateY(-5px) rotateZ(-0.5deg) rotateY(1deg);
+    }
+    50% {
+        transform: translateY(10px) rotateZ(0.5deg) rotateY(-1deg);
+    }
+}
+
+@keyframes screenBobTri {
+    0%, 100% {
+        transform: translateY(4px) rotateZ(0.5deg) rotateY(-1deg);
+    }
+    50% {
+        transform: translateY(-12px) rotateZ(-0.75deg) rotateY(1.5deg);
+    }
+}
+
+/* Card Hover 3D Elevation & Spotlight */
+.floating-screen__card:hover {
+    animation-play-state: paused !important;
+    transform: translateY(-22px) scale(1.06) translateZ(70px) rotateX(2deg) !important;
+    border-color: rgba(0, 242, 254, 0.75) !important;
+    box-shadow: 0 35px 85px rgba(0, 0, 0, 0.9), 0 0 50px rgba(0, 242, 254, 0.38) !important;
+    z-index: 50;
+}
+
+.floating-screen__card:hover::before {
+    opacity: 1;
+    height: 3px;
+}
+
+/* Clean Endorsement Top Bar */
+.floating-screen__window-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
-.testimonial__stars {
+/* Platform Badge & Stars */
+.floating-screen__badges {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.75rem;
+}
+
+.floating-screen__platform {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.25rem 0.65rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.floating-screen__platform.linkedin {
+    background: rgba(10, 102, 194, 0.2);
+    color: #38bdf8;
+    border-color: rgba(10, 102, 194, 0.45);
+    box-shadow: 0 0 10px rgba(10, 102, 194, 0.3);
+}
+
+.floating-screen__platform.upwork {
+    background: rgba(20, 168, 0, 0.2);
+    color: #4ade80;
+    border-color: rgba(20, 168, 0, 0.45);
+    box-shadow: 0 0 10px rgba(20, 168, 0, 0.3);
+}
+
+.floating-screen__platform.client {
+    background: rgba(168, 85, 247, 0.2);
+    color: #c084fc;
+    border-color: rgba(168, 85, 247, 0.45);
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+.floating-screen__platform.colleague {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.45);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.floating-screen__stars {
     display: flex;
     gap: 3px;
     color: #f59e0b;
-    font-size: 1.05rem;
-    text-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+    font-size: 0.95rem;
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
 }
 
-.testimonial__platform-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 0.25rem 0.65rem;
-    border-radius: 2rem;
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: rgba(56, 189, 248, 0.12);
-    color: #38bdf8;
-    border: 1px solid rgba(56, 189, 248, 0.25);
-}
-
-.testimonial__platform-badge.linkedin {
-    background: rgba(10, 102, 194, 0.15);
-    color: #38bdf8;
-    border-color: rgba(10, 102, 194, 0.35);
-}
-
-.testimonial__platform-badge.upwork {
-    background: rgba(20, 168, 0, 0.15);
-    color: #4ade80;
-    border-color: rgba(20, 168, 0, 0.35);
-}
-
-.testimonial__platform-badge.client {
-    background: rgba(168, 85, 247, 0.15);
-    color: #c084fc;
-    border-color: rgba(168, 85, 247, 0.35);
-}
-
-.testimonial__content {
+/* Floating Screen Body Content */
+.floating-screen__body {
     position: relative;
-    z-index: 1;
-    font-size: 0.92rem;
-    line-height: 1.7;
-    color: #cbd5e1;
-    font-style: normal;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
     flex-grow: 1;
 }
 
-.testimonial__screenshot-thumb {
+.floating-screen__quote {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: #cbd5e1;
+    font-weight: 400;
     position: relative;
-    margin-top: 0.75rem;
-    border-radius: 0.65rem;
+}
+
+.floating-screen__watermark {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    font-size: 3rem;
+    line-height: 1;
+    font-family: serif;
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.18) 0%, rgba(77, 166, 255, 0.05) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Screenshot Mockup Viewport */
+.floating-screen__screenshot-thumb {
+    position: relative;
+    border-radius: 0.85rem;
     overflow: hidden;
     cursor: pointer;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: transform 0.25s ease, border-color 0.25s ease;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    background: #020617;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.testimonial__screenshot-thumb:hover {
+.floating-screen__screenshot-thumb:hover {
     transform: scale(1.02);
-    border-color: var(--first-color);
+    border-color: var(--secondary-color);
+    box-shadow: 0 12px 28px rgba(0, 242, 254, 0.28);
 }
 
-.testimonial__screenshot-thumb img {
+.floating-screen__screenshot-thumb img {
     width: 100%;
-    height: 110px;
+    height: 125px;
     object-fit: cover;
     display: block;
+    transition: transform 0.5s ease;
 }
 
-.testimonial__screenshot-overlay {
+.floating-screen__screenshot-thumb:hover img {
+    transform: scale(1.05);
+}
+
+.floating-screen__screenshot-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(4, 10, 20, 0.6);
+    background: linear-gradient(to top, rgba(4, 10, 20, 0.85) 0%, rgba(4, 10, 20, 0.4) 100%);
+    backdrop-filter: blur(3px);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 7px;
     color: #fff;
+    font-family: var(--second-font);
     font-size: 0.8rem;
     font-weight: 600;
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.3s ease;
 }
 
-.testimonial__screenshot-thumb:hover .testimonial__screenshot-overlay {
+.floating-screen__screenshot-thumb:hover .floating-screen__screenshot-overlay {
     opacity: 1;
 }
 
-.testimonial__author {
+/* Floating Screen Footer (Author) */
+.floating-screen__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    z-index: 2;
+}
+
+.floating-screen__author-box {
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    position: relative;
-    z-index: 1;
+    overflow: hidden;
 }
 
-.testimonial__avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(56, 189, 248, 0.4);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+.floating-screen__avatar-wrapper {
+    position: relative;
     flex-shrink: 0;
 }
 
-.testimonial__avatar-placeholder {
-    width: 48px;
-    height: 48px;
+.floating-screen__avatar {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, hsl(var(--hue), 80%, 45%), hsl(var(--hue), 95%, 65%));
+    object-fit: cover;
+    border: 2px solid var(--first-color);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+    display: block;
+}
+
+.floating-screen__avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, hsl(var(--hue), 85%, 45%), var(--secondary-color));
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 1rem;
-    color: #ffffff;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    color: #040a14;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
 }
 
-.testimonial__author-info {
+.floating-screen__status-beacon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 11px;
+    height: 11px;
+    background: #10b981;
+    border: 2px solid #040a14;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+}
+
+.floating-screen__author-meta {
     display: flex;
     flex-direction: column;
     gap: 2px;
     overflow: hidden;
 }
 
-.testimonial__author-name {
+.floating-screen__author-name {
     font-size: 0.98rem;
     font-weight: 700;
     color: #f8fafc;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: var(--body-font);
 }
 
-.testimonial__author-role {
-    font-size: 0.78rem;
+.floating-screen__author-role {
+    font-size: 0.76rem;
     color: #94a3b8;
-    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.testimonial__author-company {
+.floating-screen__author-company {
     font-size: 0.74rem;
-    color: var(--first-color);
+    color: var(--secondary-color);
     font-weight: 600;
 }
 
-/* Nav Buttons */
-.testimonials__nav-btn {
-    width: 44px;
-    height: 44px;
+.floating-screen__proof-btn {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #f8fafc;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: #38bdf8;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    flex-shrink: 0;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.floating-screen__proof-btn:hover {
+    background: var(--first-color);
+    color: #040a14;
+    border-color: transparent;
+    transform: scale(1.15) rotate(12deg);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+}
+
+/* Responsive Floating Screens */
+@media screen and (max-width: 768px) {
+    .floating-screen__card {
+        flex: 0 0 320px;
+        width: 320px;
+        min-width: 320px;
+        padding: 1.35rem;
+    }
+    .testimonials__floating-track {
+        gap: 1.5rem;
+        animation-duration: 32s;
+    }
+}
+
+/*=============== THREEUI-INSPIRED MOTION DESIGN SYSTEM ===============*/
+
+/* 1. Interactive Spotlight Glow on Glassmorphic Cards */
+.skills__card,
+.services__card,
+.projects__card,
+.about__stat-card,
+.testimonial__card,
+.floating-screen__card,
+.work__card {
+    position: relative;
+    overflow: hidden;
+}
+
+.skills__card::after,
+.services__card::after,
+.projects__card::after,
+.about__stat-card::after,
+.testimonial__card::after,
+.floating-screen__card::after,
+.work__card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        380px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(0, 242, 254, 0.14),
+        rgba(77, 166, 255, 0.05) 35%,
+        transparent 70%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    z-index: 1;
+}
+
+.skills__card:hover::after,
+.services__card:hover::after,
+.projects__card:hover::after,
+.about__stat-card:hover::after,
+.testimonial__card:hover::after,
+.work__card:hover::after {
+    opacity: 1;
+}
+
+/* 2. Cyber Border Beam (Traveling Gradient Light Trail) */
+.services__card.services-open {
+    position: relative;
+}
+
+.services__card.services-open::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--first-color) 40%,
+        var(--secondary-color) 60%,
+        transparent 90%
+    );
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderBeam 3.5s linear infinite;
+    pointer-events: none;
     z-index: 2;
 }
 
-.testimonials__nav-btn:hover {
-    background: var(--first-color);
-    color: #040a14;
-    border-color: var(--first-color);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-    transform: scale(1.08);
+@keyframes borderBeam {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
-.testimonials__nav-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+/* 3. Multi-Layer 3D Parallax Depth */
+.projects__card {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    will-change: transform;
 }
 
-/* Dots Indicators */
-.testimonials__dots {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.75rem;
+.projects__number {
+    transform: translateZ(35px);
+    transition: transform 0.35s ease;
 }
 
-.testimonial-dot {
+.projects__data {
+    transform: translateZ(25px);
+    transition: transform 0.35s ease;
+}
+
+.projects__image {
+    transform: translateZ(30px);
+    transition: transform 0.35s ease;
+}
+
+.projects__buttons {
+    transform: translateZ(40px);
+    transition: transform 0.35s ease;
+}
+
+.projects__card:hover .projects__number {
+    transform: translateZ(45px);
+}
+
+.projects__card:hover .projects__image {
+    transform: translateZ(40px) scale(1.02);
+}
+
+.projects__card:hover .projects__buttons {
+    transform: translateZ(48px);
+}
+
+/* 4. Tech Scroll 3D Perspective Flow */
+.tech-scroll__container {
+    perspective: 1200px;
+}
+
+.tech-row {
+    transform: rotateX(4deg);
+    transform-origin: center center;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tech-row:hover {
+    transform: rotateX(0deg);
+}
+
+/* 5. Neon Energy Pulse Timeline */
+.work__line {
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg,
+        rgba(56, 189, 248, 0.15) 0%,
+        var(--first-color) 50%,
+        var(--secondary-color) 100%);
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-shadow: 0 0 14px rgba(0, 242, 254, 0.35);
+    border-radius: 4px;
+}
+
+.work__line::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 10px;
     height: 10px;
+    background: var(--secondary-color);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 15px var(--secondary-color), 0 0 25px var(--first-color);
+    animation: timelinePulse 4.5s ease-in-out infinite;
 }
 
-.testimonial-dot:hover {
-    background: rgba(255, 255, 255, 0.5);
+@keyframes timelinePulse {
+    0% { top: 0%; opacity: 0.8; }
+    50% { top: 95%; opacity: 1; }
+    100% { top: 0%; opacity: 0.8; }
 }
 
-.testimonial-dot.active {
-    width: 28px;
-    border-radius: 12px;
-    background: var(--first-color);
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
-}
-
-/* Responsive Testimonials */
-@media screen and (max-width: 1024px) {
-    .testimonial__card {
-        flex: 0 0 calc(50% - 0.75rem);
-        padding: 1.75rem 1.5rem;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .testimonial__card {
-        flex: 0 0 100%;
-        padding: 1.5rem 1.25rem;
-    }
-    
-    .testimonials__nav-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 1.2rem;
-    }
-    
-    .testimonials__carousel-container {
-        gap: 0.5rem;
-    }
+/* 6. Form Input Neon Focus Ring */
+.contact__form-input:focus {
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.25), inset 0 0 8px rgba(0, 242, 254, 0.08) !important;
+    outline: none;
 }
 
 /*=============== ACCESSIBILITY & PREFERS-REDUCED-MOTION ===============*/

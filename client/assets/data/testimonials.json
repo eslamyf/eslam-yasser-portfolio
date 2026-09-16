@@ -7,7 +7,7 @@
     "rating": 5,
     "content": "Eslam is an exceptionally talented Full-Stack Engineer. His mastery over the MEAN stack, deep architectural understanding of REST APIs, and relentless focus on performance elevated our platform significantly.",
     "platform": "LinkedIn",
-    "screenshotUrl": "",
+    "screenshotUrl": "assets/img/backend_api.webp",
     "isFeatured": true,
     "status": "published",
     "orderIndex": 1
@@ -20,7 +20,7 @@
     "rating": 5,
     "content": "Outstanding technical competence and dedication. Eslam demonstrated remarkable problem-solving abilities and leadership during his academic and technical mentoring initiatives.",
     "platform": "Colleague",
-    "screenshotUrl": "",
+    "screenshotUrl": "assets/img/About.webp",
     "isFeatured": true,
     "status": "published",
     "orderIndex": 2
@@ -33,7 +33,7 @@
     "rating": 5,
     "content": "Working with Eslam on the Aqario platform was a breeze. He translated complex business workflows into blazing fast Node.js microservices and intuitive responsive interfaces ahead of deadline.",
     "platform": "Client",
-    "screenshotUrl": "",
+    "screenshotUrl": "assets/img/aqario.webp",
     "isFeatured": true,
     "status": "published",
     "orderIndex": 3
@@ -46,7 +46,7 @@
     "rating": 5,
     "content": "Eslam provided stellar full-stack delivery on our API gateway project. Clean code, comprehensive documentation, secure authentication, and 100% test reliability.",
     "platform": "Upwork",
-    "screenshotUrl": "",
+    "screenshotUrl": "assets/img/RWD.webp",
     "isFeatured": true,
     "status": "published",
     "orderIndex": 4

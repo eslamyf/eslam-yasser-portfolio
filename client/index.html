@@ -228,6 +228,8 @@
         <div class="cursor-trail cursor-trail-2"></div>
         <!--==================== HOME ====================-->
         <section class="home section" id="home">
+            <!-- THREE.JS INTERACTIVE 3D WEBGL HERO CANVAS -->
+            <canvas id="three-hero-canvas" class="home__three-canvas"></canvas>
 
             <div class="home__container container grid">
                 <!-- Left side container -->
@@ -604,35 +606,26 @@
             </div>
         </section>
 
-        <!--==================== TESTIMONIALS ====================-->
+        <!--==================== TESTIMONIALS (THREEUI 3D FLOATING SCREENS) ====================-->
         <section class="testimonials section" id="testimonials">
             <div class="testimonials__header container">
-                <span class="section__subtitle">Client & Peer Reviews</span>
+                <span class="section__subtitle">Verified Recommendations</span>
                 <h2 class="section__title">What People <span>Say</span></h2>
                 <p class="testimonials__description">
                     Endorsements from engineering leads, founders, and academic supervisors on real-world MEAN stack delivery.
                 </p>
+                <div class="testimonials__hint-badge">
+                    <i class="ri-cursor-line"></i> Hover over any screen to pause & inspect in 3D
+                </div>
             </div>
 
-            <div class="testimonials__wrapper container">
-                <div class="testimonials__carousel-container">
-                    <button class="testimonials__nav-btn testimonials__nav-btn--prev" id="testimonials-prev" aria-label="Previous Testimonial">
-                        <i class="ri-arrow-left-s-line"></i>
-                    </button>
-
-                    <div class="testimonials__track-window" id="testimonials-window">
-                        <div class="testimonials__track" id="testimonials-track">
-                            <!-- Injected dynamically via JS -->
-                        </div>
-                    </div>
-
-                    <button class="testimonials__nav-btn testimonials__nav-btn--next" id="testimonials-next" aria-label="Next Testimonial">
-                        <i class="ri-arrow-right-s-line"></i>
-                    </button>
+            <div class="testimonials__floating-stage" id="testimonials-floating-stage">
+                <!-- Glowing Cyber Ambient Background Light -->
+                <div class="testimonials__ambient-glow"></div>
+                
+                <div class="testimonials__floating-track" id="testimonials-floating-track">
+                    <!-- Cards injected dynamically via JS into duplicate sets for infinite seamless 3D drift -->
                 </div>
-
-                <!-- Carousel Indicators -->
-                <div class="testimonials__dots" id="testimonials-dots"></div>
             </div>
         </section>
 
@@ -897,6 +890,10 @@
 
     <!--=============== SWIPER JS ===============-->
     <script defer src="assets/js/swiper-bundle.min.js"></script>
+
+    <!--=============== THREE.JS 3D ENGINE ===============-->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <!--=============== MAIN JS ===============-->
     <script defer src="assets/js/main.js"></script>
 </body>

@@ -413,6 +413,7 @@ function renderProjects(projects) {
 
     initMagnetic();
     init3DTilt();
+    initSpotlightGlow();
 }
 
 /*=============== SIMPLE & ROBUST PDF MODAL & DOWNLOAD HANDLERS ===============*/
@@ -811,6 +812,7 @@ async function loadAllWorkData() {
             initWorkTabs();
             initMagnetic();
             init3DTilt();
+            initSpotlightGlow();
             if (ScrollTrigger) ScrollTrigger.refresh();
         } else {
             fallbackToStaticWork();
@@ -831,6 +833,7 @@ function fallbackToStaticWork() {
             initWorkTabs();
             initMagnetic();
             init3DTilt();
+            initSpotlightGlow();
             if (ScrollTrigger) ScrollTrigger.refresh();
         })
         .catch((error) => console.error("Error loading work data:", error));
@@ -1191,6 +1194,7 @@ function renderCertificateItems(items, container) {
     attachCertInteractions(visibleItems);
     initMagnetic();
     init3DTilt();
+    initSpotlightGlow();
 }
 
 function attachCertInteractions(items) {
@@ -1273,6 +1277,7 @@ function renderWorkItems(items, container) {
 
     initMagnetic();
     init3DTilt();
+    initSpotlightGlow();
 }
 
 function initWorkTabs() {
@@ -1355,6 +1360,7 @@ function renderServices(services) {
 
     initMagnetic();
     init3DTilt();
+    initSpotlightGlow();
 }
 
 function initServicesAccordion() {
@@ -1387,15 +1393,12 @@ function initServicesAccordion() {
     });
 }
 
-/*=============== TESTIMONIALS DYNAMIC RENDER & CAROUSEL ===============*/
-const testimonialsTrack = document.getElementById("testimonials-track");
-const testimonialsDots = document.getElementById("testimonials-dots");
-const prevTestimonialBtn = document.getElementById("testimonials-prev");
-const nextTestimonialBtn = document.getElementById("testimonials-next");
+/*=============== THREEUI 3D FLOATING SCREENS SHOWCASE ===============*/
+const testimonialsFloatingTrack = document.getElementById("testimonials-floating-track");
+const testimonialsFloatingStage = document.getElementById("testimonials-floating-stage");
 
 let _testimonialsList = [];
-let _currentTestimonialIndex = 0;
-let _testimonialAutoPlayTimer = null;
+let _isFloatingTrackHovered = false;
 
 async function loadTestimonials() {
     try {
@@ -1434,9 +1437,12 @@ function getAuthorInitials(name) {
 }
 
 function renderTestimonials(testimonials) {
-    if (!testimonialsTrack || !testimonials || testimonials.length === 0) return;
+    if (!testimonialsFloatingTrack || !testimonials || testimonials.length === 0) return;
 
-    testimonialsTrack.innerHTML = testimonials.map((t, idx) => {
+    // Duplicate list 3x for smooth, gap-free infinite floating marquee stream
+    const fullStream = [...testimonials, ...testimonials, ...testimonials];
+
+    testimonialsFloatingTrack.innerHTML = fullStream.map((t, idx) => {
         const rating = Math.min(5, Math.max(1, t.rating || 5));
         const starsHtml = Array.from({ length: 5 }, (_, i) => 
             `<i class="${i < rating ? 'ri-star-fill' : 'ri-star-line'}"></i>`
@@ -1446,136 +1452,132 @@ function renderTestimonials(testimonials) {
         const platformClass = platform.toLowerCase();
         const initials = getAuthorInitials(t.name);
 
-        const avatarHtml = t.avatar && t.avatar.trim() !== ''
-            ? `<img src="${t.avatar}" alt="${t.name}" class="testimonial__avatar" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-               <div class="testimonial__avatar-placeholder" style="display: none;">${initials}</div>`
-            : `<div class="testimonial__avatar-placeholder">${initials}</div>`;
+        const avatarImg = t.avatar && t.avatar.trim() !== ''
+            ? `<img src="${t.avatar}" alt="${t.name}" class="floating-screen__avatar" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+               <div class="floating-screen__avatar-placeholder" style="display: none;">${initials}</div>`
+            : `<div class="floating-screen__avatar-placeholder">${initials}</div>`;
+
+        const proofUrl = t.screenshotUrl && t.screenshotUrl.trim() !== '' ? t.screenshotUrl : t.avatar;
 
         const screenshotHtml = t.screenshotUrl && t.screenshotUrl.trim() !== ''
-            ? `<div class="testimonial__screenshot-thumb" onclick="openTestimonialScreenshot('${t.screenshotUrl}', '${t.name.replace(/'/g, "\\'")}')">
+            ? `<div class="floating-screen__screenshot-thumb" onclick="event.stopPropagation(); openTestimonialScreenshot('${t.screenshotUrl}', '${t.name.replace(/'/g, "\\'")}')">
                  <img src="${t.screenshotUrl}" alt="Proof screenshot from ${t.name}" loading="lazy">
-                 <div class="testimonial__screenshot-overlay"><i class="ri-zoom-in-line"></i> View Proof</div>
+                 <div class="floating-screen__screenshot-overlay"><i class="ri-zoom-in-line"></i> View Proof Screen</div>
                </div>`
             : '';
 
         return `
-            <article class="testimonial__card" data-index="${idx}">
-                <div class="testimonial__quote-watermark">“</div>
-                
-                <div class="testimonial__top">
-                    <div class="testimonial__stars" aria-label="${rating} out of 5 stars">${starsHtml}</div>
-                    <span class="testimonial__platform-badge ${platformClass}">
-                        <i class="ri-checkbox-circle-fill"></i> ${platform}
-                    </span>
+            <article class="floating-screen__card" data-index="${idx}" onclick="openTestimonialScreenshot('${proofUrl}', '${t.name.replace(/'/g, "\\'")}')">
+                <div class="floating-screen__window-bar">
+                    <div class="floating-screen__badges">
+                        <span class="floating-screen__platform ${platformClass}">
+                            <i class="ri-checkbox-circle-fill"></i> ${platform}
+                        </span>
+                        <div class="floating-screen__stars" aria-label="${rating} out of 5 stars">${starsHtml}</div>
+                    </div>
                 </div>
 
-                <div class="testimonial__content">
-                    <p>“${t.content}”</p>
+                <div class="floating-screen__body">
+                    <div class="floating-screen__watermark">“</div>
+                    <p class="floating-screen__quote">“${t.content}”</p>
                     ${screenshotHtml}
                 </div>
 
-                <div class="testimonial__author">
-                    ${avatarHtml}
-                    <div class="testimonial__author-info">
-                        <h4 class="testimonial__author-name">${t.name}</h4>
-                        <span class="testimonial__author-role">${t.role}</span>
-                        ${t.company ? `<span class="testimonial__author-company">${t.company}</span>` : ''}
+                <div class="floating-screen__footer">
+                    <div class="floating-screen__author-box">
+                        <div class="floating-screen__avatar-wrapper">
+                            ${avatarImg}
+                            <span class="floating-screen__status-beacon" title="Verified Collaboration"></span>
+                        </div>
+                        <div class="floating-screen__author-meta">
+                            <h4 class="floating-screen__author-name">${t.name}</h4>
+                            <span class="floating-screen__author-role">${t.role}</span>
+                            ${t.company ? `<span class="floating-screen__author-company">${t.company}</span>` : ''}
+                        </div>
                     </div>
+                    <button type="button" class="floating-screen__proof-btn" title="Inspect Full Screen" onclick="event.stopPropagation(); openTestimonialScreenshot('${proofUrl}', '${t.name.replace(/'/g, "\\'")}')">
+                        <i class="ri-zoom-in-line"></i>
+                    </button>
                 </div>
             </article>
         `;
     }).join('');
 
-    initTestimonialsCarousel();
+    initFloatingStreamInteractions();
     initMagnetic();
     init3DTilt();
-    if (ScrollTrigger) ScrollTrigger.refresh();
+    initSpotlightGlow();
+    if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
 }
 
-function getCardsPerView() {
-    const w = window.innerWidth;
-    if (w < 768) return 1;
-    if (w < 1024) return 2;
-    return 3;
-}
+function initFloatingStreamInteractions() {
+    if (!testimonialsFloatingStage || !testimonialsFloatingTrack) return;
 
-function getMaxTestimonialIndex() {
-    const perView = getCardsPerView();
-    return Math.max(0, _testimonialsList.length - perView);
-}
-
-function updateTestimonialCarouselPosition() {
-    if (!testimonialsTrack || _testimonialsList.length === 0) return;
-
-    const cards = testimonialsTrack.querySelectorAll('.testimonial__card');
-    if (!cards || cards.length === 0) return;
-
-    const perView = getCardsPerView();
-    const maxIdx = getMaxTestimonialIndex();
-
-    if (_currentTestimonialIndex > maxIdx) {
-        _currentTestimonialIndex = maxIdx;
+    // Viewport Virtualization: Pause animation when scrolled out of view
+    if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (!_isFloatingTrackHovered) {
+                        testimonialsFloatingTrack.style.animationPlayState = "running";
+                    }
+                } else {
+                    testimonialsFloatingTrack.style.animationPlayState = "paused";
+                }
+            });
+        }, { threshold: 0.05 });
+        observer.observe(testimonialsFloatingStage);
     }
 
-    const cardWidth = cards[0].offsetWidth;
-    const gap = 24; // 1.5rem = 24px
-    const offset = _currentTestimonialIndex * (cardWidth + gap);
+    // Hover Pause Listener
+    testimonialsFloatingStage.addEventListener("mouseenter", () => {
+        _isFloatingTrackHovered = true;
+        testimonialsFloatingTrack.style.animationPlayState = "paused";
+    });
 
-    testimonialsTrack.style.transform = `translateX(-${offset}px)`;
+    testimonialsFloatingStage.addEventListener("mouseleave", () => {
+        _isFloatingTrackHovered = false;
+        testimonialsFloatingTrack.style.animationPlayState = "running";
+    });
 
-    // Update Dots
-    if (testimonialsDots) {
-        const dotCount = maxIdx + 1;
-        testimonialsDots.innerHTML = Array.from({ length: dotCount }, (_, i) => `
-            <button class="testimonial-dot ${i === _currentTestimonialIndex ? 'active' : ''}" 
-                onclick="goToTestimonialSlide(${i})" 
-                aria-label="Go to testimonial slide ${i + 1}">
-            </button>
-        `).join('');
-    }
+    // Touch & Mouse Horizontal Dragging
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
 
-    // Update button states
-    if (prevTestimonialBtn) prevTestimonialBtn.disabled = _currentTestimonialIndex === 0;
-    if (nextTestimonialBtn) nextTestimonialBtn.disabled = _currentTestimonialIndex >= maxIdx;
-}
+    testimonialsFloatingStage.addEventListener("mousedown", (e) => {
+        isDown = true;
+        startX = e.pageX - testimonialsFloatingStage.offsetLeft;
+        scrollLeft = testimonialsFloatingStage.scrollLeft;
+        testimonialsFloatingTrack.style.animationPlayState = "paused";
+    });
 
-function goToTestimonialSlide(index) {
-    const maxIdx = getMaxTestimonialIndex();
-    _currentTestimonialIndex = Math.max(0, Math.min(index, maxIdx));
-    updateTestimonialCarouselPosition();
-}
+    window.addEventListener("mouseup", () => {
+        if (!isDown) return;
+        isDown = false;
+        if (!_isFloatingTrackHovered) {
+            testimonialsFloatingTrack.style.animationPlayState = "running";
+        }
+    });
 
-function prevTestimonial() {
-    if (_currentTestimonialIndex > 0) {
-        _currentTestimonialIndex--;
-    } else {
-        _currentTestimonialIndex = getMaxTestimonialIndex();
-    }
-    updateTestimonialCarouselPosition();
-}
+    testimonialsFloatingStage.addEventListener("mousemove", (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - testimonialsFloatingStage.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        testimonialsFloatingStage.scrollLeft = scrollLeft - walk;
+    });
 
-function nextTestimonial() {
-    const maxIdx = getMaxTestimonialIndex();
-    if (_currentTestimonialIndex < maxIdx) {
-        _currentTestimonialIndex++;
-    } else {
-        _currentTestimonialIndex = 0;
-    }
-    updateTestimonialCarouselPosition();
-}
+    // Touch Swipe Support
+    testimonialsFloatingStage.addEventListener("touchstart", (e) => {
+        testimonialsFloatingTrack.style.animationPlayState = "paused";
+    }, { passive: true });
 
-function startTestimonialAutoPlay() {
-    stopTestimonialAutoPlay();
-    _testimonialAutoPlayTimer = setInterval(() => {
-        nextTestimonial();
-    }, 5000);
-}
-
-function stopTestimonialAutoPlay() {
-    if (_testimonialAutoPlayTimer) {
-        clearInterval(_testimonialAutoPlayTimer);
-        _testimonialAutoPlayTimer = null;
-    }
+    testimonialsFloatingStage.addEventListener("touchend", () => {
+        if (!_isFloatingTrackHovered) {
+            testimonialsFloatingTrack.style.animationPlayState = "running";
+        }
+    }, { passive: true });
 }
 
 function openTestimonialScreenshot(url, authorName) {
@@ -1589,63 +1591,7 @@ function openTestimonialScreenshot(url, authorName) {
         if (titleEl) titleEl.innerHTML = `<i class="ri-shield-check-line text-primary"></i> Recommendation Proof — ${authorName}`;
         if (dlBtn) dlBtn.href = url;
         modal.style.display = "flex";
-        document.body.style.overflow = "hidden";
     }
-}
-
-function initTestimonialsCarousel() {
-    _currentTestimonialIndex = 0;
-    updateTestimonialCarouselPosition();
-
-    if (prevTestimonialBtn) {
-        prevTestimonialBtn.onclick = () => {
-            prevTestimonial();
-            startTestimonialAutoPlay();
-        };
-    }
-    if (nextTestimonialBtn) {
-        nextTestimonialBtn.onclick = () => {
-            nextTestimonial();
-            startTestimonialAutoPlay();
-        };
-    }
-
-    const windowEl = document.getElementById("testimonials-window");
-    if (windowEl) {
-        windowEl.onmouseenter = stopTestimonialAutoPlay;
-        windowEl.onmouseleave = startTestimonialAutoPlay;
-
-        // Touch Swipe
-        let startX = 0;
-        let diffX = 0;
-
-        windowEl.addEventListener("touchstart", (e) => {
-            stopTestimonialAutoPlay();
-            startX = e.touches[0].clientX;
-            diffX = 0;
-        }, { passive: true });
-
-        windowEl.addEventListener("touchmove", (e) => {
-            diffX = e.touches[0].clientX - startX;
-        }, { passive: true });
-
-        windowEl.addEventListener("touchend", () => {
-            if (Math.abs(diffX) > 50) {
-                if (diffX < 0) {
-                    nextTestimonial();
-                } else {
-                    prevTestimonial();
-                }
-            }
-            startTestimonialAutoPlay();
-        });
-    }
-
-    window.addEventListener("resize", () => {
-        updateTestimonialCarouselPosition();
-    });
-
-    startTestimonialAutoPlay();
 }
 
 // Kick off loading testimonials
@@ -1921,7 +1867,7 @@ const initMagnetic = () => {
     });
 };
 
-/*=============== 3D TILT EFFECT ===============*/
+/*=============== 3D TILT EFFECT & MULTI-LAYER PARALLAX ===============*/
 const init3DTilt = () => {
     const cards = document.querySelectorAll(`
         .skills__card, 
@@ -1929,6 +1875,7 @@ const init3DTilt = () => {
         .projects__card, 
         .work__card, 
         .testimonial__card, 
+        .floating-screen__card,
         .about__stat-card
     `);
 
@@ -1941,13 +1888,13 @@ const init3DTilt = () => {
             const x = (e.clientX - rect.left) / rect.width - 0.5;
             const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-            const maxRot = 10;
+            const maxRot = 9;
 
             gsap.to(card, {
                 rotateY: x * maxRot,
                 rotateX: -y * maxRot,
                 transformPerspective: 1000,
-                scale: 1.025,
+                scale: 1.02,
                 duration: 0.35,
                 ease: "power2.out",
                 overwrite: "auto"
@@ -1963,6 +1910,32 @@ const init3DTilt = () => {
                 ease: "power2.out",
                 overwrite: "auto"
             });
+        });
+    });
+};
+
+/*=============== THREEUI INTERACTIVE SPOTLIGHT GLOW ===============*/
+const initSpotlightGlow = () => {
+    const cards = document.querySelectorAll(`
+        .skills__card, 
+        .services__card, 
+        .projects__card, 
+        .about__stat-card, 
+        .testimonial__card, 
+        .floating-screen__card,
+        .work__card
+    `);
+
+    cards.forEach((card) => {
+        if (card.dataset.spotlightBound === "true") return;
+        card.dataset.spotlightBound = "true";
+
+        card.addEventListener("mousemove", (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty("--mouse-x", `${x}px`);
+            card.style.setProperty("--mouse-y", `${y}px`);
         });
     });
 };
@@ -2003,7 +1976,7 @@ const initStatsCounters = () => {
     });
 };
 
-/*=============== INTERACTIVE PARTICLES CANVAS ===============*/
+/*=============== THREEUI INTERACTIVE 3D CONSTELLATION & WAVE CANVAS ===============*/
 let _particleCanvasInitialized = false;
 const initParticleCanvas = () => {
     if (_particleCanvasInitialized) return;
@@ -2016,15 +1989,17 @@ const initParticleCanvas = () => {
 
     _particleCanvasInitialized = true;
     let particles = [];
-    let mouse = { x: null, y: null, radius: 120 };
+    let mouse = { x: null, y: null, radius: 140 };
 
     const handleResize = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         particles = [];
-        const numParticles = Math.min(Math.floor((canvas.width * canvas.height) / 16000), 80);
+        const isMobile = canvas.width < 768;
+        const isTablet = canvas.width >= 768 && canvas.width < 1024;
+        const numParticles = isMobile ? 24 : isTablet ? 45 : Math.min(Math.floor((canvas.width * canvas.height) / 18000), 75);
         for (let i = 0; i < numParticles; i++) {
-            particles.push(new Particle());
+            particles.push(new ConstellationParticle());
         }
     };
 
@@ -2040,15 +2015,21 @@ const initParticleCanvas = () => {
         mouse.y = null;
     });
 
-    class Particle {
+    class ConstellationParticle {
         constructor() {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2 + 1;
+            this.size = Math.random() * 1.8 + 0.8;
             this.baseX = this.x;
             this.baseY = this.y;
-            this.density = (Math.random() * 30) + 10;
-            this.color = `rgba(77, 166, 255, ${Math.random() * 0.12 + 0.04})`; // Glowing transparent electric blue
+            this.vx = (Math.random() - 0.5) * 0.45;
+            this.vy = (Math.random() - 0.5) * 0.45;
+            this.density = (Math.random() * 25) + 8;
+            this.angle = Math.random() * Math.PI * 2;
+            this.waveSpeed = Math.random() * 0.02 + 0.008;
+            this.color = Math.random() > 0.35 
+                ? "rgba(77, 166, 255, 0.45)" 
+                : "rgba(0, 242, 254, 0.55)";
         }
 
         draw() {
@@ -2060,52 +2041,85 @@ const initParticleCanvas = () => {
         }
 
         update() {
-            this.baseY -= 0.2;
-            if (this.baseY < 0) {
-                this.baseY = canvas.height;
-                this.x = Math.random() * canvas.width;
-                this.baseX = this.x;
-            }
+            // Subtle harmonic wave drift
+            this.angle += this.waveSpeed;
+            this.baseX += this.vx;
+            this.baseY += this.vy + Math.sin(this.angle) * 0.15;
 
+            // Boundary wrapping
+            if (this.baseX < 0) this.baseX = canvas.width;
+            if (this.baseX > canvas.width) this.baseX = 0;
+            if (this.baseY < 0) this.baseY = canvas.height;
+            if (this.baseY > canvas.height) this.baseY = 0;
+
+            // Mouse proximity interaction
             if (mouse.x !== null && mouse.y !== null) {
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
+                const dx = mouse.x - this.baseX;
+                const dy = mouse.y - this.baseY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance < mouse.radius) {
-                    let forceDirectionX = dx / distance;
-                    let forceDirectionY = dy / distance;
-                    let maxDistance = mouse.radius;
-                    let force = (maxDistance - distance) / maxDistance;
-                    let directionX = forceDirectionX * force * this.density;
-                    let directionY = forceDirectionY * force * this.density;
+                    const forceDirectionX = dx / distance;
+                    const forceDirectionY = dy / distance;
+                    const force = (mouse.radius - distance) / mouse.radius;
+                    const directionX = forceDirectionX * force * this.density;
+                    const directionY = forceDirectionY * force * this.density;
 
-                    this.x -= directionX;
-                    this.y -= directionY;
+                    this.x = this.baseX - directionX;
+                    this.y = this.baseY - directionY;
                 } else {
-                    if (this.x !== this.baseX) {
-                        let dx = this.x - this.baseX;
-                        this.x -= dx / 15;
-                    }
-                    if (this.y !== this.baseY) {
-                        let dy = this.y - this.baseY;
-                        this.y -= dy / 15;
-                    }
+                    this.x += (this.baseX - this.x) * 0.08;
+                    this.y += (this.baseY - this.y) * 0.08;
                 }
             } else {
-                if (this.x !== this.baseX) {
-                    let dx = this.x - this.baseX;
-                    this.x -= dx / 15;
-                }
-                if (this.y !== this.baseY) {
-                    let dy = this.y - this.baseY;
-                    this.y -= dy / 15;
-                }
+                this.x += (this.baseX - this.x) * 0.08;
+                this.y += (this.baseY - this.y) * 0.08;
             }
         }
     }
 
     handleResize();
+
+    const connectNodes = () => {
+        const isMobile = canvas.width < 768;
+        const maxDist = isMobile ? 65 : 110;
+        const maxMouseDist = isMobile ? 85 : 130;
+
+        for (let a = 0; a < particles.length; a++) {
+            // Connect to neighboring particles
+            for (let b = a + 1; b < particles.length; b++) {
+                const dx = particles[a].x - particles[b].x;
+                const dy = particles[a].y - particles[b].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < maxDist) {
+                    const alpha = (1 - dist / maxDist) * 0.18;
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[a].x, particles[a].y);
+                    ctx.lineTo(particles[b].x, particles[b].y);
+                    ctx.stroke();
+                }
+            }
+
+            // Connect to mouse cursor
+            if (mouse.x !== null && mouse.y !== null) {
+                const dx = particles[a].x - mouse.x;
+                const dy = particles[a].y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < maxMouseDist) {
+                    const alpha = (1 - dist / maxMouseDist) * 0.28;
+                    ctx.strokeStyle = `rgba(0, 242, 254, ${alpha})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[a].x, particles[a].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+            }
+        }
+    };
 
     const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -2113,6 +2127,7 @@ const initParticleCanvas = () => {
             particles[i].update();
             particles[i].draw();
         }
+        connectNodes();
         requestAnimationFrame(animate);
     };
 
@@ -2229,13 +2244,172 @@ const scrambleText = (element) => {
     });
 };
 
+/*=============== THREEUI 3D WEBGL HERO SCENE (THREE.JS) ===============*/
+let _threeHeroInitialized = false;
+let _threeHeroAnimationId = null;
+
+const initThreeHeroScene = () => {
+    if (_threeHeroInitialized) return;
+    if (typeof THREE === "undefined") {
+        // Retry if Three.js is still loading
+        setTimeout(initThreeHeroScene, 150);
+        return;
+    }
+
+    const canvas = document.getElementById("three-hero-canvas");
+    const heroSection = document.getElementById("home");
+    if (!canvas || !heroSection) return;
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return; // Respect user preference for reduced motion
+    }
+
+    _threeHeroInitialized = true;
+
+    try {
+        // 1. Scene & Camera Setup
+        const scene = new THREE.Scene();
+        const width = heroSection.offsetWidth || window.innerWidth;
+        const height = heroSection.offsetHeight || window.innerHeight;
+        const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 1000);
+        camera.position.z = 17;
+
+        // 2. WebGL Renderer
+        const renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true,
+            powerPreference: "high-performance"
+        });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(width, height);
+
+        // 3. 3D Objects Main Group
+        const mainGroup = new THREE.Group();
+        scene.add(mainGroup);
+
+        // 4. Floating 3D Star Particle Constellation Cloud (Clean, Elegant Ambient Backdrop)
+        const isMobile = window.innerWidth < 768;
+        const particleCount = isMobile ? 120 : 300;
+        const particleGeom = new THREE.BufferGeometry();
+        const posArray = new Float32Array(particleCount * 3);
+        const colorArray = new Float32Array(particleCount * 3);
+
+        const color1 = new THREE.Color(0x00f2fe);
+        const color2 = new THREE.Color(0x38bdf8);
+        const color3 = new THREE.Color(0x818cf8);
+
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            const radius = 6 + Math.random() * 16;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos((Math.random() * 2) - 1);
+
+            posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
+            posArray[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            posArray[i + 2] = radius * Math.cos(phi);
+
+            const mixedColor = Math.random() > 0.6 ? color1 : (Math.random() > 0.5 ? color2 : color3);
+            colorArray[i] = mixedColor.r;
+            colorArray[i + 1] = mixedColor.g;
+            colorArray[i + 2] = mixedColor.b;
+        }
+
+        particleGeom.setAttribute("position", new THREE.BufferAttribute(posArray, 3));
+        particleGeom.setAttribute("color", new THREE.BufferAttribute(colorArray, 3));
+
+        const particleMat = new THREE.PointsMaterial({
+            size: isMobile ? 0.12 : 0.16,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.65,
+            blending: THREE.AdditiveBlending
+        });
+        const particleMesh = new THREE.Points(particleGeom, particleMat);
+        mainGroup.add(particleMesh);
+
+        // 5. Dynamic Cyber Ambient Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0x00f2fe, 2.5, 45);
+        pointLight1.position.set(10, 12, 14);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0x4da6ff, 1.8, 45);
+        pointLight2.position.set(-10, -10, 8);
+        scene.add(pointLight2);
+
+        // 6. Smooth Mouse Parallax Physics
+        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+        const onMouseMove = (e) => {
+            const rect = heroSection.getBoundingClientRect();
+            if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                mouse.targetX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+                mouse.targetY = -((e.clientY - rect.top) / rect.height - 0.5) * 2;
+            }
+        };
+        window.addEventListener("mousemove", onMouseMove, { passive: true });
+
+        // Responsive Resize
+        const onResize = () => {
+            if (!heroSection || !renderer || !camera) return;
+            const w = heroSection.offsetWidth;
+            const h = heroSection.offsetHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        };
+        window.addEventListener("resize", onResize);
+
+        // 7. Viewport Observer (0% Overhead when off-screen)
+        let isHeroInView = true;
+        if ("IntersectionObserver" in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    isHeroInView = entry.isIntersecting;
+                });
+            }, { threshold: 0.05 });
+            observer.observe(heroSection);
+        }
+
+        let clock = new THREE.Clock();
+
+        const animateThree = () => {
+            _threeHeroAnimationId = requestAnimationFrame(animateThree);
+
+            if (!isHeroInView) return;
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Smooth Lerp Damping for Mouse Movement
+            mouse.x += (mouse.targetX - mouse.x) * 0.05;
+            mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+            // Subtle rotation and dynamic floating constellation
+            mainGroup.rotation.y = elapsedTime * 0.04 + mouse.x * 0.25;
+            mainGroup.rotation.x = Math.sin(elapsedTime * 0.15) * 0.04 + mouse.y * 0.2;
+            particleMesh.rotation.y = elapsedTime * 0.02;
+            particleMesh.rotation.z = Math.sin(elapsedTime * 0.08) * 0.015;
+
+            renderer.render(scene, camera);
+        };
+
+        animateThree();
+    } catch (err) {
+        console.warn("Three.js WebGL initialization skipped or failed:", err);
+    }
+};
+
 /*=============== GSAP SCROLLTRIGGER REVEAL ANIMATIONS ===============*/
 function initScrollReveals() {
     // Run continuous animations & interactions
+    initThreeHeroScene();
     initParticleCanvas();
     runProfileFloat();
     initMagnetic();
     init3DTilt();
+    initSpotlightGlow();
     initStatsCounters();
 
 
