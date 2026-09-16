@@ -13,7 +13,7 @@ let experienceCache = [];
 let educationCache = [];
 let volunteeringCache = [];
 let certificatesCache = [];
-let videosCache = [];
+let testimonialsCache = [];
 let cvCache = [];
 let activeCvData = null;
 let skillsCache = [];
@@ -209,7 +209,7 @@ function switchToTab(tabName) {
     education: ['التعليم الأكاديمي', 'إدارة المؤهلات العلمية والدراسة الأكاديمية'],
     volunteering: ['التطوع والتدريس', 'إدارة الأنشطة التطوعية والتدريبية (Support Community)'],
     certificates: ['الشهادات والاعتمادات', 'إدارة شهادات الدورات والدبلومات مع معاينات PDF'],
-    videos: ['الفيديوهات والشروحات', 'إدارة ومقاطع الفيديو التعليمية والتوضيحية'],
+    testimonials: ['آراء العملاء والشركاء', 'إدارة شهادات التقدير وتوصيات العملاء مع إثباتات السكرين شوت'],
     cv: ['إدارة الـ CV والملفات', 'رفع السيرة الذاتية بصيغة PDF وتحديد النسخة المفعّلة للموقع'],
     skills: ['المهارات والتخصصات', 'إدارة وتقييم مهارات الـ Full-Stack والـ MEAN Stack'],
     files: ['مدير الملفات بالسيرفر', 'عرض وتحميل وإدارة جميع الملفات المرفوعة في السيرفر'],
@@ -227,7 +227,7 @@ function switchToTab(tabName) {
   if (tabName === 'education') loadEducation();
   if (tabName === 'volunteering') loadVolunteering();
   if (tabName === 'certificates') loadCertificates();
-  if (tabName === 'videos') loadVideos();
+  if (tabName === 'testimonials') loadTestimonials();
   if (tabName === 'cv') loadCVs();
   if (tabName === 'skills') loadSkills();
   if (tabName === 'files') loadFiles();
@@ -316,14 +316,15 @@ function renderProjectsTable(projects) {
       ? `<span class="badge badge-success">منشور</span>`
       : `<span class="badge badge-warning">مسودة</span>`;
 
-    const youtubeBadge = p.youtubeUrl || p.youtubeId
-      ? `<span class="badge badge-danger"><i class="ri-youtube-fill"></i> متاح</span>`
-      : `<span class="text-muted">-</span>`;
+    const galCount = (p.gallery || p.images || []).length;
+    const galleryBadge = galCount > 0
+      ? `<span class="badge badge-info"><i class="ri-image-line"></i> ${galCount} صور</span>`
+      : `<span class="text-muted"><i class="ri-image-line"></i> 1 (رئيسية)</span>`;
 
     return `
       <tr>
         <td>
-          <img src="${p.image || 'assets/img/backend_api.jpg'}" alt="${p.title}" class="table-img" onerror="this.src='assets/img/backend_api.jpg'">
+          <img src="${p.coverImage || p.image || 'assets/img/backend_api.jpg'}" alt="${p.title}" class="table-img" onerror="this.src='assets/img/backend_api.jpg'">
         </td>
         <td>
           <strong>${p.title}</strong>
@@ -331,7 +332,7 @@ function renderProjectsTable(projects) {
         </td>
         <td><span class="badge badge-info">${p.category}</span></td>
         <td><small>${p.date || '-'}</small></td>
-        <td>${youtubeBadge}</td>
+        <td>${galleryBadge}</td>
         <td>${statusBadge}</td>
         <td>
           <div class="action-tools">
@@ -366,7 +367,8 @@ function openAddProjectModal() {
   document.getElementById('modal-title').innerHTML = `<i class="ri-folder-add-line"></i> إضافة مشروع جديد`;
   document.getElementById('project-form').reset();
   document.getElementById('image-preview').src = 'assets/img/backend_api.jpg';
-  document.getElementById('youtube-preview-container').style.display = 'none';
+  const galEl = document.getElementById('p-gallery-urls');
+  if (galEl) galEl.value = '';
   document.getElementById('project-modal').style.display = 'flex';
 }
 
@@ -381,50 +383,26 @@ function openEditProjectModal(id) {
   document.getElementById('p-category').value = project.category || '';
   document.getElementById('p-date').value = project.date || '';
   document.getElementById('p-description').value = project.description || '';
-  document.getElementById('p-image-url').value = project.image || '';
+  document.getElementById('p-image-url').value = project.coverImage || project.image || '';
   document.getElementById('p-subtitle').value = project.subtitle || '';
   document.getElementById('p-demo').value = project.demo || '';
   document.getElementById('p-github').value = project.github || '';
-  document.getElementById('p-youtube').value = project.youtubeUrl || '';
+
+  const galUrls = (project.gallery || project.images || []).join(', ');
+  const galEl = document.getElementById('p-gallery-urls');
+  if (galEl) galEl.value = galUrls;
+
   document.getElementById('p-technologies').value = Array.isArray(project.technologies) ? project.technologies.join(', ') : (project.technologies || '');
   document.getElementById('p-status').value = project.status || 'published';
   document.getElementById('p-order').value = project.orderIndex || 0;
 
-  document.getElementById('image-preview').src = project.image || 'assets/img/backend_api.jpg';
-
-  if (project.youtubeUrl) {
-    previewYouTubeVideo(project.youtubeUrl);
-  } else {
-    document.getElementById('youtube-preview-container').style.display = 'none';
-  }
+  document.getElementById('image-preview').src = project.coverImage || project.image || 'assets/img/backend_api.jpg';
 
   document.getElementById('project-modal').style.display = 'flex';
 }
 
 function closeProjectModal() {
   document.getElementById('project-modal').style.display = 'none';
-}
-
-function previewYouTubeVideo(url) {
-  const container = document.getElementById('youtube-preview-container');
-  const iframe = document.getElementById('youtube-preview-iframe');
-
-  if (!url || !url.trim()) {
-    container.style.display = 'none';
-    iframe.src = '';
-    return;
-  }
-
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  let videoId = (match && match[2].length === 11) ? match[2] : (url.length === 11 ? url : null);
-
-  if (videoId) {
-    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`;
-    container.style.display = 'block';
-  } else {
-    container.style.display = 'none';
-  }
 }
 
 async function handleImageUpload(input) {
@@ -469,16 +447,27 @@ if (projectForm) {
     const token = localStorage.getItem('admin_token');
     const saveBtn = document.getElementById('save-project-btn');
 
+    const cover = document.getElementById('p-image-url').value.trim() || 'assets/img/backend_api.jpg';
+    
+    // Parse gallery URLs
+    const rawGal = document.getElementById('p-gallery-urls') ? document.getElementById('p-gallery-urls').value : '';
+    const parsedGallery = rawGal
+      .split(/[\n,]/)
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+
     const projectPayload = {
       title: document.getElementById('p-title').value.trim(),
       category: document.getElementById('p-category').value.trim(),
       date: document.getElementById('p-date').value.trim(),
       description: document.getElementById('p-description').value.trim(),
-      image: document.getElementById('p-image-url').value.trim() || 'assets/img/backend_api.jpg',
+      coverImage: cover,
+      image: cover,
+      gallery: parsedGallery.length > 0 ? parsedGallery : [cover],
+      images: parsedGallery.length > 0 ? parsedGallery : [cover],
       subtitle: document.getElementById('p-subtitle').value.trim(),
       demo: document.getElementById('p-demo').value.trim(),
       github: document.getElementById('p-github').value.trim(),
-      youtubeUrl: document.getElementById('p-youtube').value.trim(),
       technologies: document.getElementById('p-technologies').value.trim(),
       status: document.getElementById('p-status').value,
       orderIndex: document.getElementById('p-order').value
@@ -1076,43 +1065,54 @@ async function deleteCertificate(id) {
   }
 }
 
-/* ==================== TAB 7: VIDEOS CRUD ==================== */
+/* ==================== TAB 7: TESTIMONIALS CRUD ==================== */
 
-async function loadVideos() {
+async function loadTestimonials() {
   try {
-    const res = await fetch(`${API_BASE}/videos`);
+    const res = await fetch(`${API_BASE}/testimonials?includeDrafts=true`);
     const data = await res.json();
-    if (data.success) {
-      videosCache = data.data;
-      renderVideosTable(videosCache);
+    if (data.success && data.data) {
+      testimonialsCache = data.data;
+      renderTestimonialsTable(testimonialsCache);
     }
   } catch (err) {
-    console.error('Load videos error:', err);
+    console.error('Load testimonials error:', err);
   }
 }
 
-function renderVideosTable(list) {
-  const tbody = document.getElementById('videos-table-body');
+function renderTestimonialsTable(list) {
+  const tbody = document.getElementById('testimonials-table-body');
+  if (!tbody) return;
   if (!list || list.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">لا توجد فيديوهات مضافة.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">لا توجد توصيات أو آراء مضافة. اضغط "إضافة توصية / رأي جديد" للبدء.</td></tr>`;
     return;
   }
+
   tbody.innerHTML = list.map(item => {
-    const isYoutube = item.videoType === 'youtube' || item.youtubeUrl;
-    const sourceBadge = isYoutube
-      ? `<span class="badge badge-danger"><i class="ri-youtube-fill"></i> YouTube</span>`
-      : `<span class="badge badge-info"><i class="ri-hard-drive-line"></i> Local Server Stream</span>`;
+    const isPublished = item.status === 'published';
+    const statusBadge = isPublished
+      ? `<span class="badge badge-success">منشور</span>`
+      : `<span class="badge badge-warning">مسودة</span>`;
+
+    const starsHtml = '⭐'.repeat(item.rating || 5);
+    const platformBadge = `<span class="badge badge-info">${item.platform || 'LinkedIn'}</span>`;
+    const snippet = item.content && item.content.length > 55 ? item.content.substring(0, 55) + '...' : (item.content || '-');
 
     return `
       <tr>
-        <td><strong>${item.title}</strong></td>
-        <td>${sourceBadge}</td>
-        <td><small>${item.duration || '-'}</small></td>
-        <td><span class="badge badge-secondary">${item.category || 'General'}</span></td>
+        <td><strong>${item.name}</strong></td>
+        <td>
+          <span>${item.role}</span>
+          ${item.company ? `<br><small class="text-muted">${item.company}</small>` : ''}
+        </td>
+        <td>${platformBadge}</td>
+        <td><small>${starsHtml}</small></td>
+        <td><small class="text-muted" title="${item.content || ''}">${snippet}</small></td>
+        <td>${statusBadge}</td>
         <td>
           <div class="action-tools">
-            <button class="btn btn-icon btn-edit" onclick="openEditVideoModal('${item._id}')"><i class="ri-edit-line"></i></button>
-            <button class="btn btn-icon btn-delete" onclick="deleteVideo('${item._id}')"><i class="ri-delete-bin-line"></i></button>
+            <button class="btn btn-icon btn-edit" title="تعديل" onclick="openEditTestimonialModal('${item._id || item.id}')"><i class="ri-edit-line"></i></button>
+            <button class="btn btn-icon btn-delete" title="حذف" onclick="deleteTestimonial('${item._id || item.id}')"><i class="ri-delete-bin-line"></i></button>
           </div>
         </td>
       </tr>
@@ -1120,90 +1120,64 @@ function renderVideosTable(list) {
   }).join('');
 }
 
-function openAddVideoModal() {
-  document.getElementById('video-id').value = '';
-  document.getElementById('video-modal-title').innerHTML = `<i class="ri-video-line"></i> إضافة فيديو جديد`;
-  document.getElementById('video-form').reset();
-  toggleVideoSourceType('youtube');
-  document.getElementById('video-modal').style.display = 'flex';
+function openAddTestimonialModal() {
+  document.getElementById('testimonial-id').value = '';
+  document.getElementById('testimonial-modal-title').innerHTML = `<i class="ri-chat-quote-line"></i> إضافة توصية / رأي جديد`;
+  document.getElementById('testimonial-form').reset();
+  document.getElementById('testimonial-modal').style.display = 'flex';
 }
 
-function openEditVideoModal(id) {
-  const item = videosCache.find(x => x._id === id);
+function openEditTestimonialModal(id) {
+  const item = testimonialsCache.find(x => x._id === id || x.id === id);
   if (!item) return;
-  document.getElementById('video-id').value = item._id;
-  document.getElementById('video-modal-title').innerHTML = `<i class="ri-edit-line"></i> تعديل بيانات الفيديو`;
-  document.getElementById('vid-title').value = item.title || '';
-  document.getElementById('vid-source').value = item.videoType || (item.youtubeUrl ? 'youtube' : 'local');
-  document.getElementById('vid-youtube-url').value = item.youtubeUrl || '';
-  document.getElementById('vid-local-path').value = item.videoPath || '';
-  document.getElementById('vid-duration').value = item.duration || '';
-  document.getElementById('vid-category').value = item.category || '';
-  toggleVideoSourceType(item.videoType || 'youtube');
-  document.getElementById('video-modal').style.display = 'flex';
+
+  document.getElementById('testimonial-id').value = item._id || item.id;
+  document.getElementById('testimonial-modal-title').innerHTML = `<i class="ri-edit-line"></i> تعديل بيانات التوصية`;
+  document.getElementById('t-name').value = item.name || '';
+  document.getElementById('t-role').value = item.role || '';
+  document.getElementById('t-company').value = item.company || '';
+  document.getElementById('t-platform').value = item.platform || 'LinkedIn';
+  document.getElementById('t-rating').value = item.rating || 5;
+  document.getElementById('t-avatar-url').value = item.avatar || '';
+  document.getElementById('t-content').value = item.content || '';
+  document.getElementById('t-screenshot-url').value = item.screenshotUrl || '';
+  document.getElementById('t-status').value = item.status || 'published';
+  document.getElementById('t-order').value = item.orderIndex || 0;
+
+  document.getElementById('testimonial-modal').style.display = 'flex';
 }
 
-function closeVideoModal() {
-  document.getElementById('video-modal').style.display = 'none';
+function closeTestimonialModal() {
+  document.getElementById('testimonial-modal').style.display = 'none';
 }
 
-function toggleVideoSourceType(type) {
-  if (type === 'youtube') {
-    document.getElementById('vid-youtube-box').style.display = 'block';
-    document.getElementById('vid-local-box').style.display = 'none';
-  } else {
-    document.getElementById('vid-youtube-box').style.display = 'none';
-    document.getElementById('vid-local-box').style.display = 'block';
-  }
-}
-
-async function handleVideoUpload(input) {
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  const formData = new FormData();
-  formData.append('video', file);
-
-  const token = localStorage.getItem('admin_token');
-  const statusEl = document.getElementById('vid-upload-status');
-  statusEl.textContent = 'جاري رفع الفيديو للسيرفر...';
-
-  try {
-    const res = await fetch(`${API_BASE}/files/upload`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('vid-local-path').value = data.filePath;
-      statusEl.textContent = 'تم رفع الفيديو بنجاح!';
-      showToast('تم رفع ملف الفيديو للسيرفر', 'success');
-    }
-  } catch (err) {
-    statusEl.textContent = 'فشل الرفع';
-  }
-}
-
-const vidForm = document.getElementById('video-form');
-if (vidForm) {
-  vidForm.addEventListener('submit', async (e) => {
+const testimonialForm = document.getElementById('testimonial-form');
+if (testimonialForm) {
+  testimonialForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('video-id').value;
+    const id = document.getElementById('testimonial-id').value;
     const token = localStorage.getItem('admin_token');
-    const sourceType = document.getElementById('vid-source').value;
+    const saveBtn = document.getElementById('save-testimonial-btn');
 
     const payload = {
-      title: document.getElementById('vid-title').value.trim(),
-      videoType: sourceType,
-      youtubeUrl: sourceType === 'youtube' ? document.getElementById('vid-youtube-url').value.trim() : '',
-      videoPath: sourceType === 'local' ? document.getElementById('vid-local-path').value.trim() : '',
-      duration: document.getElementById('vid-duration').value.trim(),
-      category: document.getElementById('vid-category').value.trim()
+      name: document.getElementById('t-name').value.trim(),
+      role: document.getElementById('t-role').value.trim(),
+      company: document.getElementById('t-company').value.trim(),
+      platform: document.getElementById('t-platform').value,
+      rating: Number(document.getElementById('t-rating').value) || 5,
+      avatar: document.getElementById('t-avatar-url').value.trim(),
+      content: document.getElementById('t-content').value.trim(),
+      screenshotUrl: document.getElementById('t-screenshot-url').value.trim(),
+      status: document.getElementById('t-status').value,
+      orderIndex: Number(document.getElementById('t-order').value) || 0
     };
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `جاري الحفظ... <i class="ri-loader-4-line animate-spin"></i>`;
 
     try {
       const method = id ? 'PUT' : 'POST';
-      const url = id ? `${API_BASE}/videos/${id}` : `${API_BASE}/videos`;
+      const url = id ? `${API_BASE}/testimonials/${id}` : `${API_BASE}/testimonials`;
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -1211,31 +1185,40 @@ if (vidForm) {
       });
       const data = await res.json();
       if (data.success) {
-        showToast('تم حفظ الفيديو بنجاح', 'success');
-        closeVideoModal();
-        loadVideos();
+        showToast(data.message || 'تم حفظ التوصية بنجاح', 'success');
+        closeTestimonialModal();
+        loadTestimonials();
+      } else {
+        showToast(data.message || 'فشل حفظ التوصية', 'error');
       }
     } catch (err) {
-      console.error('Save video error:', err);
+      console.error('Save testimonial error:', err);
+      showToast('خطأ أثناء الاتصال بالسيرفر', 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = `<i class="ri-save-line"></i> <span>حفظ التوصية</span>`;
     }
   });
 }
 
-async function deleteVideo(id) {
-  if (!confirm('هل تأكد من حذف هذا الفيديو؟')) return;
+async function deleteTestimonial(id) {
+  if (!confirm('هل أنت متأكد من حذف هذه التوصية؟')) return;
   const token = localStorage.getItem('admin_token');
   try {
-    const res = await fetch(`${API_BASE}/videos/${id}`, {
+    const res = await fetch(`${API_BASE}/testimonials/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await res.json();
     if (data.success) {
-      showToast('تم حذف الفيديو بنجاح', 'success');
-      loadVideos();
+      showToast('تم حذف التوصية بنجاح', 'success');
+      loadTestimonials();
+    } else {
+      showToast(data.message || 'فشل الحذف', 'error');
     }
   } catch (err) {
-    console.error('Delete video error:', err);
+    console.error('Delete testimonial error:', err);
+    showToast('تعذر حذف التوصية', 'error');
   }
 }
 

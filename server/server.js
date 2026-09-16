@@ -4,16 +4,13 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
 // Load .env locally if available
 try {
   require('dotenv').config({ path: path.join(__dirname, '.env') });
 } catch (e) {}
-
-// Fallback configuration for Vercel / Cloud serverless environments
-process.env.JWT_SECRET = process.env.JWT_SECRET || '6e66d8f540eaf88fbbf38ac4f38a3465c56fd4e9473fafb116f92772b6f26cdd31fb56c088c755ca8455e678914a4f57342e79f1775268dc57e6b31e605bf764';
-process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://eslam:eslamyf123@eslam-yasser-portfolio.7xhwfic.mongodb.net/eslam_portfolio?retryWrites=true&w=majority&appName=eslam-yasser-portfolio';
-process.env.ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'iLGCxZeBBg6eJE6I';
 
 const connectDB = require('./config/db');
 const User = require('./models/User');
@@ -24,17 +21,57 @@ const Volunteering = require('./models/Volunteering');
 const Certificate = require('./models/Certificate');
 const Skill = require('./models/Skill');
 const CV = require('./models/CV');
+const Testimonial = require('./models/Testimonial');
 
 // Initialize Express App
 const app = express();
 
-// Open CORS for all valid clients (Vercel, Localhost, Custom Domains)
+// 1. HTTP Security Headers with Helmet
+app.use(helmet({
+  contentSecurityPolicy: false, // Prevents breaking CDNs (Google Fonts, RemixIcons, Swiper, GSAP, etc.)
+  crossOriginEmbedderPolicy: false
+}));
+
+// 2. Strict Whitelist CORS Policy
+const allowedOrigins = [
+  'https://eslam-yasser-portfolio.vercel.app',
+  'https://eslamyasser.github.io',
+  'http://localhost:5000',
+  'http://localhost:5500',
+  'http://localhost:5501',
+  'http://127.0.0.1:5500',
+  'http://127.0.0.1:5501',
+  'http://localhost:3000'
+];
+
+if (process.env.ALLOWED_ORIGINS && process.env.ALLOWED_ORIGINS !== '*') {
+  process.env.ALLOWED_ORIGINS.split(',').forEach(o => {
+    const trimmed = o.trim();
+    if (trimmed && !allowedOrigins.includes(trimmed)) allowedOrigins.push(trimmed);
+  });
+}
+
 app.use(cors({
   origin: function (origin, callback) {
-    callback(null, true);
+    if (!origin || allowedOrigins.includes(origin) || process.env.ALLOWED_ORIGINS === '*' || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy: Access denied for this origin.'));
+    }
   },
   credentials: true
 }));
+
+// 3. API Global Rate Limiter (300 requests per 15 mins per IP)
+const globalApiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests from this IP. Please try again after 15 minutes.' }
+});
+app.use('/api', globalApiLimiter);
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -98,17 +135,23 @@ async function seedInitialData() {
         const initialProjects = JSON.parse(fs.readFileSync(projectsJsonPath, 'utf8'));
         for (let i = 0; i < initialProjects.length; i++) {
           const item = initialProjects[i];
+          const cover = item.coverImage || item.image || 'assets/img/backend_api.webp';
+          const gal = item.gallery || item.images || [cover];
           await Project.create({
             title: item.title,
             category: item.category,
             subtitle: item.subtitle || '',
             description: item.description,
             date: item.date || '2026',
-            image: item.image || 'assets/img/backend_api.jpg',
+            coverImage: cover,
+            image: cover,
+            gallery: gal,
+            images: gal,
+            technologies: item.technologies || [],
             demo: item.demo || '',
             github: item.github || '',
             status: 'published',
-            orderIndex: i + 1
+            orderIndex: item.orderIndex || (i + 1)
           });
         }
         console.log(`[Seed] Imported ${initialProjects.length} projects.`);
@@ -200,6 +243,18 @@ async function seedInitialData() {
       console.log('[Seed] Created default Active CV record.');
     }
 
+    // 5. Seed Testimonials if empty
+    if (await Testimonial.countDocuments() === 0) {
+      const testimonialsJsonPath = path.join(__dirname, '../client/assets/data/testimonials.json');
+      if (fs.existsSync(testimonialsJsonPath)) {
+        const initialTestimonials = JSON.parse(fs.readFileSync(testimonialsJsonPath, 'utf8'));
+        for (let i = 0; i < initialTestimonials.length; i++) {
+          await Testimonial.create(initialTestimonials[i]);
+        }
+        console.log('[Seed] Imported Testimonials records.');
+      }
+    }
+
   } catch (error) {
     console.error('[Seed Error]:', error.message);
   }
@@ -208,11 +263,11 @@ async function seedInitialData() {
 // API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
+app.use('/api/testimonials', require('./routes/testimonialRoutes'));
 app.use('/api/experience', require('./routes/experienceRoutes'));
 app.use('/api/education', require('./routes/educationRoutes'));
 app.use('/api/volunteering', require('./routes/volunteeringRoutes'));
 app.use('/api/certificates', require('./routes/certificateRoutes'));
-app.use('/api/videos', require('./routes/videoRoutes'));
 app.use('/api/cv', require('./routes/cvRoutes'));
 app.use('/api/skills', require('./routes/skillRoutes'));
 app.use('/api/files', require('./routes/fileRoutes'));

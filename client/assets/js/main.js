@@ -342,80 +342,35 @@ fetch(`${API_BASE}/projects`)
             });
     });
 
-function switchProjectImage(galleryId, imgUrl) {
-    const container = document.getElementById(galleryId);
-    if (!container) return;
-    const imgEl = container.querySelector('.projects__img');
-    if (imgEl) imgEl.src = imgUrl;
-    container.querySelectorAll('.proj-gallery-dot').forEach(dot => {
-        dot.classList.remove('active');
-        if (dot.getAttribute('onclick') && dot.getAttribute('onclick').includes(imgUrl.replace(/'/g, "\\'"))) {
-            dot.classList.add('active');
-        }
-    });
-}
-
 function renderProjects(projects) {
+    window._cachedProjects = projects;
     projectsContent.innerHTML = projects
         .map((project, idx) => {
             const displayId = project.id || (idx + 1 < 10 ? `0${idx + 1}` : `${idx + 1}`);
             const hasDemo = project.demo && project.demo.trim() !== '' && project.demo !== '#';
             const hasGithub = project.github && project.github.trim() !== '' && project.github !== '#';
 
-            // ---- VIDEO DETECTION (YouTube / Loom / Vimeo) ----
-            let videoEmbed = null;
-            // Check videoUrl first (generic), then youtubeUrl, then youtubeId
-            const rawVideoUrl = project.videoUrl || project.youtubeUrl || '';
-            if (rawVideoUrl) {
-                videoEmbed = extractVideoEmbed(rawVideoUrl);
-            }
-            // Legacy: direct youtubeId field
-            if (!videoEmbed && project.youtubeId) {
-                videoEmbed = {
-                    type: 'youtube',
-                    id: project.youtubeId,
-                    embedUrl: `https://www.youtube-nocookie.com/embed/${project.youtubeId}?autoplay=1&rel=0`
-                };
-            }
-
-            // ---- IMAGES GALLERY ----
-            // Combine main image with extra images array, deduplicate
-            const mainImage = project.image || 'assets/img/backend_api.jpg';
-            const extraImages = Array.isArray(project.images) ? project.images.filter(Boolean) : [];
-            const allImages = [mainImage, ...extraImages.filter(img => img !== mainImage)];
-
-            // Gallery HTML: if multiple images, show mini dot selector
-            const galleryId = `gallery-${displayId}-${idx}`;
-            let galleryHtml = '';
-            if (allImages.length > 1) {
-                const dotsHtml = allImages.map((img, i) =>
-                    `<button class="proj-gallery-dot${i === 0 ? ' active' : ''}" 
-                        onclick="switchProjectImage('${galleryId}', '${img.replace(/'/g, "\\'")}')"
-                        aria-label="Image ${i + 1}"></button>`
-                ).join('');
-                galleryHtml = `<div class="proj-gallery-dots">${dotsHtml}</div>`;
-            }
-
-            // Video overlay button on image
-            const videoOverlayBtn = videoEmbed
-                ? `<button onclick="openVideoEmbedModal('${videoEmbed.embedUrl}', '${(project.title || '').replace(/'/g, "\\'")}', '${videoEmbed.type}')" class="projects__play-btn" title="Watch Demo">
-                       <i class="ri-play-fill"></i>
-                   </button>`
-                : '';
+            const coverImage = project.coverImage || project.image || 'assets/img/backend_api.webp';
+            const rawGallery = project.gallery || project.images || [];
+            const allImages = Array.from(new Set([coverImage, ...rawGallery.filter(Boolean)]));
+            const galleryCount = allImages.length;
 
             // ---- ACTION BUTTONS ----
+            const galleryBtn = `<button type="button" onclick="openProjectGallery(${idx})" class="projects__btn projects__btn--gallery" title="View Project Gallery">
+                <i class="ri-gallery-line"></i> Gallery (${galleryCount})
+            </button>`;
+
             const liveBtn = hasDemo
-                ? `<a href="${project.demo}" target="_blank" class="projects__btn projects__btn--live"><i class="ri-global-line"></i> Live Demo</a>`
+                ? `<a href="${project.demo}" target="_blank" rel="noopener noreferrer" class="projects__btn projects__btn--live"><i class="ri-global-line"></i> Live Demo</a>`
                 : `<span class="projects__btn projects__btn--disabled"><i class="ri-global-line"></i> Live Demo</span>`;
 
             const githubBtn = hasGithub
-                ? `<a href="${project.github}" target="_blank" class="projects__btn projects__btn--github"><i class="ri-github-line"></i> GitHub</a>`
+                ? `<a href="${project.github}" target="_blank" rel="noopener noreferrer" class="projects__btn projects__btn--github"><i class="ri-github-line"></i> GitHub</a>`
                 : `<span class="projects__btn projects__btn--disabled"><i class="ri-github-line"></i> GitHub</span>`;
 
-            const youtubeBtn = videoEmbed
-                ? `<button onclick="openVideoEmbedModal('${videoEmbed.embedUrl}', '${(project.title || '').replace(/'/g, "\\'")}', '${videoEmbed.type}')" class="projects__btn" style="background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3);">
-                       <i class="ri-play-circle-line"></i> Watch Demo
-                   </button>`
+            // Tech tags
+            const techList = Array.isArray(project.technologies) && project.technologies.length > 0
+                ? `<div class="projects__tech-tags">${project.technologies.slice(0, 4).map(t => `<span class="proj-tech-tag">${t}</span>`).join('')}</div>`
                 : '';
 
             return `
@@ -431,23 +386,25 @@ function renderProjects(projects) {
                 <h1 class="projects__title">${project.title}</h1>
                 <p class="projects__subtitle">${project.subtitle || ''}</p>
                 <p class="projects__description">${project.description}</p>
+                ${techList}
             </div>
             
-            <div class="projects__image" id="${galleryId}">
-                <img src="${mainImage}" alt="${project.title}" 
+            <div class="projects__image" onclick="openProjectGallery(${idx})" style="cursor: pointer;" title="Click to view image gallery">
+                <img src="${coverImage}" alt="${project.title}" 
                      class="projects__img" 
-                     width="302" height="180" loading="lazy"
-                     style="cursor: zoom-in;"
-                     onclick="openLightboxModal(this.src, '${(project.title || '').replace(/'/g, "\\'")}')"
-                     onerror="this.src='assets/img/backend_api.jpg'">
-                ${videoOverlayBtn}
-                ${galleryHtml}
+                     width="302" height="180" loading="lazy" decoding="async"
+                     onerror="this.src='assets/img/backend_api.webp'">
+                <div class="projects__gallery-overlay">
+                    <span class="projects__gallery-badge">
+                        <i class="ri-gallery-line"></i> ${galleryCount} Photos • View Gallery
+                    </span>
+                </div>
             </div>
 
-            <div class="projects__buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div class="projects__buttons" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1rem;">
+                ${galleryBtn}
                 ${liveBtn}
                 ${githubBtn}
-                ${youtubeBtn}
             </div>
         </article>
         `;
@@ -638,13 +595,145 @@ function openVideoModal(videoUrl, title) {
     }
 }
 
-function closeVideoModal() {
-    const modal = document.getElementById("video-player-modal");
-    const videoEl = document.getElementById("video-modal-element");
-    if (modal && videoEl) {
-        videoEl.pause();
-        videoEl.src = "";
-        modal.style.display = "none";
+/*=============== MULTI-IMAGE GALLERY LIGHTBOX LOGIC ===============*/
+let _currentGalleryData = {
+    title: '',
+    category: '',
+    images: [],
+    currentIndex: 0,
+    demo: '',
+    github: ''
+};
+
+function openProjectGallery(idx) {
+    const projects = window._cachedProjects || [];
+    const project = typeof idx === 'number' ? projects[idx] : idx;
+    if (!project) return;
+
+    const cover = project.coverImage || project.image || 'assets/img/backend_api.webp';
+    const rawGallery = project.gallery || project.images || [];
+    const galleryList = [cover, ...rawGallery.filter(img => img && img !== cover)];
+
+    // Deduplicate images array
+    const uniqueImages = Array.from(new Set(galleryList.filter(Boolean)));
+    if (uniqueImages.length === 0) uniqueImages.push(cover);
+
+    _currentGalleryData = {
+        title: project.title || 'Project Showcase',
+        category: project.category || 'Project',
+        images: uniqueImages,
+        currentIndex: 0,
+        demo: project.demo || '',
+        github: project.github || ''
+    };
+
+    renderGalleryModalState();
+
+    const modal = document.getElementById('project-gallery-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', handleGalleryKeyDown);
+    }
+}
+
+function renderGalleryModalState() {
+    const { title, category, images, currentIndex, demo, github } = _currentGalleryData;
+    const total = images.length;
+    const currentImg = images[currentIndex] || images[0];
+
+    const titleEl = document.getElementById('gallery-modal-title');
+    const catEl = document.getElementById('gallery-modal-category');
+    const counterEl = document.getElementById('gallery-modal-counter');
+    const mainImg = document.getElementById('gallery-modal-main-img');
+    const thumbsContainer = document.getElementById('gallery-modal-thumbs');
+    const linksContainer = document.getElementById('gallery-modal-links');
+    const prevBtn = document.getElementById('gallery-nav-prev');
+    const nextBtn = document.getElementById('gallery-nav-next');
+
+    if (titleEl) titleEl.textContent = title;
+    if (catEl) catEl.textContent = category;
+    if (counterEl) counterEl.textContent = `${currentIndex + 1} / ${total}`;
+
+    if (mainImg) {
+        mainImg.style.opacity = '0';
+        mainImg.src = currentImg;
+        mainImg.onload = () => {
+            mainImg.style.transition = 'opacity 0.25s ease';
+            mainImg.style.opacity = '1';
+        };
+        mainImg.onerror = () => {
+            mainImg.src = 'assets/img/backend_api.webp';
+            mainImg.style.opacity = '1';
+        };
+    }
+
+    // Toggle navigation arrows visibility
+    if (prevBtn && nextBtn) {
+        prevBtn.style.display = total > 1 ? 'flex' : 'none';
+        nextBtn.style.display = total > 1 ? 'flex' : 'none';
+    }
+
+    // Render Thumbnails
+    if (thumbsContainer) {
+        if (total > 1) {
+            thumbsContainer.innerHTML = images.map((img, i) => `
+                <button type="button" class="gallery-modal__thumb-btn ${i === currentIndex ? 'active' : ''}" 
+                    onclick="selectGalleryImage(${i})" aria-label="Photo ${i + 1}">
+                    <img src="${img}" alt="Thumbnail ${i + 1}" loading="lazy" onerror="this.src='assets/img/backend_api.webp'">
+                </button>
+            `).join('');
+            thumbsContainer.style.display = 'flex';
+        } else {
+            thumbsContainer.innerHTML = '';
+            thumbsContainer.style.display = 'none';
+        }
+    }
+
+    // Render Action Links in Modal
+    if (linksContainer) {
+        let linksHtml = '';
+        if (demo && demo.trim() !== '' && demo !== '#') {
+            linksHtml += `<a href="${demo}" target="_blank" rel="noopener noreferrer" class="gallery-modal__link-btn gallery-modal__link-btn--live"><i class="ri-global-line"></i> Live Demo</a>`;
+        }
+        if (github && github.trim() !== '' && github !== '#') {
+            linksHtml += `<a href="${github}" target="_blank" rel="noopener noreferrer" class="gallery-modal__link-btn gallery-modal__link-btn--github"><i class="ri-github-line"></i> GitHub Code</a>`;
+        }
+        linksContainer.innerHTML = linksHtml;
+    }
+}
+
+function navigateProjectGallery(dir) {
+    const total = _currentGalleryData.images.length;
+    if (total <= 1) return;
+    _currentGalleryData.currentIndex = (_currentGalleryData.currentIndex + dir + total) % total;
+    renderGalleryModalState();
+}
+
+function selectGalleryImage(idx) {
+    if (idx >= 0 && idx < _currentGalleryData.images.length) {
+        _currentGalleryData.currentIndex = idx;
+        renderGalleryModalState();
+    }
+}
+
+function closeProjectGallery() {
+    const modal = document.getElementById('project-gallery-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleGalleryKeyDown);
+    }
+}
+
+function handleGalleryKeyDown(e) {
+    if (e.key === 'Escape') {
+        closeProjectGallery();
+        closeLightboxModal();
+    } else if (e.key === 'ArrowLeft') {
+        navigateProjectGallery(-1);
+    } else if (e.key === 'ArrowRight') {
+        navigateProjectGallery(1);
     }
 }
 
@@ -654,97 +743,19 @@ function openLightboxModal(imageUrl, title) {
     const titleEl = document.getElementById("lightbox-modal-title");
 
     if (modal && imgEl) {
-        titleEl.innerHTML = `<i class="ri-image-line" style="color: var(--first-color);"></i> ${title || 'Image View'}`;
+        if (titleEl) titleEl.innerHTML = `<i class="ri-image-line" style="color: var(--first-color);"></i> ${title || 'Image View'}`;
         imgEl.src = imageUrl;
         modal.style.display = "flex";
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', handleGalleryKeyDown);
     }
 }
 
 function closeLightboxModal() {
     const modal = document.getElementById("image-lightbox-modal");
-    if (modal) modal.style.display = "none";
-}
-
-/**
- * Extract video embed data from any video URL (YouTube, Loom, Vimeo)
- * @returns {object|null} { type, embedUrl, id? }
- */
-function extractVideoEmbed(url) {
-    if (!url || !url.trim()) return null;
-    url = url.trim();
-
-    // YouTube: youtu.be/ID, watch?v=ID, /embed/ID
-    const ytMatch = url.match(/(?:youtu\.be\/|v=|v\/|embed\/)([a-zA-Z0-9_-]{11})/);
-    if (ytMatch) {
-        return {
-            type: 'youtube',
-            id: ytMatch[1],
-            embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0&modestbranding=1`
-        };
-    }
-
-    // Loom: loom.com/share/ID
-    const loomMatch = url.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
-    if (loomMatch) {
-        return {
-            type: 'loom',
-            id: loomMatch[1],
-            embedUrl: `https://www.loom.com/embed/${loomMatch[1]}?autoplay=1`
-        };
-    }
-
-    // Vimeo: vimeo.com/ID
-    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/);
-    if (vimeoMatch) {
-        return {
-            type: 'vimeo',
-            id: vimeoMatch[1],
-            embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&title=0&byline=0`
-        };
-    }
-
-    return null;
-}
-
-/**
- * Open a universal video modal — supports YouTube, Loom, Vimeo, or any embed URL
- */
-function openVideoEmbedModal(embedUrl, title, videoType) {
-    const modal = document.getElementById('youtube-video-modal');
-    const iframe = document.getElementById('yt-modal-iframe');
-    const titleEl = document.getElementById('yt-modal-title');
-    if (!modal || !iframe) return;
-
-    let iconHtml = '<i class="ri-video-fill" style="color: var(--first-color);"></i>';
-    if (videoType === 'youtube') iconHtml = '<i class="ri-youtube-fill" style="color: #ef4444;"></i>';
-    else if (videoType === 'loom') iconHtml = '<i class="ri-record-circle-line" style="color: #8b5cf6;"></i>';
-    else if (videoType === 'vimeo') iconHtml = '<i class="ri-vimeo-line" style="color: #1ab7ea;"></i>';
-
-    titleEl.innerHTML = `${iconHtml} ${title || 'Demo Video'}`;
-    iframe.src = embedUrl;
-    modal.style.display = 'flex';
-}
-
-/*=============== PROTECTED YOUTUBE MODAL LOGIC ===============*/
-function openYouTubeModal(videoId, title) {
-    const modal = document.getElementById("youtube-video-modal");
-    const iframe = document.getElementById("yt-modal-iframe");
-    const titleEl = document.getElementById("yt-modal-title");
-
-    if (modal && iframe) {
-        titleEl.innerHTML = `<i class="ri-youtube-fill" style="color: #ef4444;"></i> ${title || 'Demo Video'}`;
-        iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1`;
-        modal.style.display = "flex";
-    }
-}
-
-function closeYouTubeModal() {
-    const modal = document.getElementById("youtube-video-modal");
-    const iframe = document.getElementById("yt-modal-iframe");
-
-    if (modal && iframe) {
-        iframe.src = "";
+    if (modal) {
         modal.style.display = "none";
+        document.body.style.overflow = '';
     }
 }
 
@@ -1309,6 +1320,268 @@ function initServicesAccordion() {
     });
 }
 
+/*=============== TESTIMONIALS DYNAMIC RENDER & CAROUSEL ===============*/
+const testimonialsTrack = document.getElementById("testimonials-track");
+const testimonialsDots = document.getElementById("testimonials-dots");
+const prevTestimonialBtn = document.getElementById("testimonials-prev");
+const nextTestimonialBtn = document.getElementById("testimonials-next");
+
+let _testimonialsList = [];
+let _currentTestimonialIndex = 0;
+let _testimonialAutoPlayTimer = null;
+
+async function loadTestimonials() {
+    try {
+        const res = await fetch(`${API_BASE}/testimonials`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data && data.data.length > 0) {
+                _testimonialsList = data.data;
+                renderTestimonials(_testimonialsList);
+                return;
+            }
+        }
+        fallbackToStaticTestimonials();
+    } catch (e) {
+        fallbackToStaticTestimonials();
+    }
+}
+
+function fallbackToStaticTestimonials() {
+    fetch("assets/data/testimonials.json")
+        .then(r => r.json())
+        .then(data => {
+            _testimonialsList = data;
+            renderTestimonials(_testimonialsList);
+        })
+        .catch(err => console.warn("Error loading testimonials fallback:", err));
+}
+
+function getAuthorInitials(name) {
+    if (!name) return "EY";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+}
+
+function renderTestimonials(testimonials) {
+    if (!testimonialsTrack || !testimonials || testimonials.length === 0) return;
+
+    testimonialsTrack.innerHTML = testimonials.map((t, idx) => {
+        const rating = Math.min(5, Math.max(1, t.rating || 5));
+        const starsHtml = Array.from({ length: 5 }, (_, i) => 
+            `<i class="${i < rating ? 'ri-star-fill' : 'ri-star-line'}"></i>`
+        ).join('');
+
+        const platform = t.platform || 'LinkedIn';
+        const platformClass = platform.toLowerCase();
+        const initials = getAuthorInitials(t.name);
+
+        const avatarHtml = t.avatar && t.avatar.trim() !== ''
+            ? `<img src="${t.avatar}" alt="${t.name}" class="testimonial__avatar" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+               <div class="testimonial__avatar-placeholder" style="display: none;">${initials}</div>`
+            : `<div class="testimonial__avatar-placeholder">${initials}</div>`;
+
+        const screenshotHtml = t.screenshotUrl && t.screenshotUrl.trim() !== ''
+            ? `<div class="testimonial__screenshot-thumb" onclick="openTestimonialScreenshot('${t.screenshotUrl}', '${t.name.replace(/'/g, "\\'")}')">
+                 <img src="${t.screenshotUrl}" alt="Proof screenshot from ${t.name}" loading="lazy">
+                 <div class="testimonial__screenshot-overlay"><i class="ri-zoom-in-line"></i> View Proof</div>
+               </div>`
+            : '';
+
+        return `
+            <article class="testimonial__card" data-index="${idx}">
+                <div class="testimonial__quote-watermark">“</div>
+                
+                <div class="testimonial__top">
+                    <div class="testimonial__stars" aria-label="${rating} out of 5 stars">${starsHtml}</div>
+                    <span class="testimonial__platform-badge ${platformClass}">
+                        <i class="ri-checkbox-circle-fill"></i> ${platform}
+                    </span>
+                </div>
+
+                <div class="testimonial__content">
+                    <p>“${t.content}”</p>
+                    ${screenshotHtml}
+                </div>
+
+                <div class="testimonial__author">
+                    ${avatarHtml}
+                    <div class="testimonial__author-info">
+                        <h4 class="testimonial__author-name">${t.name}</h4>
+                        <span class="testimonial__author-role">${t.role}</span>
+                        ${t.company ? `<span class="testimonial__author-company">${t.company}</span>` : ''}
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    initTestimonialsCarousel();
+    if (ScrollTrigger) ScrollTrigger.refresh();
+}
+
+function getCardsPerView() {
+    const w = window.innerWidth;
+    if (w < 768) return 1;
+    if (w < 1024) return 2;
+    return 3;
+}
+
+function getMaxTestimonialIndex() {
+    const perView = getCardsPerView();
+    return Math.max(0, _testimonialsList.length - perView);
+}
+
+function updateTestimonialCarouselPosition() {
+    if (!testimonialsTrack || _testimonialsList.length === 0) return;
+
+    const cards = testimonialsTrack.querySelectorAll('.testimonial__card');
+    if (!cards || cards.length === 0) return;
+
+    const perView = getCardsPerView();
+    const maxIdx = getMaxTestimonialIndex();
+
+    if (_currentTestimonialIndex > maxIdx) {
+        _currentTestimonialIndex = maxIdx;
+    }
+
+    const cardWidth = cards[0].offsetWidth;
+    const gap = 24; // 1.5rem = 24px
+    const offset = _currentTestimonialIndex * (cardWidth + gap);
+
+    testimonialsTrack.style.transform = `translateX(-${offset}px)`;
+
+    // Update Dots
+    if (testimonialsDots) {
+        const dotCount = maxIdx + 1;
+        testimonialsDots.innerHTML = Array.from({ length: dotCount }, (_, i) => `
+            <button class="testimonial-dot ${i === _currentTestimonialIndex ? 'active' : ''}" 
+                onclick="goToTestimonialSlide(${i})" 
+                aria-label="Go to testimonial slide ${i + 1}">
+            </button>
+        `).join('');
+    }
+
+    // Update button states
+    if (prevTestimonialBtn) prevTestimonialBtn.disabled = _currentTestimonialIndex === 0;
+    if (nextTestimonialBtn) nextTestimonialBtn.disabled = _currentTestimonialIndex >= maxIdx;
+}
+
+function goToTestimonialSlide(index) {
+    const maxIdx = getMaxTestimonialIndex();
+    _currentTestimonialIndex = Math.max(0, Math.min(index, maxIdx));
+    updateTestimonialCarouselPosition();
+}
+
+function prevTestimonial() {
+    if (_currentTestimonialIndex > 0) {
+        _currentTestimonialIndex--;
+    } else {
+        _currentTestimonialIndex = getMaxTestimonialIndex();
+    }
+    updateTestimonialCarouselPosition();
+}
+
+function nextTestimonial() {
+    const maxIdx = getMaxTestimonialIndex();
+    if (_currentTestimonialIndex < maxIdx) {
+        _currentTestimonialIndex++;
+    } else {
+        _currentTestimonialIndex = 0;
+    }
+    updateTestimonialCarouselPosition();
+}
+
+function startTestimonialAutoPlay() {
+    stopTestimonialAutoPlay();
+    _testimonialAutoPlayTimer = setInterval(() => {
+        nextTestimonial();
+    }, 5000);
+}
+
+function stopTestimonialAutoPlay() {
+    if (_testimonialAutoPlayTimer) {
+        clearInterval(_testimonialAutoPlayTimer);
+        _testimonialAutoPlayTimer = null;
+    }
+}
+
+function openTestimonialScreenshot(url, authorName) {
+    const modal = document.getElementById("image-lightbox-modal");
+    const img = document.getElementById("lightbox-modal-img");
+    const titleEl = document.getElementById("lightbox-modal-title");
+    const dlBtn = document.getElementById("lightbox-modal-download-btn");
+
+    if (modal && img) {
+        img.src = url;
+        if (titleEl) titleEl.innerHTML = `<i class="ri-shield-check-line text-primary"></i> Recommendation Proof — ${authorName}`;
+        if (dlBtn) dlBtn.href = url;
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+}
+
+function initTestimonialsCarousel() {
+    _currentTestimonialIndex = 0;
+    updateTestimonialCarouselPosition();
+
+    if (prevTestimonialBtn) {
+        prevTestimonialBtn.onclick = () => {
+            prevTestimonial();
+            startTestimonialAutoPlay();
+        };
+    }
+    if (nextTestimonialBtn) {
+        nextTestimonialBtn.onclick = () => {
+            nextTestimonial();
+            startTestimonialAutoPlay();
+        };
+    }
+
+    const windowEl = document.getElementById("testimonials-window");
+    if (windowEl) {
+        windowEl.onmouseenter = stopTestimonialAutoPlay;
+        windowEl.onmouseleave = startTestimonialAutoPlay;
+
+        // Touch Swipe
+        let startX = 0;
+        let diffX = 0;
+
+        windowEl.addEventListener("touchstart", (e) => {
+            stopTestimonialAutoPlay();
+            startX = e.touches[0].clientX;
+            diffX = 0;
+        }, { passive: true });
+
+        windowEl.addEventListener("touchmove", (e) => {
+            diffX = e.touches[0].clientX - startX;
+        }, { passive: true });
+
+        windowEl.addEventListener("touchend", () => {
+            if (Math.abs(diffX) > 50) {
+                if (diffX < 0) {
+                    nextTestimonial();
+                } else {
+                    prevTestimonial();
+                }
+            }
+            startTestimonialAutoPlay();
+        });
+    }
+
+    window.addEventListener("resize", () => {
+        updateTestimonialCarouselPosition();
+    });
+
+    startTestimonialAutoPlay();
+}
+
+// Kick off loading testimonials
+loadTestimonials();
+
 /*=============== COPY CONTACT EMAIL ===============*/
 const copyBtn = document.getElementById("contact-btn");
 if (copyBtn) {
@@ -1336,6 +1609,7 @@ if (contactForm) {
         const name = document.getElementById("contact-name-input").value;
         const email = document.getElementById("contact-email-input").value;
         const message = document.getElementById("contact-message-input").value;
+        const honeypot = document.getElementById("contact-hp") ? document.getElementById("contact-hp").value : "";
         const submitBtn = contactForm.querySelector(".contact__form-button");
 
         const originalBtnContent = submitBtn.innerHTML;
@@ -1351,7 +1625,8 @@ if (contactForm) {
                 name: name,
                 email: email,
                 message: message,
-                subject: `New Inquiry from ${name}`
+                subject: `New Inquiry from ${name}`,
+                _website_url: honeypot
             })
         })
             .then(response => response.json())
@@ -1592,6 +1867,9 @@ const init3DTilt = () => {
 let _particleCanvasInitialized = false;
 const initParticleCanvas = () => {
     if (_particleCanvasInitialized) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return; // Disable particle physics on reduced motion preference
+    }
     const canvas = document.getElementById("particle-canvas");
     if (!canvas) return;
     const ctx = canvas.getContext("2d");

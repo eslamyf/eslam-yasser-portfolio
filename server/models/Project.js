@@ -17,10 +17,25 @@ const projectSchema = new mongoose.Schema({
     required: [true, 'Project description is required (وصف المشروع مطلوب)'],
     trim: true
   },
+  // Main Cover Image
+  coverImage: {
+    type: String,
+    default: 'assets/img/backend_api.webp'
+  },
+  // Alias for backward compatibility
   image: {
     type: String,
-    required: [true, 'Project image is required (صورة المشروع مطلوبة)'],
-    default: 'assets/img/backend_api.jpg'
+    default: 'assets/img/backend_api.webp'
+  },
+  // Multi-image gallery array (3-6 photos per project)
+  gallery: {
+    type: [String],
+    default: []
+  },
+  // Alias for backward compatibility
+  images: {
+    type: [String],
+    default: []
   },
   date: {
     type: String,
@@ -49,26 +64,6 @@ const projectSchema = new mongoose.Schema({
     default: '',
     trim: true
   },
-  youtubeUrl: {
-    type: String,
-    default: '',
-    trim: true
-  },
-  youtubeId: {
-    type: String,
-    default: ''
-  },
-  // Generic video URL (supports YouTube, Loom, Vimeo)
-  videoUrl: {
-    type: String,
-    default: '',
-    trim: true
-  },
-  // Multiple project images for gallery/lightbox
-  images: {
-    type: [String],
-    default: []
-  },
   technologies: {
     type: [String],
     default: []
@@ -88,18 +83,19 @@ const projectSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Helper to extract YouTube Video ID from full URLs
+// Sync coverImage and image, gallery and images before saving
 projectSchema.pre('save', function (next) {
-  if (this.youtubeUrl) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = this.youtubeUrl.match(regExp);
-    if (match && match[2].length === 11) {
-      this.youtubeId = match[2];
-    } else if (this.youtubeUrl.length === 11) {
-      this.youtubeId = this.youtubeUrl;
-    }
-  } else {
-    this.youtubeId = '';
+  if (!this.coverImage && this.image) {
+    this.coverImage = this.image;
+  }
+  if (!this.image && this.coverImage) {
+    this.image = this.coverImage;
+  }
+  if ((!this.gallery || this.gallery.length === 0) && this.images && this.images.length > 0) {
+    this.gallery = this.images;
+  }
+  if ((!this.images || this.images.length === 0) && this.gallery && this.gallery.length > 0) {
+    this.images = this.gallery;
   }
   next();
 });

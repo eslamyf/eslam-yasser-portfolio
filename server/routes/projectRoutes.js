@@ -121,13 +121,13 @@ const handleCreateProject = async (req, res) => {
       description,
       subtitle,
       fullDescription,
+      coverImage,
       image,
+      gallery,
+      images,
       date,
       demo,
       github,
-      youtubeUrl,
-      videoUrl,
-      images,
       technologies,
       isFeatured,
       status,
@@ -148,13 +148,16 @@ const handleCreateProject = async (req, res) => {
       parsedTech = technologies.split(',').map(t => t.trim());
     }
 
-    // Parse images array (may come as JSON string or comma-separated)
-    let parsedImages = [];
-    if (Array.isArray(images)) {
-      parsedImages = images.filter(Boolean);
-    } else if (typeof images === 'string' && images.trim()) {
-      try { parsedImages = JSON.parse(images); } catch { parsedImages = images.split(',').map(s => s.trim()).filter(Boolean); }
+    // Parse gallery images array (may come as JSON string or array or comma-separated)
+    let parsedGallery = [];
+    const rawImages = gallery || images;
+    if (Array.isArray(rawImages)) {
+      parsedGallery = rawImages.filter(Boolean);
+    } else if (typeof rawImages === 'string' && rawImages.trim()) {
+      try { parsedGallery = JSON.parse(rawImages); } catch { parsedGallery = rawImages.split(',').map(s => s.trim()).filter(Boolean); }
     }
+
+    const mainCover = coverImage || image || 'assets/img/backend_api.webp';
 
     let newProjectData = {
       title,
@@ -162,13 +165,13 @@ const handleCreateProject = async (req, res) => {
       description,
       subtitle: subtitle || '',
       fullDescription: fullDescription || '',
-      image: image || 'assets/img/backend_api.jpg',
-      images: parsedImages,
+      coverImage: mainCover,
+      image: mainCover,
+      gallery: parsedGallery,
+      images: parsedGallery,
       date: date || new Date().getFullYear().toString(),
       demo: demo || '',
       github: github || '',
-      youtubeUrl: youtubeUrl || '',
-      videoUrl: videoUrl || '',
       technologies: parsedTech,
       isFeatured: isFeatured === true || isFeatured === 'true',
       status: status || 'published',
@@ -218,10 +221,22 @@ const handleUpdateProject = async (req, res) => {
         if (req.body.technologies && typeof req.body.technologies === 'string') {
           req.body.technologies = req.body.technologies.split(',').map(t => t.trim());
         }
-        // Parse images array if sent as string
-        if (req.body.images && typeof req.body.images === 'string') {
-          try { req.body.images = JSON.parse(req.body.images); } catch { req.body.images = req.body.images.split(',').map(s => s.trim()).filter(Boolean); }
+        // Parse gallery / images array if sent as string
+        const rawGallery = req.body.gallery || req.body.images;
+        if (rawGallery && typeof rawGallery === 'string') {
+          try {
+            const parsed = JSON.parse(rawGallery);
+            req.body.gallery = parsed;
+            req.body.images = parsed;
+          } catch {
+            const parsed = rawGallery.split(',').map(s => s.trim()).filter(Boolean);
+            req.body.gallery = parsed;
+            req.body.images = parsed;
+          }
         }
+        if (req.body.coverImage) req.body.image = req.body.coverImage;
+        if (req.body.image && !req.body.coverImage) req.body.coverImage = req.body.image;
+
         project = await Project.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
         return res.json({
           success: true,

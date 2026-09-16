@@ -110,6 +110,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#testimonials" class="nav__link">
+                            <i class="ri-chat-quote-line nav__icon"></i>
+                            <span class="nav__name">Reviews</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#contact" class="nav__link">
                             <i class="ri-mail-send-line nav__icon"></i>
                             <span class="nav__name">Contact Me</span>
@@ -166,8 +172,11 @@
                 <!-- Center Profile Image -->
                 <div class="home__image">
                     <div class="blob-animate"></div>
-                    <img src="assets/img/Eslam_Portfolio3-removebg-preview.png" alt="Eslam Yasser Profile Image"
-                        class="home__perfil" width="380" height="389">
+                    <picture>
+                        <source srcset="assets/img/Eslam_Portfolio3-removebg-preview.webp" type="image/webp">
+                        <img src="assets/img/Eslam_Portfolio3-removebg-preview.png" alt="Eslam Yasser Profile Image"
+                            class="home__perfil" width="380" height="389" fetchpriority="high" decoding="async">
+                    </picture>
                 </div>
 
                 <!-- Right side container -->
@@ -209,8 +218,11 @@
                 <div class="about__image">
                     <div class="blob-animate"></div>
                     <div class="blob-animate"></div>
-                    <img src="assets/img/About.png" alt="Eslam Yasser About Image" class="about__perfil" width="380"
-                        height="389">
+                    <picture>
+                        <source srcset="assets/img/About.webp" type="image/webp">
+                        <img src="assets/img/About.png" alt="Eslam Yasser About Image" class="about__perfil" width="380"
+                            height="389" loading="lazy" decoding="async">
+                    </picture>
                 </div>
 
                 <!-- Right Data Content -->
@@ -501,7 +513,37 @@
 
         </section>
 
+        <!--==================== TESTIMONIALS ====================-->
+        <section class="testimonials section" id="testimonials">
+            <div class="testimonials__header container">
+                <span class="section__subtitle">Client & Peer Reviews</span>
+                <h2 class="section__title">What People <span>Say</span></h2>
+                <p class="testimonials__description">
+                    Endorsements from engineering leads, founders, and academic supervisors on real-world MEAN stack delivery.
+                </p>
+            </div>
 
+            <div class="testimonials__wrapper container">
+                <div class="testimonials__carousel-container">
+                    <button class="testimonials__nav-btn testimonials__nav-btn--prev" id="testimonials-prev" aria-label="Previous Testimonial">
+                        <i class="ri-arrow-left-s-line"></i>
+                    </button>
+
+                    <div class="testimonials__track-window" id="testimonials-window">
+                        <div class="testimonials__track" id="testimonials-track">
+                            <!-- Injected dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <button class="testimonials__nav-btn testimonials__nav-btn--next" id="testimonials-next" aria-label="Next Testimonial">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </button>
+                </div>
+
+                <!-- Carousel Indicators -->
+                <div class="testimonials__dots" id="testimonials-dots"></div>
+            </div>
+        </section>
 
         <!--==================== CONTACT ====================-->
         <section class="contact section" id="contact">
@@ -514,6 +556,11 @@
                     </p>
 
                     <form action="#" class="contact__form" id="contact-form">
+                        <!-- Anti-Bot Honeypot Field (Hidden from real users) -->
+                        <div style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+                            <input type="text" name="_website_url" id="contact-hp" tabindex="-1" autocomplete="off">
+                        </div>
+
                         <div class="contact__form-div">
                             <label class="contact__form-tag">Name</label>
                             <input type="text" id="contact-name-input" placeholder="Insert your name" required
@@ -603,6 +650,7 @@
             <div class="footer__links">
                 <a href="#about" class="footer__link-item">About Me</a>
                 <a href="#projects" class="footer__link-item">Projects</a>
+                <a href="#testimonials" class="footer__link-item">Reviews</a>
                 <a href="#contact" class="footer__link-item">Contact Me</a>
             </div>
 
@@ -691,63 +739,74 @@
         <i class="ri-arrow-up-line"></i>
     </a>
 
-    <!--========== PROTECTED YOUTUBE VIDEO MODAL ==========-->
-    <div id="youtube-video-modal" class="yt-modal" style="display: none;">
-        <div class="yt-modal__overlay" onclick="closeYouTubeModal()"></div>
-        <div class="yt-modal__content">
-            <div class="yt-modal__header">
-                <h3 id="yt-modal-title"><i class="ri-youtube-fill" style="color: #ef4444;"></i> Demo Video</h3>
-                <button class="yt-modal__close" onclick="closeYouTubeModal()"><i class="ri-close-line"></i></button>
+    <!--========== MULTI-IMAGE GALLERY LIGHTBOX MODAL ==========-->
+    <div id="project-gallery-modal" class="gallery-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="gallery-modal-title">
+        <div class="gallery-modal__overlay" onclick="closeProjectGallery()"></div>
+        <div class="gallery-modal__container">
+            <!-- Header -->
+            <div class="gallery-modal__header">
+                <div class="gallery-modal__info">
+                    <span class="gallery-modal__badge" id="gallery-modal-category">MEAN Stack</span>
+                    <h3 id="gallery-modal-title" class="gallery-modal__title">Project Showcase</h3>
+                </div>
+                <div class="gallery-modal__actions">
+                    <span class="gallery-modal__counter" id="gallery-modal-counter">1 / 1</span>
+                    <button type="button" class="gallery-modal__close" onclick="closeProjectGallery()" aria-label="Close Gallery">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
             </div>
-            <div class="yt-modal__body">
-                <iframe id="yt-modal-iframe" width="100%" height="400" src="" frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen></iframe>
+
+            <!-- Stage with Prev/Next Navigation -->
+            <div class="gallery-modal__stage">
+                <button type="button" class="gallery-modal__nav gallery-modal__nav--prev" id="gallery-nav-prev" onclick="navigateProjectGallery(-1)" aria-label="Previous Image">
+                    <i class="ri-arrow-left-s-line"></i>
+                </button>
+
+                <div class="gallery-modal__image-wrapper">
+                    <img id="gallery-modal-main-img" src="" alt="Project Screen" class="gallery-modal__main-img" loading="eager">
+                </div>
+
+                <button type="button" class="gallery-modal__nav gallery-modal__nav--next" id="gallery-nav-next" onclick="navigateProjectGallery(1)" aria-label="Next Image">
+                    <i class="ri-arrow-right-s-line"></i>
+                </button>
+            </div>
+
+            <!-- Footer: Thumbnails and Action Links -->
+            <div class="gallery-modal__footer">
+                <div class="gallery-modal__thumbs" id="gallery-modal-thumbs"></div>
+                <div class="gallery-modal__links" id="gallery-modal-links"></div>
             </div>
         </div>
     </div>
 
-
-
-    <!--========== NATIVE HTML5 VIDEO PLAYER MODAL ==========-->
-    <div id="video-player-modal" class="yt-modal" style="display: none;">
-        <div class="yt-modal__overlay" onclick="closeVideoModal()"></div>
-        <div class="yt-modal__content" style="max-width: 900px;">
-            <div class="yt-modal__header">
-                <h3 id="video-modal-title"><i class="ri-video-line" style="color: var(--first-color);"></i> Video Player</h3>
-                <button class="yt-modal__close" onclick="closeVideoModal()"><i class="ri-close-line"></i></button>
+    <!--========== GENERIC IMAGE LIGHTBOX MODAL (FOR CERTIFICATES & SCREENSHOTS) ==========-->
+    <div id="image-lightbox-modal" class="gallery-modal" style="display: none;" role="dialog" aria-modal="true">
+        <div class="gallery-modal__overlay" onclick="closeLightboxModal()"></div>
+        <div class="gallery-modal__container" style="max-width: 850px;">
+            <div class="gallery-modal__header">
+                <h3 id="lightbox-modal-title" class="gallery-modal__title"><i class="ri-image-line" style="color: var(--first-color);"></i> Image View</h3>
+                <button type="button" class="gallery-modal__close" onclick="closeLightboxModal()" aria-label="Close"><i class="ri-close-line"></i></button>
             </div>
-            <div class="yt-modal__body" style="background: #000;">
-                <video id="video-modal-element" controls style="width: 100%; height: 100%; object-fit: contain;"></video>
-            </div>
-        </div>
-    </div>
-
-    <!--========== NATIVE IMAGE LIGHTBOX MODAL ==========-->
-    <div id="image-lightbox-modal" class="yt-modal" style="display: none;">
-        <div class="yt-modal__overlay" onclick="closeLightboxModal()"></div>
-        <div class="yt-modal__content" style="max-width: 800px; background: transparent; border: none; box-shadow: none;">
-            <div class="yt-modal__header" style="background: rgba(15,23,42,0.9); border-radius: 12px 12px 0 0;">
-                <h3 id="lightbox-modal-title"><i class="ri-image-line" style="color: var(--first-color);"></i> Image View</h3>
-                <button class="yt-modal__close" onclick="closeLightboxModal()"><i class="ri-close-line"></i></button>
-            </div>
-            <div class="yt-modal__body" style="aspect-ratio: auto; background: rgba(0,0,0,0.9); text-align: center; padding: 20px; border-radius: 0 0 12px 12px;">
-                <img id="lightbox-modal-img" src="" alt="Preview" style="max-width: 100%; max-height: 70vh; border-radius: 8px; object-fit: contain;">
+            <div class="gallery-modal__stage" style="padding: 1rem; min-height: unset;">
+                <div class="gallery-modal__image-wrapper">
+                    <img id="lightbox-modal-img" src="" alt="Preview" class="gallery-modal__main-img" style="max-height: 72vh;">
+                </div>
             </div>
         </div>
     </div>
 
     <!--=============== GSAP & SCROLLTRIGGER ===============-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!--=============== LENIS SMOOTH SCROLL ===============-->
-    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script defer src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
 
     <!--=============== SWIPER JS ===============-->
-    <script src="assets/js/swiper-bundle.min.js"></script>
+    <script defer src="assets/js/swiper-bundle.min.js"></script>
     <!--=============== MAIN JS ===============-->
-    <script src="assets/js/main.js"></script>
+    <script defer src="assets/js/main.js"></script>
 </body>
 
 </html>

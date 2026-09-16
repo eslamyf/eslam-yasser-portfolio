@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const Inquiry = require('../models/Inquiry');
 const { protect } = require('../middleware/authMiddleware');
@@ -20,26 +21,72 @@ const fallbackInquiries = [
   }
 ];
 
+// Strict Contact Rate Limiter: 5 messages per 15 minutes per IP
 const contactLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 10,
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: {
     success: false,
-    message: 'Too many messages sent from this IP. Please try again after an hour.'
+    message: 'Too many messages sent from this IP. Please wait 15 minutes before sending another message. (تم إرسال عدد كبير من الرسائل من هذا الجهاز، يرجى الانتظار 15 دقيقة).'
   }
 });
 
-// @route   POST /api/inquiries
-// @desc    Submit a new contact message/inquiry
-// @access  Public
-router.post('/', contactLimiter, async (req, res) => {
-  try {
-    const { name, email, subject, message } = req.body;
+// Validation & Sanitization Middleware
+const validateInquiry = [
+  body('name')
+    .trim()
+    .notEmpty().withMessage('Name is required (الاسم مطلوب)')
+    .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters')
+    .escape(),
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required (البريد الإلكتروني مطلوب)')
+    .isEmail().withMessage('Please provide a valid email address (يرجى كتابة بريد إلكتروني صالح)')
+    .normalizeEmail(),
+  body('message')
+    .trim()
+    .notEmpty().withMessage('Message is required (نص الرسالة مطلوب)')
+    .isLength({ min: 5, max: 5000 }).withMessage('Message must be between 5 and 5000 characters')
+    .escape(),
+  body('subject')
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .escape()
+];
 
-    if (!name || !email || !message) {
+// @route   POST /api/inquiries
+// @desc    Submit a new contact message/inquiry with sanitization, bot prevention & rate limiting
+// @access  Public
+router.post('/', contactLimiter, validateInquiry, async (req, res) => {
+  try {
+    // 1. Honeypot Bot Trap: if hidden bot field is filled, silently discard without saving
+    if (req.body._website_url || req.body._gotcha || req.body.hp_website) {
+      console.log(`[Security Alert] Bot submission trapped and silently dropped from IP: ${req.ip}`);
+      return res.status(200).json({
+        success: true,
+        message: 'Thank you! Your message has been sent successfully.'
+      });
+    }
+
+    // 2. Input Validation Results
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide your name, email, and message.'
+        message: errors.array()[0].msg,
+        errors: errors.array()
+      });
+    }
+
+    // 3. NoSQL Injection Prevention: ensure inputs are strictly primitive strings
+    const { name, email, subject, message } = req.body;
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof message !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid input format.'
       });
     }
 
@@ -47,15 +94,21 @@ router.post('/', contactLimiter, async (req, res) => {
 
     let createdInq = null;
     if (isMongoReady()) {
-      const inquiry = new Inquiry({ name, email, subject: subject || 'Portfolio Contact Inquiry', message, ipAddress });
+      const inquiry = new Inquiry({
+        name: name.trim(),
+        email: email.trim(),
+        subject: (typeof subject === 'string' && subject.trim()) || `Portfolio Contact Inquiry from ${name.trim()}`,
+        message: message.trim(),
+        ipAddress
+      });
       createdInq = await inquiry.save();
     } else {
       createdInq = {
         _id: 'inq-' + Date.now(),
-        name,
-        email,
-        subject: subject || 'Portfolio Contact Inquiry',
-        message,
+        name: name.trim(),
+        email: email.trim(),
+        subject: (typeof subject === 'string' && subject.trim()) || `Portfolio Contact Inquiry from ${name.trim()}`,
+        message: message.trim(),
         status: 'unread',
         createdAt: new Date(),
         ipAddress

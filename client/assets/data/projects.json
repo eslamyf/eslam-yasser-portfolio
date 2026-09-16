@@ -1,40 +1,35 @@
 [
     {
-        "title": "Test Integration Project",
-        "category": "ai-agents",
-        "description": "Automated test project for portfolio verification",
-        "subtitle": "",
-        "fullDescription": "",
-        "image": "assets/img/backend_api.jpg",
-        "images": [],
-        "date": "2026",
-        "demo": "",
-        "github": "",
-        "youtubeUrl": "",
-        "videoUrl": "",
-        "technologies": [
-            "Node.js",
-            "Express"
-        ],
-        "isFeatured": false,
-        "status": "published",
-        "orderIndex": 0,
-        "id": "1789326218361",
-        "_id": "1789326218361"
-    },
-    {
         "id": "01",
         "category": "MEAN Stack",
         "title": "Aqario Luxe",
         "subtitle": "Real Estate Management System",
         "date": "March 2026 – June 2026",
         "description": "Developed a scalable real estate platform (Aqario Luxe) using the MEAN stack with clean, maintainable architecture. Implemented a freemium model with secure payment integration for user transactions, structured MongoDB database design, and Git version control.",
-        "image": "assets/img/aqario.png",
-        "images": [],
-        "youtubeUrl": "",
-        "videoUrl": "",
+        "coverImage": "assets/img/aqario.webp",
+        "image": "assets/img/aqario.webp",
+        "gallery": [
+            "assets/img/aqario.webp",
+            "assets/img/backend_api.webp",
+            "assets/img/RWD.webp"
+        ],
+        "images": [
+            "assets/img/aqario.webp",
+            "assets/img/backend_api.webp",
+            "assets/img/RWD.webp"
+        ],
+        "technologies": [
+            "Angular",
+            "Node.js",
+            "Express.js",
+            "MongoDB",
+            "JWT Auth"
+        ],
         "demo": "https://aqario-luxe.vercel.app/",
-        "github": "https://github.com/eslamyf/aqario-luxe-web"
+        "github": "https://github.com/eslamyf/aqario-luxe-web",
+        "isFeatured": true,
+        "status": "published",
+        "orderIndex": 1
     },
     {
         "id": "02",
@@ -43,11 +38,60 @@
         "subtitle": "University Food Delivery Platform",
         "date": "February 2026 – March 2026",
         "description": "Built a food delivery app connecting local restaurants with university students. Implemented core features including cart system, favorites management, and organized a modular project structure for high scalability.",
-        "image": "assets/img/RWD.png",
-        "images": [],
-        "youtubeUrl": "",
-        "videoUrl": "",
+        "coverImage": "assets/img/RWD.webp",
+        "image": "assets/img/RWD.webp",
+        "gallery": [
+            "assets/img/RWD.webp",
+            "assets/img/aqario.webp",
+            "assets/img/backend_api.webp"
+        ],
+        "images": [
+            "assets/img/RWD.webp",
+            "assets/img/aqario.webp",
+            "assets/img/backend_api.webp"
+        ],
+        "technologies": [
+            "Angular",
+            "Bootstrap",
+            "REST APIs",
+            "TypeScript"
+        ],
         "demo": "",
-        "github": ""
+        "github": "https://github.com/eslamyasser",
+        "isFeatured": true,
+        "status": "published",
+        "orderIndex": 2
+    },
+    {
+        "id": "03",
+        "category": "Backend & Cloud",
+        "title": "Scalable RESTful Backend Architecture",
+        "subtitle": "Node.js & MongoDB Core Engine",
+        "date": "2026",
+        "description": "Engineered high-performance RESTful API micro-services with role-based access control (RBAC), robust authentication with JWT & Bcrypt, automated rate-limiting, and Cloudinary media pipeline.",
+        "coverImage": "assets/img/backend_api.webp",
+        "image": "assets/img/backend_api.webp",
+        "gallery": [
+            "assets/img/backend_api.webp",
+            "assets/img/aqario.webp",
+            "assets/img/RWD.webp"
+        ],
+        "images": [
+            "assets/img/backend_api.webp",
+            "assets/img/aqario.webp",
+            "assets/img/RWD.webp"
+        ],
+        "technologies": [
+            "Node.js",
+            "Express.js",
+            "MongoDB",
+            "Mongoose",
+            "Cloudinary"
+        ],
+        "demo": "",
+        "github": "https://github.com/eslamyasser",
+        "isFeatured": false,
+        "status": "published",
+        "orderIndex": 3
     }
 ]

@@ -104,9 +104,9 @@
                     <span>الشهادات والاعتمادات</span>
                 </button>
 
-                <button class="nav-item" data-tab="videos">
-                    <i class="ri-video-line"></i>
-                    <span>الفيديوهات والشروحات</span>
+                <button class="nav-item" data-tab="testimonials">
+                    <i class="ri-chat-quote-line"></i>
+                    <span>آراء العملاء والشركاء</span>
                 </button>
 
                 <button class="nav-item" data-tab="cv">
@@ -298,7 +298,7 @@
                                         <th>عنوان المشروع</th>
                                         <th>التصنيف</th>
                                         <th>التاريخ</th>
-                                        <th>يوتيوب</th>
+                                        <th>معرض الصور</th>
                                         <th>الحالة</th>
                                         <th>الإجراءات (تعديل / حذف)</th>
                                     </tr>
@@ -452,13 +452,13 @@
                 </div>
             </section>
 
-            <!-- TAB 7: VIDEOS MANAGEMENT -->
-            <section id="tab-videos" class="tab-content">
+            <!-- TAB 7: TESTIMONIALS MANAGEMENT -->
+            <section id="tab-testimonials" class="tab-content">
                 <div class="section-actions">
-                    <h3 class="section-title"><i class="ri-video-line"></i> الفيديوهات والشروحات المدمجة</h3>
-                    <button class="btn btn-primary" onclick="openAddVideoModal()">
+                    <h3 class="section-title"><i class="ri-chat-quote-line"></i> آراء وتوصيات العملاء والزملاء (Testimonials)</h3>
+                    <button class="btn btn-primary" onclick="openAddTestimonialModal()">
                         <i class="ri-add-line"></i>
-                        <span>إضافة فيديو جديد</span>
+                        <span>إضافة توصية / رأي جديد</span>
                     </button>
                 </div>
 
@@ -468,16 +468,18 @@
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th>عنوان الفيديو</th>
-                                        <th>المصدر (YouTube / سيرفر)</th>
-                                        <th>المدة</th>
-                                        <th>التصنيف</th>
+                                        <th>صاحب التوصية</th>
+                                        <th>المنصب والشركة</th>
+                                        <th>المنصة</th>
+                                        <th>التقييم</th>
+                                        <th>نص التوصية</th>
+                                        <th>الحالة</th>
                                         <th>إجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody id="videos-table-body">
+                                <tbody id="testimonials-table-body">
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">جاري تحميل قائمة الفيديوهات...</td>
+                                        <td colspan="7" class="text-center text-muted">جاري تحميل قائمة آراء العملاء...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -743,7 +745,7 @@
                 <div class="form-section optional-section">
                     <div class="form-section-title">
                         <span class="badge badge-secondary">اختياري (Optional)</span>
-                        <h4>روابط يوتيوب والتفاصيل الإضافية للمشروع</h4>
+                        <h4>معرض الصور الإضافية والتفاصيل التقنية للمشروع</h4>
                     </div>
 
                     <div class="form-grid">
@@ -752,17 +754,12 @@
                             <input type="text" id="p-subtitle" placeholder="مثال: Real Estate Management System">
                         </div>
 
-                        <!-- YouTube Video Link Box -->
+                        <!-- Project Multi-Image Gallery Box -->
                         <div class="form-group span-2 highlight-group">
-                            <label for="p-youtube"><i class="ri-youtube-fill text-danger"></i> رابط فيديو يوتيوب للتوضيح (YouTube Video Demo URL)</label>
-                            <input type="url" id="p-youtube" placeholder="https://www.youtube.com/watch?v=VIDEO_ID أو https://youtu.be/VIDEO_ID" oninput="previewYouTubeVideo(this.value)">
-                            <small class="form-help">سيتم إظهار زر "مشاهدة الفيديو" في البورتفوليو وفتح المشغل المحمي مخصصاً بك</small>
-
-                            <!-- YouTube Embed Preview Box -->
-                            <div id="youtube-preview-container" class="youtube-preview" style="display: none;">
-                                <div class="youtube-preview-header"><i class="ri-video-chat-line"></i> معاينة مشغل فيديو يوتيوب المحمي:</div>
-                                <iframe id="youtube-preview-iframe" width="100%" height="220" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                            </div>
+                            <label for="p-gallery-urls"><i class="ri-gallery-line text-primary"></i> مسارات صور المعرض الإضافية (Gallery Images - 3 إلى 6 صور)</label>
+                            <textarea id="p-gallery-urls" rows="3" placeholder="أدخل مسارات أو روابط الصور مفصولة بفواصل أو أسطر جديدة:
+assets/img/aqario.webp, assets/img/About.webp, uploads/images/..."></textarea>
+                            <small class="form-help">سيتم عرض هذه الصور داخل معرض الصور Lightbox للزوار للتنقل بينها بالأسهم</small>
                         </div>
 
                         <div class="form-group">
@@ -1134,6 +1131,90 @@
                 <button type="button" class="btn btn-secondary" onclick="closeInquiryModal()">إغلاق</button>
                 <a id="inq-reply-btn" href="#" class="btn btn-primary"><i class="ri-reply-line"></i> الرد عبر الإيميل</a>
             </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: ADD / EDIT TESTIMONIAL ==================== -->
+    <div id="testimonial-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="testimonial-modal-title"><i class="ri-chat-quote-line"></i> إضافة توصية / رأي جديد</h3>
+                <button class="modal-close" onclick="closeTestimonialModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <form id="testimonial-form" class="modal-form">
+                <input type="hidden" id="testimonial-id">
+                
+                <div class="form-grid">
+                    <div class="form-group span-2">
+                        <label for="t-name">اسم العميل / الزميل (Author Name) <span class="required-star">*</span></label>
+                        <input type="text" id="t-name" placeholder="مثال: Ahmed Mansour" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="t-role">المسمى الوظيفي (Role / Title) <span class="required-star">*</span></label>
+                        <input type="text" id="t-role" placeholder="مثال: Senior Engineering Manager" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="t-company">الشركة أو الجهة (Company)</label>
+                        <input type="text" id="t-company" placeholder="مثال: Support Community Inc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="t-platform">المنصة (Platform)</label>
+                        <select id="t-platform">
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Upwork">Upwork</option>
+                            <option value="Client">Client</option>
+                            <option value="Colleague">Colleague</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="t-rating">التقييم (Rating Stars)</label>
+                        <select id="t-rating">
+                            <option value="5">⭐⭐⭐⭐⭐ (5 نجوم)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 نجوم)</option>
+                            <option value="3">⭐⭐⭐ (3 نجوم)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group span-2">
+                        <label for="t-avatar-url">صورة الأفاتار الشخصية (Avatar URL)</label>
+                        <input type="text" id="t-avatar-url" placeholder="مثال: https://... أو uploads/images/...">
+                    </div>
+
+                    <div class="form-group span-2">
+                        <label for="t-content">نص الرأي / التوصية (Feedback Content) <span class="required-star">*</span></label>
+                        <textarea id="t-content" rows="4" placeholder="اكتب نص التوصية الكامل أو مراجعة العميل..." required></textarea>
+                    </div>
+
+                    <div class="form-group span-2">
+                        <label for="t-screenshot-url">رابط سكرين شوت الإثبات (Proof Screenshot URL)</label>
+                        <input type="text" id="t-screenshot-url" placeholder="مثال: uploads/images/review_proof.webp (اختياري)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="t-status">حالة النشر</label>
+                        <select id="t-status">
+                            <option value="published">منشور (Published)</option>
+                            <option value="draft">مسودة مخفية (Draft)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="t-order">ترتيب الظهور (Order Index)</label>
+                        <input type="number" id="t-order" value="1" min="0">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeTestimonialModal()">إلغاء</button>
+                    <button type="submit" id="save-testimonial-btn" class="btn btn-primary"><i class="ri-save-line"></i> حفظ التوصية</button>
+                </div>
+            </form>
         </div>
     </div>
 
