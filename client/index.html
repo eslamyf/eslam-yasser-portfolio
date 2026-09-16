@@ -9,18 +9,18 @@
     <meta name="description"
         content="Eslam Yasser - Full-Stack Web Developer (MEAN Stack) & Web Development Instructor. Specialized in Angular, Node.js, Express, MongoDB, and RESTful APIs.">
     <meta name="keywords"
-        content="Eslam Yasser, Full Stack Developer, MEAN Stack Developer, Web Development Instructor, Software Engineer, Qena, Egypt, Angular, Node.js">
+        content="Eslam Yasser, Full Stack Developer, MEAN Stack Developer, Web Development Instructor, Software Engineer, Qena, Egypt, Angular, Node.js, MongoDB, Express">
     <meta name="author" content="Eslam Yasser">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#040a14">
-    <link rel="canonical" href="https://eslamyasser.github.io/">
+    <link rel="canonical" href="https://eslam-yasser-portfolio.vercel.app/">
 
     <!--=============== OPEN GRAPH / FACEBOOK METADATA ===============-->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Eslam Yasser | Full-Stack Developer & Instructor Portfolio">
     <meta property="og:description"
         content="Discover the portfolio of Eslam Yasser, a Full-Stack MEAN Developer and Web Development Instructor engineering scalable digital solutions.">
-    <meta property="og:url" content="https://eslamyasser.github.io/">
+    <meta property="og:url" content="https://eslam-yasser-portfolio.vercel.app/">
     <meta property="og:site_name" content="Eslam Yasser Portfolio">
     <meta property="og:image" content="assets/img/Eslam_Portfolio3-removebg-preview.png">
     <meta property="og:locale" content="en_US">
@@ -31,6 +31,90 @@
     <meta name="twitter:description"
         content="Discover the portfolio of Eslam Yasser, a Full-Stack MEAN Developer and Web Development Instructor engineering scalable digital solutions.">
     <meta name="twitter:image" content="assets/img/Eslam_Portfolio3-removebg-preview.png">
+
+    <!--=============== JSON-LD STRUCTURED DATA ===============-->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://eslam-yasser-portfolio.vercel.app/#person",
+          "name": "Eslam Yasser",
+          "jobTitle": "Full-Stack MEAN Developer & Web Development Instructor",
+          "url": "https://eslam-yasser-portfolio.vercel.app/",
+          "image": "https://eslam-yasser-portfolio.vercel.app/assets/img/Eslam_Portfolio3-removebg-preview.png",
+          "sameAs": [
+            "https://www.linkedin.com/in/eslam-yasser",
+            "https://github.com/eslamyasser",
+            "https://wa.me/201028103634"
+          ],
+          "knowsAbout": [
+            "MongoDB",
+            "Express.js",
+            "Angular",
+            "Node.js",
+            "JavaScript",
+            "TypeScript",
+            "REST APIs",
+            "JWT Authentication",
+            "Full Stack Development"
+          ],
+          "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "Qena University - Faculty of Computers and Information"
+          },
+          "description": "Full-Stack Web Developer specialized in the MEAN Stack (MongoDB, Express.js, Angular, Node.js) and Web Development Instructor."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://eslam-yasser-portfolio.vercel.app/#website",
+          "url": "https://eslam-yasser-portfolio.vercel.app/",
+          "name": "Eslam Yasser | Full-Stack Developer Portfolio",
+          "publisher": {
+            "@id": "https://eslam-yasser-portfolio.vercel.app/#person"
+          },
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "ProfessionalService",
+          "name": "Eslam Yasser - Web Development & Consulting Services",
+          "url": "https://eslam-yasser-portfolio.vercel.app/",
+          "provider": {
+            "@id": "https://eslam-yasser-portfolio.vercel.app/#person"
+          },
+          "areaServed": "Global",
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Web Engineering Services",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Full-Stack Web Development (MEAN Stack)"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "RESTful API Architecture & Backend Engineering"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Programming Instruction & CS Mentoring"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+    </script>
 
     <!--=============== FAVICON ===============-->
     <link rel="shortcut icon" href="assets/img/favicon_io/favicon.ico" type="image/x-icon">
@@ -80,6 +164,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#services" class="nav__link">
+                            <i class="ri-customer-service-2-line nav__icon"></i>
+                            <span class="nav__name">Services</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#projects" class="nav__link">
                             <i class="ri-image-line nav__icon"></i>
                             <span class="nav__name">Projects</span>
@@ -101,12 +191,6 @@
                         <a href="#certificates" class="nav__link">
                             <i class="ri-award-line nav__icon"></i>
                             <span class="nav__name">Certificates</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#services" class="nav__link">
-                            <i class="ri-customer-service-2-line nav__icon"></i>
-                            <span class="nav__name">Services</span>
                         </a>
                     </li>
                     <li>
@@ -240,22 +324,22 @@
                         delivering practical sessions and simplifying programming concepts for CS students.
                     </p>
 
-                    <!-- Real Portfolio Highlights -->
+                    <!-- Real Portfolio Highlights with Animated Counters -->
                     <div class="about__stats">
                         <div class="about__stat-card">
-                            <i class="ri-stack-line"></i>
-                            <h3>MEAN Stack</h3>
-                            <p>2 Projects</p>
+                            <i class="ri-shield-check-line"></i>
+                            <h3 class="about__stat-number" data-target="100" data-suffix="%">0%</h3>
+                            <p>Delivery Commitment</p>
                         </div>
                         <div class="about__stat-card">
                             <i class="ri-user-voice-line"></i>
-                            <h3>Instructor</h3>
-                            <p>Support Community</p>
+                            <h3 class="about__stat-number" data-target="50" data-suffix="+">0+</h3>
+                            <p>Students Instructed</p>
                         </div>
                         <div class="about__stat-card">
-                            <i class="ri-trophy-line"></i>
-                            <h3>NTI & ICPC</h3>
-                            <p>Creativa Hubs & ECPC '26</p>
+                            <i class="ri-stack-line"></i>
+                            <h3 class="about__stat-number" data-target="10" data-suffix="+">0+</h3>
+                            <p>Scalable Projects</p>
                         </div>
                     </div>
 
@@ -268,7 +352,7 @@
 
                     <!-- Action Buttons -->
                     <div class="about__buttons">
-                        <a href="assets/pdf/EslamCV.pdf" target="_blank" rel="noopener noreferrer" class="button" id="cv-preview-btn">
+                        <a href="assets/pdf/EslamCV.pdf" target="_blank" rel="noopener noreferrer" class="button button--primary" id="cv-preview-btn">
                             <i class="ri-external-link-line"></i> View CV
                         </a>
                         <a href="assets/pdf/EslamCV.pdf" download="EslamCV.pdf" class="button button--ghost" id="cv-download-btn">
@@ -277,6 +361,13 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!--==================== SERVICES ====================-->
+        <section class="services section" id="services">
+            <h2 class="section__title">What I <span>Offer</span></h2>
+
+            <div class="services__container container grid" id="services-content"></div>
         </section>
 
         <!--==================== PROJECTS ====================-->
@@ -503,14 +594,14 @@
             </h2>
 
             <div class="certificates__container container grid" id="certificates-grid"></div>
-        </section>
 
-        <!--==================== SERVICES ====================-->
-        <section class="services section" id="services">
-            <h2 class="section__title">What I <span>Offer</span></h2>
-
-            <div class="services__container container grid" id="services-content"></div>
-
+            <!-- View All Certificates Action Button -->
+            <div class="certificates__actions" id="certificates-actions" style="display: none;">
+                <button type="button" class="button button--ghost certs__expand-btn" id="view-all-certificates-btn">
+                    <span id="certs-btn-text">View All Certificates</span>
+                    <i class="ri-arrow-down-s-line"></i>
+                </button>
+            </div>
         </section>
 
         <!--==================== TESTIMONIALS ====================-->
@@ -649,6 +740,7 @@
 
             <div class="footer__links">
                 <a href="#about" class="footer__link-item">About Me</a>
+                <a href="#services" class="footer__link-item">Services</a>
                 <a href="#projects" class="footer__link-item">Projects</a>
                 <a href="#testimonials" class="footer__link-item">Reviews</a>
                 <a href="#contact" class="footer__link-item">Contact Me</a>

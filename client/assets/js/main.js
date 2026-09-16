@@ -410,6 +410,9 @@ function renderProjects(projects) {
         `;
         })
         .join('');
+
+    initMagnetic();
+    init3DTilt();
 }
 
 /*=============== SIMPLE & ROBUST PDF MODAL & DOWNLOAD HANDLERS ===============*/
@@ -806,6 +809,8 @@ async function loadAllWorkData() {
             renderVolunteeringItems(volRes?.data || [], volunteeringContainer);
             renderCertificateItems(certRes?.data || [], certificatesContainer);
             initWorkTabs();
+            initMagnetic();
+            init3DTilt();
             if (ScrollTrigger) ScrollTrigger.refresh();
         } else {
             fallbackToStaticWork();
@@ -824,6 +829,8 @@ function fallbackToStaticWork() {
             renderWorkItems(data.volunteering, volunteeringContainer);
             renderCertificateItems(data.certificates, certificatesContainer);
             initWorkTabs();
+            initMagnetic();
+            init3DTilt();
             if (ScrollTrigger) ScrollTrigger.refresh();
         })
         .catch((error) => console.error("Error loading work data:", error));
@@ -1001,6 +1008,9 @@ function getCertificateVisual(item) {
 }
 
 let currentCertificatesList = [];
+let _allCertificatesList = [];
+let _certificatesExpanded = false;
+let _certBtnListenerAttached = false;
 
 function handleCertImgError(img, idx) {
     if (!img) return;
@@ -1013,11 +1023,21 @@ function handleCertImgError(img, idx) {
 
 function renderCertificateItems(items, container) {
     const targetContainer = container || document.getElementById("certificates-grid") || document.getElementById("certificates");
-    if (!targetContainer || !items || !items.length) return;
+    if (!targetContainer) return;
 
-    currentCertificatesList = items;
+    if (items && Array.isArray(items)) {
+        _allCertificatesList = items;
+    }
 
-    targetContainer.innerHTML = items
+    if (!_allCertificatesList || !_allCertificatesList.length) return;
+
+    const visibleItems = _certificatesExpanded || _allCertificatesList.length <= 6
+        ? _allCertificatesList
+        : _allCertificatesList.slice(0, 6);
+
+    currentCertificatesList = visibleItems;
+
+    targetContainer.innerHTML = visibleItems
         .map((item, idx) => {
             const title = item.name || item.title || "Certificate";
             const issuer = item.issuer || item.subtitle || "Issuer";
@@ -1129,7 +1149,48 @@ function renderCertificateItems(items, container) {
         </div>`;
         }).join("");
 
-    attachCertInteractions(items);
+    // Setup action button if certificates exceed 6 items
+    const actionsContainer = document.getElementById("certificates-actions");
+    const expandBtn = document.getElementById("view-all-certificates-btn");
+    const btnText = document.getElementById("certs-btn-text");
+
+    if (actionsContainer && expandBtn) {
+        if (_allCertificatesList.length > 6) {
+            actionsContainer.style.display = "flex";
+            if (btnText) {
+                btnText.textContent = _certificatesExpanded
+                    ? "Show Less"
+                    : `View All Certificates (${_allCertificatesList.length})`;
+            }
+            const icon = expandBtn.querySelector("i");
+            if (icon) {
+                icon.className = _certificatesExpanded
+                    ? "ri-arrow-up-s-line"
+                    : "ri-arrow-down-s-line";
+            }
+
+            if (!_certBtnListenerAttached) {
+                _certBtnListenerAttached = true;
+                expandBtn.addEventListener("click", () => {
+                    _certificatesExpanded = !_certificatesExpanded;
+                    renderCertificateItems(_allCertificatesList, targetContainer);
+                    if (window.ScrollTrigger) ScrollTrigger.refresh();
+                    if (!_certificatesExpanded) {
+                        const certSection = document.getElementById("certificates");
+                        if (certSection) {
+                            certSection.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                    }
+                });
+            }
+        } else {
+            actionsContainer.style.display = "none";
+        }
+    }
+
+    attachCertInteractions(visibleItems);
+    initMagnetic();
+    init3DTilt();
 }
 
 function attachCertInteractions(items) {
@@ -1209,6 +1270,9 @@ function renderWorkItems(items, container) {
     `;
         })
         .join("");
+
+    initMagnetic();
+    init3DTilt();
 }
 
 function initWorkTabs() {
@@ -1288,6 +1352,9 @@ function renderServices(services) {
   `,
         )
         .join("");
+
+    initMagnetic();
+    init3DTilt();
 }
 
 function initServicesAccordion() {
@@ -1420,6 +1487,8 @@ function renderTestimonials(testimonials) {
     }).join('');
 
     initTestimonialsCarousel();
+    initMagnetic();
+    init3DTilt();
     if (ScrollTrigger) ScrollTrigger.refresh();
 }
 
@@ -1800,18 +1869,43 @@ const runProfileFloat = () => {
 
 /*=============== MAGNETIC HOVER EFFECT ===============*/
 const initMagnetic = () => {
-    const targets = document.querySelectorAll(".home__social-link, .home__cv, #contact-btn, .nav__toggle, .contact__form-button, .scrollup");
+    const targets = document.querySelectorAll(`
+        .home__social-link, 
+        .home__cv, 
+        #contact-btn, 
+        .nav__toggle, 
+        .contact__form-button, 
+        .scrollup, 
+        .button, 
+        .certs__expand-btn, 
+        .testimonials__nav-btn, 
+        .nav__link, 
+        .about__lang-badge, 
+        .projects__btn, 
+        .services__button
+    `);
+
     targets.forEach((elem) => {
+        if (elem.dataset.magneticBound === "true") return;
+        elem.dataset.magneticBound = "true";
+
+        const isSmall = elem.classList.contains("home__social-link") || 
+                        elem.classList.contains("testimonials__nav-btn") || 
+                        elem.classList.contains("services__button") ||
+                        elem.classList.contains("nav__link");
+        const factor = isSmall ? 0.4 : 0.25;
+
         elem.addEventListener("mousemove", (e) => {
             const rect = elem.getBoundingClientRect();
             const x = e.clientX - rect.left - rect.width / 2;
             const y = e.clientY - rect.top - rect.height / 2;
 
             gsap.to(elem, {
-                x: x * 0.45,
-                y: y * 0.45,
+                x: x * factor,
+                y: y * factor,
                 duration: 0.3,
-                ease: "power2.out"
+                ease: "power2.out",
+                overwrite: "auto"
             });
         });
 
@@ -1819,8 +1913,9 @@ const initMagnetic = () => {
             gsap.to(elem, {
                 x: 0,
                 y: 0,
-                duration: 0.5,
-                ease: "elastic.out(1, 0.3)"
+                duration: 0.6,
+                ease: "elastic.out(1.1, 0.4)",
+                overwrite: "auto"
             });
         });
     });
@@ -1828,25 +1923,34 @@ const initMagnetic = () => {
 
 /*=============== 3D TILT EFFECT ===============*/
 const init3DTilt = () => {
-    const cards = document.querySelectorAll(".skills__card, .services__card");
+    const cards = document.querySelectorAll(`
+        .skills__card, 
+        .services__card, 
+        .projects__card, 
+        .work__card, 
+        .testimonial__card, 
+        .about__stat-card
+    `);
+
     cards.forEach((card) => {
+        if (card.dataset.tiltBound === "true") return;
+        card.dataset.tiltBound = "true";
+
         card.addEventListener("mousemove", (e) => {
             const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            const xc = x / rect.width - 0.5;
-            const yc = y / rect.height - 0.5;
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
 
             const maxRot = 10;
 
             gsap.to(card, {
-                rotateX: -yc * maxRot,
-                rotateY: xc * maxRot,
+                rotateY: x * maxRot,
+                rotateX: -y * maxRot,
+                transformPerspective: 1000,
                 scale: 1.025,
-                boxShadow: "0 15px 35px rgba(0, 0, 0, 0.35)",
-                duration: 0.4,
-                ease: "power2.out"
+                duration: 0.35,
+                ease: "power2.out",
+                overwrite: "auto"
             });
         });
 
@@ -1855,11 +1959,47 @@ const init3DTilt = () => {
                 rotateX: 0,
                 rotateY: 0,
                 scale: 1,
-                boxShadow: "none",
                 duration: 0.6,
-                ease: "power2.out"
+                ease: "power2.out",
+                overwrite: "auto"
             });
         });
+    });
+};
+
+/*=============== ANIMATED NUMBER COUNTERS (ABOUT SECTION) ===============*/
+let _statsCountersAnimated = false;
+const initStatsCounters = () => {
+    const statsContainer = document.querySelector(".about__stats");
+    const statNumbers = document.querySelectorAll(".about__stat-number");
+    if (!statsContainer || statNumbers.length === 0 || _statsCountersAnimated) return;
+
+    ScrollTrigger.create({
+        trigger: statsContainer,
+        start: "top 85%",
+        once: true,
+        onEnter: () => {
+            if (_statsCountersAnimated) return;
+            _statsCountersAnimated = true;
+
+            statNumbers.forEach((el) => {
+                const target = parseInt(el.getAttribute("data-target"), 10) || 0;
+                const suffix = el.getAttribute("data-suffix") || "";
+                const counter = { val: 0 };
+
+                gsap.to(counter, {
+                    val: target,
+                    duration: 2.2,
+                    ease: "power2.out",
+                    onUpdate: () => {
+                        el.textContent = `${Math.floor(counter.val)}${suffix}`;
+                    },
+                    onComplete: () => {
+                        el.textContent = `${target}${suffix}`;
+                    }
+                });
+            });
+        }
     });
 };
 
@@ -2096,6 +2236,7 @@ function initScrollReveals() {
     runProfileFloat();
     initMagnetic();
     init3DTilt();
+    initStatsCounters();
 
 
     // Section Titles Reveal with scramble
