@@ -354,10 +354,12 @@
 
                     <!-- Action Buttons -->
                     <div class="about__buttons">
-                        <a href="assets/pdf/EslamCV.pdf" target="_blank" rel="noopener noreferrer" class="button button--primary" id="cv-preview-btn">
+                        <a href="assets/pdf/EslamCV.pdf" target="_blank" rel="noopener noreferrer"
+                            class="button button--primary" id="cv-preview-btn">
                             <i class="ri-external-link-line"></i> View CV
                         </a>
-                        <a href="assets/pdf/EslamCV.pdf" download="EslamCV.pdf" class="button button--ghost" id="cv-download-btn">
+                        <a href="assets/pdf/EslamCV.pdf" download="EslamCV.pdf" class="button button--ghost"
+                            id="cv-download-btn">
                             <i class="ri-download-2-line"></i> Download CV
                         </a>
                     </div>
@@ -612,7 +614,8 @@
                 <span class="section__subtitle">Verified Recommendations</span>
                 <h2 class="section__title">What People <span>Say</span></h2>
                 <p class="testimonials__description">
-                    Endorsements from engineering leads, founders, and academic supervisors on real-world MEAN stack delivery.
+                    Endorsements from engineering leads, founders, and academic supervisors on real-world MEAN stack
+                    delivery.
                 </p>
                 <div class="testimonials__hint-badge">
                     <i class="ri-cursor-line"></i> Hover over any screen to pause & inspect in 3D
@@ -622,7 +625,7 @@
             <div class="testimonials__floating-stage" id="testimonials-floating-stage">
                 <!-- Glowing Cyber Ambient Background Light -->
                 <div class="testimonials__ambient-glow"></div>
-                
+
                 <div class="testimonials__floating-track" id="testimonials-floating-track">
                     <!-- Cards injected dynamically via JS into duplicate sets for infinite seamless 3D drift -->
                 </div>
@@ -641,7 +644,8 @@
 
                     <form action="#" class="contact__form" id="contact-form">
                         <!-- Anti-Bot Honeypot Field (Hidden from real users) -->
-                        <div style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+                        <div style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;"
+                            aria-hidden="true">
                             <input type="text" name="_website_url" id="contact-hp" tabindex="-1" autocomplete="off">
                         </div>
 
@@ -825,7 +829,8 @@
     </a>
 
     <!--========== MULTI-IMAGE GALLERY LIGHTBOX MODAL ==========-->
-    <div id="project-gallery-modal" class="gallery-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="gallery-modal-title">
+    <div id="project-gallery-modal" class="gallery-modal" style="display: none;" role="dialog" aria-modal="true"
+        aria-labelledby="gallery-modal-title">
         <div class="gallery-modal__overlay" onclick="closeProjectGallery()"></div>
         <div class="gallery-modal__container">
             <!-- Header -->
@@ -836,7 +841,8 @@
                 </div>
                 <div class="gallery-modal__actions">
                     <span class="gallery-modal__counter" id="gallery-modal-counter">1 / 1</span>
-                    <button type="button" class="gallery-modal__close" onclick="closeProjectGallery()" aria-label="Close Gallery">
+                    <button type="button" class="gallery-modal__close" onclick="closeProjectGallery()"
+                        aria-label="Close Gallery">
                         <i class="ri-close-line"></i>
                     </button>
                 </div>
@@ -844,15 +850,18 @@
 
             <!-- Stage with Prev/Next Navigation -->
             <div class="gallery-modal__stage">
-                <button type="button" class="gallery-modal__nav gallery-modal__nav--prev" id="gallery-nav-prev" onclick="navigateProjectGallery(-1)" aria-label="Previous Image">
+                <button type="button" class="gallery-modal__nav gallery-modal__nav--prev" id="gallery-nav-prev"
+                    onclick="navigateProjectGallery(-1)" aria-label="Previous Image">
                     <i class="ri-arrow-left-s-line"></i>
                 </button>
 
                 <div class="gallery-modal__image-wrapper">
-                    <img id="gallery-modal-main-img" src="" alt="Project Screen" class="gallery-modal__main-img" loading="eager">
+                    <img id="gallery-modal-main-img" src="" alt="Project Screen" class="gallery-modal__main-img"
+                        loading="eager">
                 </div>
 
-                <button type="button" class="gallery-modal__nav gallery-modal__nav--next" id="gallery-nav-next" onclick="navigateProjectGallery(1)" aria-label="Next Image">
+                <button type="button" class="gallery-modal__nav gallery-modal__nav--next" id="gallery-nav-next"
+                    onclick="navigateProjectGallery(1)" aria-label="Next Image">
                     <i class="ri-arrow-right-s-line"></i>
                 </button>
             </div>
@@ -870,12 +879,15 @@
         <div class="gallery-modal__overlay" onclick="closeLightboxModal()"></div>
         <div class="gallery-modal__container" style="max-width: 850px;">
             <div class="gallery-modal__header">
-                <h3 id="lightbox-modal-title" class="gallery-modal__title"><i class="ri-image-line" style="color: var(--first-color);"></i> Image View</h3>
-                <button type="button" class="gallery-modal__close" onclick="closeLightboxModal()" aria-label="Close"><i class="ri-close-line"></i></button>
+                <h3 id="lightbox-modal-title" class="gallery-modal__title"><i class="ri-image-line"
+                        style="color: var(--first-color);"></i> Image View</h3>
+                <button type="button" class="gallery-modal__close" onclick="closeLightboxModal()" aria-label="Close"><i
+                        class="ri-close-line"></i></button>
             </div>
             <div class="gallery-modal__stage" style="padding: 1rem; min-height: unset;">
                 <div class="gallery-modal__image-wrapper">
-                    <img id="lightbox-modal-img" src="" alt="Preview" class="gallery-modal__main-img" style="max-height: 72vh;">
+                    <img id="lightbox-modal-img" src="" alt="Preview" class="gallery-modal__main-img"
+                        style="max-height: 72vh;">
                 </div>
             </div>
         </div>

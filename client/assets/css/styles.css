@@ -516,7 +516,7 @@ html.lenis body {
     height: 100%;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.65;
+    opacity: 0;
 }
 
 .home__container {
@@ -1283,8 +1283,13 @@ html.lenis body {
 }
 
 @keyframes galleryFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .gallery-modal__overlay {
@@ -1316,6 +1321,7 @@ html.lenis body {
         opacity: 0;
         transform: scale(0.92) translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -1555,23 +1561,28 @@ html.lenis body {
     .gallery-modal__container {
         max-height: 96vh;
     }
+
     .gallery-modal__stage {
         padding: 0.5rem;
         min-height: 240px;
     }
+
     .gallery-modal__nav {
         width: 36px;
         height: 36px;
         font-size: 1.3rem;
     }
+
     .gallery-modal__footer {
         flex-direction: column;
         align-items: stretch;
     }
+
     .gallery-modal__thumbs {
         max-width: 100%;
         justify-content: center;
     }
+
     .gallery-modal__links {
         justify-content: center;
     }
@@ -1831,6 +1842,7 @@ html.lenis body {
 
 /* Desktop Hover & Focus */
 @media (hover: hover) {
+
     .cert-card:hover .cert-card__inner,
     .cert-card:focus-visible .cert-card__inner {
         transform: rotateY(180deg);
@@ -2526,9 +2538,11 @@ html.lenis body {
         border-radius: 1.5rem;
         scrollbar-width: none;
     }
+
     .work__tabs::-webkit-scrollbar {
         display: none;
     }
+
     .work__button {
         padding: 0.45rem 0.85rem;
         font-size: 0.78rem;
@@ -2536,6 +2550,7 @@ html.lenis body {
         white-space: nowrap;
         border-radius: 1rem;
     }
+
     .work__blob {
         display: none;
     }
@@ -3593,6 +3608,7 @@ textarea:-webkit-autofill:focus {
     height: 100%;
     z-index: -2;
     pointer-events: none;
+    opacity: 0;
 }
 
 /*=============== CURSOR TRAIL GLOWS ===============*/
@@ -3975,7 +3991,9 @@ button.home__cv:hover {
 }
 
 @keyframes pdfSpin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .pdf-error-state {
@@ -4019,6 +4037,7 @@ button.home__cv:hover {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -4033,14 +4052,17 @@ button.home__cv:hover {
         border-radius: 0;
         border: none;
     }
+
     .pdf-modal-toolbar {
         padding: 8px 12px;
         gap: 6px;
     }
+
     .pdf-tool-btn {
         padding: 5px 8px;
         font-size: 0.78rem;
     }
+
     .pdf-viewport {
         padding: 12px 6px;
         gap: 12px;
@@ -4107,10 +4129,13 @@ button.home__cv:hover {
 }
 
 @keyframes hintPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
         border-color: rgba(56, 189, 248, 0.25);
     }
+
     50% {
         box-shadow: 0 0 22px rgba(0, 242, 254, 0.35);
         border-color: rgba(0, 242, 254, 0.55);
@@ -4167,6 +4192,7 @@ button.home__cv:hover {
     0% {
         transform: translateX(0);
     }
+
     100% {
         transform: translateX(-50%);
     }
@@ -4191,9 +4217,9 @@ button.home__cv:hover {
     transform-style: preserve-3d;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 25px rgba(0, 242, 254, 0.08);
     transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.4s ease,
-                box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-                filter 0.4s ease;
+        border-color 0.4s ease,
+        box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.4s ease;
     cursor: pointer;
     overflow: hidden;
 }
@@ -4226,27 +4252,36 @@ button.home__cv:hover {
 }
 
 @keyframes screenBobOdd {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0px) rotateZ(0deg) rotateY(0deg);
     }
+
     50% {
         transform: translateY(-14px) rotateZ(0.75deg) rotateY(-1.5deg);
     }
 }
 
 @keyframes screenBobEven {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(-5px) rotateZ(-0.5deg) rotateY(1deg);
     }
+
     50% {
         transform: translateY(10px) rotateZ(0.5deg) rotateY(-1deg);
     }
 }
 
 @keyframes screenBobTri {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(4px) rotateZ(0.5deg) rotateY(-1deg);
     }
+
     50% {
         transform: translateY(-12px) rotateZ(-0.75deg) rotateY(1.5deg);
     }
@@ -4544,6 +4579,7 @@ button.home__cv:hover {
         min-width: 320px;
         padding: 1.35rem;
     }
+
     .testimonials__floating-track {
         gap: 1.5rem;
         animation-duration: 32s;
@@ -4575,12 +4611,10 @@ button.home__cv:hover {
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: radial-gradient(
-        380px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(0, 242, 254, 0.14),
-        rgba(77, 166, 255, 0.05) 35%,
-        transparent 70%
-    );
+    background: radial-gradient(380px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(0, 242, 254, 0.14),
+            rgba(77, 166, 255, 0.05) 35%,
+            transparent 70%);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s ease;
@@ -4607,13 +4641,11 @@ button.home__cv:hover {
     inset: -1.5px;
     border-radius: inherit;
     padding: 1.5px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        var(--first-color) 40%,
-        var(--secondary-color) 60%,
-        transparent 90%
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            var(--first-color) 40%,
+            var(--secondary-color) 60%,
+            transparent 90%);
     background-size: 200% 100%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -4624,8 +4656,13 @@ button.home__cv:hover {
 }
 
 @keyframes borderBeam {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 /* 3. Multi-Layer 3D Parallax Depth */
@@ -4687,9 +4724,9 @@ button.home__cv:hover {
     width: 4px;
     height: 100%;
     background: linear-gradient(180deg,
-        rgba(56, 189, 248, 0.15) 0%,
-        var(--first-color) 50%,
-        var(--secondary-color) 100%);
+            rgba(56, 189, 248, 0.15) 0%,
+            var(--first-color) 50%,
+            var(--secondary-color) 100%);
     position: absolute;
     left: 0;
     top: 0;
@@ -4712,9 +4749,20 @@ button.home__cv:hover {
 }
 
 @keyframes timelinePulse {
-    0% { top: 0%; opacity: 0.8; }
-    50% { top: 95%; opacity: 1; }
-    100% { top: 0%; opacity: 0.8; }
+    0% {
+        top: 0%;
+        opacity: 0.8;
+    }
+
+    50% {
+        top: 95%;
+        opacity: 1;
+    }
+
+    100% {
+        top: 0%;
+        opacity: 0.8;
+    }
 }
 
 /* 6. Form Input Neon Focus Ring */
@@ -4726,6 +4774,7 @@ button.home__cv:hover {
 
 /*=============== ACCESSIBILITY & PREFERS-REDUCED-MOTION ===============*/
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {

@@ -201,6 +201,10 @@ const finishIntro = () => {
     // Remove the scroll lock class
     document.body.classList.remove("preloader-active");
 
+    // Initialize scenes early so WebGL and Canvas are ready for the fade-in
+    initThreeHeroScene();
+    initParticleCanvas();
+
     // Exit transition of the preloader
     const exitTl = gsap.timeline({
         onComplete: () => {
@@ -232,14 +236,18 @@ const finishIntro = () => {
         .to(".intro-loader__marquee-container", { yPercent: -100, opacity: 0, duration: 1.2, ease: "power3.inOut" }, "<")
         .to("#intro-loader", { yPercent: -100, duration: 1.2, ease: "power3.inOut" }, "<")
 
-        // Hero Entrance Animations
-        .from(".nav__logo, .nav__link", { y: -30, opacity: 0, stagger: 0.08, duration: 0.8, ease: "power2.out" }, "-=0.4")
-        .from(".home__greeting", { x: -50, opacity: 0, duration: 0.8, ease: "power2.out" }, "<")
-        .from(".home__name", { y: 50, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.5")
-        .from(".home__perfil", { scale: 0.85, opacity: 0, duration: 1.2, ease: "power2.out" }, "-=0.8")
-        .from(".home__profession-1", { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" }, "-=0.6")
-        .from(".home__social-link", { scale: 0, opacity: 0, stagger: 0.08, duration: 0.6, ease: "back.out(1.7)" }, "-=0.6")
-        .from(".home__cv", { y: 30, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.6");
+        // Smooth Progressive Hero Entrance Animations on Refresh / Page Load
+        .to(".home__three-canvas", { opacity: 0.65, duration: 1.8, ease: "power2.out" }, "-=0.7")
+        .to("#particle-canvas", { opacity: 0.75, duration: 1.8, ease: "power2.out" }, "<")
+        .fromTo(".home__image .blob-animate", { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.6, ease: "power2.out" }, "<")
+        .from(".home__perfil", { scale: 0.82, opacity: 0, y: 35, duration: 1.4, ease: "power3.out" }, "-=1.3")
+        .from(".nav__logo, .nav__link", { y: -25, opacity: 0, stagger: 0.06, duration: 0.8, ease: "power2.out" }, "-=1.0")
+        .from(".home__greeting", { x: -40, opacity: 0, duration: 0.85, ease: "power2.out" }, "-=0.8")
+        .from(".home__name", { y: 40, opacity: 0, duration: 1.1, ease: "power3.out" }, "-=0.7")
+        .from(".home__social-link", { scale: 0, opacity: 0, stagger: 0.08, duration: 0.6, ease: "back.out(1.6)" }, "-=0.6")
+        .from(".home__split", { x: 30, opacity: 0, duration: 0.85, ease: "power2.out" }, "-=0.7")
+        .from(".home__profession-box", { opacity: 0, y: 20, duration: 0.85, ease: "power2.out" }, "-=0.6")
+        .from(".home__cv", { y: 25, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.5");
 };
 
 // Handle virtual scroll
@@ -551,7 +559,7 @@ function downloadFile(filePath, fileName) {
         setTimeout(() => {
             try {
                 if (a.parentNode) document.body.removeChild(a);
-            } catch (e) {}
+            } catch (e) { }
         }, 500);
     } catch (err) {
         window.location.href = downloadLink;
@@ -595,7 +603,7 @@ function openVideoModal(videoUrl, title) {
         titleEl.innerHTML = `<i class="ri-video-line" style="color: var(--first-color);"></i> ${title || 'Video Player'}`;
         videoEl.src = videoUrl;
         modal.style.display = "flex";
-        videoEl.play().catch(e => {});
+        videoEl.play().catch(e => { });
     }
 }
 
@@ -1061,12 +1069,12 @@ function renderCertificateItems(items, container) {
             const issuerLower = issuer.toLowerCase();
             const logo = item.issuerLogo || (
                 issuerLower.includes("aws") || issuerLower.includes("amazon") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" :
-                issuerLower.includes("google") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg" :
-                issuerLower.includes("python") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" :
-                issuerLower.includes("c++") || issuerLower.includes("icpc") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" :
-                issuerLower.includes("udemy") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-plain.svg" :
-                issuerLower.includes("nti") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" :
-                ""
+                    issuerLower.includes("google") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg" :
+                        issuerLower.includes("python") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" :
+                            issuerLower.includes("c++") || issuerLower.includes("icpc") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" :
+                                issuerLower.includes("udemy") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-plain.svg" :
+                                    issuerLower.includes("nti") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" :
+                                        ""
             );
 
             const certVisual = getCertificateVisual(item);
@@ -1208,7 +1216,7 @@ function attachCertInteractions(items) {
         if (backFace && item) {
             backFace.addEventListener("click", (e) => {
                 if (e.target.closest(".cert-back__controls, .cert-btn--flip-back, a")) return;
-                
+
                 const title = item.name || item.title || "Certificate";
                 const certVisual = getCertificateVisual(item);
                 const isUploadedImage = isImageResource(certVisual) || (item.image && item.image.trim() !== '');
@@ -1444,7 +1452,7 @@ function renderTestimonials(testimonials) {
 
     testimonialsFloatingTrack.innerHTML = fullStream.map((t, idx) => {
         const rating = Math.min(5, Math.max(1, t.rating || 5));
-        const starsHtml = Array.from({ length: 5 }, (_, i) => 
+        const starsHtml = Array.from({ length: 5 }, (_, i) =>
             `<i class="${i < rating ? 'ri-star-fill' : 'ri-star-line'}"></i>`
         ).join('');
 
@@ -1670,17 +1678,17 @@ if (contactForm) {
                     headers: { "Content-Type": "application/json", "Accept": "application/json" },
                     body: JSON.stringify({ name, email, message, _captcha: "false" })
                 })
-                .then(res => res.json())
-                .then(resData => {
-                    submitBtn.innerHTML = `Sent Successfully! <i class="ri-check-line"></i>`;
-                    submitBtn.style.backgroundColor = "hsl(140, 60%, 40%)";
-                    contactForm.reset();
-                    setTimeout(() => {
-                        submitBtn.innerHTML = originalBtnContent;
-                        submitBtn.style.backgroundColor = "";
-                        submitBtn.disabled = false;
-                    }, 4000);
-                });
+                    .then(res => res.json())
+                    .then(resData => {
+                        submitBtn.innerHTML = `Sent Successfully! <i class="ri-check-line"></i>`;
+                        submitBtn.style.backgroundColor = "hsl(140, 60%, 40%)";
+                        contactForm.reset();
+                        setTimeout(() => {
+                            submitBtn.innerHTML = originalBtnContent;
+                            submitBtn.style.backgroundColor = "";
+                            submitBtn.disabled = false;
+                        }, 4000);
+                    });
             });
     });
 }
@@ -1835,10 +1843,10 @@ const initMagnetic = () => {
         if (elem.dataset.magneticBound === "true") return;
         elem.dataset.magneticBound = "true";
 
-        const isSmall = elem.classList.contains("home__social-link") || 
-                        elem.classList.contains("testimonials__nav-btn") || 
-                        elem.classList.contains("services__button") ||
-                        elem.classList.contains("nav__link");
+        const isSmall = elem.classList.contains("home__social-link") ||
+            elem.classList.contains("testimonials__nav-btn") ||
+            elem.classList.contains("services__button") ||
+            elem.classList.contains("nav__link");
         const factor = isSmall ? 0.4 : 0.25;
 
         elem.addEventListener("mousemove", (e) => {
@@ -2027,8 +2035,8 @@ const initParticleCanvas = () => {
             this.density = (Math.random() * 25) + 8;
             this.angle = Math.random() * Math.PI * 2;
             this.waveSpeed = Math.random() * 0.02 + 0.008;
-            this.color = Math.random() > 0.35 
-                ? "rgba(77, 166, 255, 0.45)" 
+            this.color = Math.random() > 0.35
+                ? "rgba(77, 166, 255, 0.45)"
                 : "rgba(0, 242, 254, 0.55)";
         }
 
@@ -2132,6 +2140,9 @@ const initParticleCanvas = () => {
     };
 
     animate();
+    if (typeof gsap !== "undefined") {
+        gsap.to(canvas, { opacity: 0.75, duration: 1.8, ease: "power2.out" });
+    }
 };
 
 /*=============== DIGITAL SCRAMBLE TEXT EFFECT (ROCK-SOLID & RESILIENT) ===============*/
@@ -2149,7 +2160,7 @@ const scrambleTextNode = (node) => {
     }
 
     if (!originalText || !originalText.trim()) {
-        return () => {};
+        return () => { };
     }
 
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$%#@*&?-+=^![]{}/~0123456789";
@@ -2396,6 +2407,9 @@ const initThreeHeroScene = () => {
         };
 
         animateThree();
+        if (typeof gsap !== "undefined") {
+            gsap.to(canvas, { opacity: 0.65, duration: 1.8, ease: "power2.out" });
+        }
     } catch (err) {
         console.warn("Three.js WebGL initialization skipped or failed:", err);
     }
