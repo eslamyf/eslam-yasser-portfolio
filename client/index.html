@@ -133,7 +133,7 @@
         rel="stylesheet">
 
     <!--=============== CSS ===============-->
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.0">
 
     <title>Eslam Yasser | Full-Stack Developer & Instructor Portfolio</title>
 </head>
@@ -599,11 +599,20 @@
 
             <div class="certificates__container container grid" id="certificates-grid"></div>
 
-            <!-- View All Certificates Action Button -->
-            <div class="certificates__actions" id="certificates-actions" style="display: none;">
-                <button type="button" class="button button--ghost certs__expand-btn" id="view-all-certificates-btn">
-                    <span id="certs-btn-text">View All Certificates</span>
-                    <i class="ri-arrow-down-s-line"></i>
+            <!-- Certificates Dynamic Numbered Pagination & Controls (1, 2, 3...) -->
+            <div class="certificates__pagination-wrapper container" id="certificates-pagination" style="display: none;">
+                <button type="button" class="certs__nav-btn certs__nav-prev" id="certs-prev-btn" aria-label="Previous Page">
+                    <i class="ri-arrow-left-s-line"></i>
+                    <span>Prev</span>
+                </button>
+
+                <div class="certs__pages-list" id="certs-pages-list" role="navigation" aria-label="Certificates Pagination">
+                    <!-- Dynamic page numbers [ 1 ] [ 2 ] [ 3 ] injected by JS -->
+                </div>
+
+                <button type="button" class="certs__nav-btn certs__nav-next" id="certs-next-btn" aria-label="Next Page">
+                    <span>Next</span>
+                    <i class="ri-arrow-right-s-line"></i>
                 </button>
             </div>
         </section>
@@ -907,7 +916,7 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <!--=============== MAIN JS ===============-->
-    <script defer src="assets/js/main.js"></script>
+    <script defer src="assets/js/main.js?v=3.0"></script>
 </body>
 
 </html>

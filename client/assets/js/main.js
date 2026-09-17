@@ -1020,8 +1020,15 @@ function getCertificateVisual(item) {
 
 let currentCertificatesList = [];
 let _allCertificatesList = [];
-let _certificatesExpanded = false;
-let _certBtnListenerAttached = false;
+let _certCurrentPage = 1;
+let _certTouchStartX = 0;
+let _certTouchEndX = 0;
+
+function getCertsPerPage() {
+    if (window.innerWidth >= 1150) return 3; // 3 per page on desktop
+    if (window.innerWidth >= 768) return 2;  // 2 per page on tablet
+    return 1;                                // 1 per page on mobile
+}
 
 function handleCertImgError(img, idx) {
     if (!img) return;
@@ -1032,178 +1039,247 @@ function handleCertImgError(img, idx) {
     }
 }
 
-function renderCertificateItems(items, container) {
-    const targetContainer = container || document.getElementById("certificates-grid") || document.getElementById("certificates");
-    if (!targetContainer) return;
+function generateCertCardHtml(item, idx) {
+    const title = item.name || item.title || "Certificate";
+    const issuer = item.issuer || item.subtitle || "Issuer";
+    const issueDate = item.issueDate || item.year || "";
+    const duration = item.duration || "Verified Credential";
+    const credentialId = item.credentialId || (item._id ? item._id.substring(0, 10).toUpperCase() : `CERT-${idx + 101}`);
 
+    let skillsArr = [];
+    if (Array.isArray(item.skills)) {
+        skillsArr = item.skills;
+    } else if (typeof item.skills === 'string' && item.skills.trim()) {
+        skillsArr = item.skills.split(',').map(s => s.trim());
+    } else {
+        skillsArr = ["Software Engineering", "Problem Solving"];
+    }
+    const skillsHtml = skillsArr.slice(0, 3).map(s => `<span class="cert-skill-tag">${escapeXml(s)}</span>`).join("");
+
+    const issuerLower = issuer.toLowerCase();
+    const logo = item.issuerLogo || (
+        issuerLower.includes("aws") || issuerLower.includes("amazon") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" :
+            issuerLower.includes("google") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg" :
+                issuerLower.includes("python") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" :
+                    issuerLower.includes("c++") || issuerLower.includes("icpc") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" :
+                        issuerLower.includes("udemy") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-plain.svg" :
+                            issuerLower.includes("nti") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" :
+                                ""
+    );
+
+    const certVisual = getCertificateVisual(item);
+    const isUploadedImage = isImageResource(certVisual) || (item.image && item.image.trim() !== '');
+    const rawFile = item.pdfFile || item.fileUrl || item.certificateFile || item.filePath || "";
+    const isPdf = !isUploadedImage && isPdfResource(rawFile);
+    const verifyLink = item.link || item.verifyUrl || "";
+
+    return `
+<div class="cert-card" data-idx="${idx}" tabindex="0" role="region" aria-label="Certificate: ${escapeXml(title)}">
+    <div class="cert-card__inner">
+        <!-- FRONT FACE (All details live here) -->
+        <div class="cert-card__face cert-card__face--front">
+            <div class="cert-front__header">
+                <span class="cert-front__badge">
+                    <i class="ri-shield-check-fill"></i> Verified Credential
+                </span>
+                ${logo ? `
+                <img src="${logo}" alt="${escapeXml(issuer)} logo" class="cert-front__logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="cert-front__logo-fallback" style="display:none;"><i class="ri-award-line"></i></div>
+                ` : `
+                <div class="cert-front__logo-fallback"><i class="ri-award-line"></i></div>
+                `}
+            </div>
+
+            <div class="cert-front__body">
+                <h3 class="cert-front__title">${escapeXml(title)}</h3>
+                <p class="cert-front__issuer"><i class="ri-building-line"></i> ${escapeXml(issuer)}</p>
+
+                <div class="cert-front__meta-grid">
+                    <div class="cert-front__meta-item">
+                        <span class="cert-meta-label">Duration</span>
+                        <span class="cert-meta-value"><i class="ri-time-line"></i> ${escapeXml(duration)}</span>
+                    </div>
+                    <div class="cert-front__meta-item">
+                        <span class="cert-meta-label">Date</span>
+                        <span class="cert-meta-value"><i class="ri-calendar-line"></i> ${escapeXml(issueDate)}</span>
+                    </div>
+                    <div class="cert-front__meta-item cert-front__meta-item--full">
+                        <span class="cert-meta-label">Credential ID</span>
+                        <span class="cert-meta-value font-mono">${escapeXml(credentialId)}</span>
+                    </div>
+                </div>
+
+                <div class="cert-front__skills">
+                    ${skillsHtml}
+                </div>
+            </div>
+
+            <div class="cert-front__footer">
+                <span class="cert-front__hint">
+                    <i class="ri-image-line"></i> View Certificate
+                </span>
+                <span class="cert-front__flip-icon">
+                    <i class="ri-arrow-left-right-line"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- BACK FACE (Dedicated purely to the Certificate Image) -->
+        <div class="cert-card__face cert-card__face--back" data-idx="${idx}">
+            <div class="cert-back__image-wrapper">
+                <img src="${escapeXml(certVisual)}" alt="${escapeXml(title)}" class="cert-back__image" loading="lazy" onerror="handleCertImgError(this, ${idx})">
+                
+                <div class="cert-back__overlay">
+                    <span class="cert-back__zoom-tag">
+                        <i class="ri-${isPdf ? 'file-pdf-line' : 'zoom-in-line'}"></i> ${isPdf ? 'View PDF' : 'Fullscreen'}
+                    </span>
+                </div>
+
+                <div class="cert-back__controls">
+                    ${verifyLink && verifyLink !== '#' ? `
+                    <a href="${escapeXml(verifyLink)}" target="_blank" rel="noopener noreferrer" class="cert-back__verify-link" title="Verify Online">
+                        <i class="ri-external-link-line"></i>
+                    </a>` : ''}
+                    <button type="button" class="cert-btn--flip-back" aria-label="Flip back" onclick="flipBackCard(this)">
+                        <i class="ri-arrow-go-back-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+}
+
+function renderCertificateItems(items, container) {
     if (items && Array.isArray(items)) {
         _allCertificatesList = items;
     }
-
     if (!_allCertificatesList || !_allCertificatesList.length) return;
+    renderCertificatesPage(_certCurrentPage, false);
+}
 
-    const visibleItems = _certificatesExpanded || _allCertificatesList.length <= 6
-        ? _allCertificatesList
-        : _allCertificatesList.slice(0, 6);
+function renderCertificatesPage(page, animate = false) {
+    const targetContainer = document.getElementById("certificates-grid") || document.getElementById("certificates");
+    if (!targetContainer || !_allCertificatesList || !_allCertificatesList.length) return;
 
+    const perPage = getCertsPerPage();
+    const totalPages = Math.max(1, Math.ceil(_allCertificatesList.length / perPage));
+    _certCurrentPage = Math.max(1, Math.min(page, totalPages));
+
+    const startIndex = (_certCurrentPage - 1) * perPage;
+    const visibleItems = _allCertificatesList.slice(startIndex, startIndex + perPage);
     currentCertificatesList = visibleItems;
 
-    targetContainer.innerHTML = visibleItems
-        .map((item, idx) => {
-            const title = item.name || item.title || "Certificate";
-            const issuer = item.issuer || item.subtitle || "Issuer";
-            const issueDate = item.issueDate || item.year || "";
-            const duration = item.duration || "Verified Credential";
-            const credentialId = item.credentialId || (item._id ? item._id.substring(0, 10).toUpperCase() : `CERT-${idx + 101}`);
+    const cardsHtml = visibleItems.map((item, idx) => generateCertCardHtml(item, idx)).join("");
 
-            let skillsArr = [];
-            if (Array.isArray(item.skills)) {
-                skillsArr = item.skills;
-            } else if (typeof item.skills === 'string' && item.skills.trim()) {
-                skillsArr = item.skills.split(',').map(s => s.trim());
-            } else {
-                skillsArr = ["Software Engineering", "Problem Solving"];
-            }
-            const skillsHtml = skillsArr.slice(0, 3).map(s => `<span class="cert-skill-tag">${escapeXml(s)}</span>`).join("");
+    const updateControls = () => {
+        const paginationWrapper = document.getElementById("certificates-pagination");
+        const pagesList = document.getElementById("certs-pages-list");
+        const prevBtn = document.getElementById("certs-prev-btn");
+        const nextBtn = document.getElementById("certs-next-btn");
 
-            const issuerLower = issuer.toLowerCase();
-            const logo = item.issuerLogo || (
-                issuerLower.includes("aws") || issuerLower.includes("amazon") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" :
-                    issuerLower.includes("google") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg" :
-                        issuerLower.includes("python") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" :
-                            issuerLower.includes("c++") || issuerLower.includes("icpc") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" :
-                                issuerLower.includes("udemy") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-plain.svg" :
-                                    issuerLower.includes("nti") ? "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" :
-                                        ""
-            );
-
-            const certVisual = getCertificateVisual(item);
-            const isUploadedImage = isImageResource(certVisual) || (item.image && item.image.trim() !== '');
-            const rawFile = item.pdfFile || item.fileUrl || item.certificateFile || item.filePath || "";
-            const isPdf = !isUploadedImage && isPdfResource(rawFile);
-            const verifyLink = item.link || item.verifyUrl || "";
-
-            return `
-        <div class="cert-card" data-idx="${idx}" tabindex="0" role="region" aria-label="Certificate: ${escapeXml(title)}">
-            <div class="cert-card__inner">
-                <!-- FRONT FACE (All details live here) -->
-                <div class="cert-card__face cert-card__face--front">
-                    <div class="cert-front__header">
-                        <span class="cert-front__badge">
-                            <i class="ri-shield-check-fill"></i> Verified Credential
-                        </span>
-                        ${logo ? `
-                        <img src="${logo}" alt="${escapeXml(issuer)} logo" class="cert-front__logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="cert-front__logo-fallback" style="display:none;"><i class="ri-award-line"></i></div>
-                        ` : `
-                        <div class="cert-front__logo-fallback"><i class="ri-award-line"></i></div>
-                        `}
-                    </div>
-
-                    <div class="cert-front__body">
-                        <h3 class="cert-front__title">${escapeXml(title)}</h3>
-                        <p class="cert-front__issuer"><i class="ri-building-line"></i> ${escapeXml(issuer)}</p>
-
-                        <div class="cert-front__meta-grid">
-                            <div class="cert-front__meta-item">
-                                <span class="cert-meta-label">Duration</span>
-                                <span class="cert-meta-value"><i class="ri-time-line"></i> ${escapeXml(duration)}</span>
-                            </div>
-                            <div class="cert-front__meta-item">
-                                <span class="cert-meta-label">Date</span>
-                                <span class="cert-meta-value"><i class="ri-calendar-line"></i> ${escapeXml(issueDate)}</span>
-                            </div>
-                            <div class="cert-front__meta-item cert-front__meta-item--full">
-                                <span class="cert-meta-label">Credential ID</span>
-                                <span class="cert-meta-value font-mono">${escapeXml(credentialId)}</span>
-                            </div>
-                        </div>
-
-                        <div class="cert-front__skills">
-                            ${skillsHtml}
-                        </div>
-                    </div>
-
-                    <div class="cert-front__footer">
-                        <span class="cert-front__hint">
-                            <i class="ri-image-line"></i> View Certificate
-                        </span>
-                        <span class="cert-front__flip-icon">
-                            <i class="ri-arrow-left-right-line"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- BACK FACE (Dedicated purely to the Certificate Image) -->
-                <div class="cert-card__face cert-card__face--back" data-idx="${idx}">
-                    <div class="cert-back__image-wrapper">
-                        <img src="${escapeXml(certVisual)}" alt="${escapeXml(title)}" class="cert-back__image" loading="lazy" onerror="handleCertImgError(this, ${idx})">
-                        
-                        <div class="cert-back__overlay">
-                            <span class="cert-back__zoom-tag">
-                                <i class="ri-${isPdf ? 'file-pdf-line' : 'zoom-in-line'}"></i> ${isPdf ? 'View PDF' : 'Fullscreen'}
-                            </span>
-                        </div>
-
-                        <div class="cert-back__controls">
-                            ${verifyLink && verifyLink !== '#' ? `
-                            <a href="${escapeXml(verifyLink)}" target="_blank" rel="noopener noreferrer" class="cert-back__verify-link" title="Verify Online">
-                                <i class="ri-external-link-line"></i>
-                            </a>` : ''}
-                            <button type="button" class="cert-btn--flip-back" aria-label="Flip back" onclick="flipBackCard(this)">
-                                <i class="ri-arrow-go-back-line"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        }).join("");
-
-    // Setup action button if certificates exceed 6 items
-    const actionsContainer = document.getElementById("certificates-actions");
-    const expandBtn = document.getElementById("view-all-certificates-btn");
-    const btnText = document.getElementById("certs-btn-text");
-
-    if (actionsContainer && expandBtn) {
-        if (_allCertificatesList.length > 6) {
-            actionsContainer.style.display = "flex";
-            if (btnText) {
-                btnText.textContent = _certificatesExpanded
-                    ? "Show Less"
-                    : `View All Certificates (${_allCertificatesList.length})`;
-            }
-            const icon = expandBtn.querySelector("i");
-            if (icon) {
-                icon.className = _certificatesExpanded
-                    ? "ri-arrow-up-s-line"
-                    : "ri-arrow-down-s-line";
-            }
-
-            if (!_certBtnListenerAttached) {
-                _certBtnListenerAttached = true;
-                expandBtn.addEventListener("click", () => {
-                    _certificatesExpanded = !_certificatesExpanded;
-                    renderCertificateItems(_allCertificatesList, targetContainer);
-                    if (window.ScrollTrigger) ScrollTrigger.refresh();
-                    if (!_certificatesExpanded) {
-                        const certSection = document.getElementById("certificates");
-                        if (certSection) {
-                            certSection.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }
+        if (paginationWrapper) {
+            if (totalPages > 1) {
+                paginationWrapper.style.display = "flex";
+                if (pagesList) {
+                    let pBtns = "";
+                    for (let i = 1; i <= totalPages; i++) {
+                        pBtns += `<button type="button" class="certs__page-num ${i === _certCurrentPage ? 'active' : ''}" onclick="goToCertPage(${i})" aria-label="Page ${i}">
+                            ${i}
+                        </button>`;
                     }
-                });
+                    pagesList.innerHTML = pBtns;
+                }
+                if (prevBtn) {
+                    prevBtn.disabled = _certCurrentPage <= 1;
+                    prevBtn.onclick = () => {
+                        if (_certCurrentPage > 1) goToCertPage(_certCurrentPage - 1);
+                    };
+                }
+                if (nextBtn) {
+                    nextBtn.disabled = _certCurrentPage >= totalPages;
+                    nextBtn.onclick = () => {
+                        if (_certCurrentPage < totalPages) goToCertPage(_certCurrentPage + 1);
+                    };
+                }
+            } else {
+                paginationWrapper.style.display = "none";
             }
-        } else {
-            actionsContainer.style.display = "none";
         }
-    }
+    };
 
-    attachCertInteractions(visibleItems);
-    initMagnetic();
-    init3DTilt();
-    initSpotlightGlow();
+    if (animate && typeof gsap !== "undefined") {
+        gsap.to(targetContainer, {
+            opacity: 0,
+            y: -10,
+            duration: 0.2,
+            ease: "power2.in",
+            onComplete: () => {
+                targetContainer.innerHTML = cardsHtml;
+                attachCertInteractions(visibleItems);
+                initMagnetic();
+                init3DTilt();
+                initSpotlightGlow();
+                updateControls();
+                gsap.fromTo(targetContainer.querySelectorAll(".cert-card"),
+                    { opacity: 0, y: 20, scale: 0.97 },
+                    { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" }
+                );
+                gsap.to(targetContainer, { opacity: 1, y: 0, duration: 0.25 });
+                if (window.ScrollTrigger) ScrollTrigger.refresh();
+            }
+        });
+    } else {
+        targetContainer.innerHTML = cardsHtml;
+        attachCertInteractions(visibleItems);
+        initMagnetic();
+        init3DTilt();
+        initSpotlightGlow();
+        updateControls();
+        if (window.ScrollTrigger) ScrollTrigger.refresh();
+    }
 }
+
+// Global hook for inline onclick buttons
+window.goToCertPage = function(page) {
+    if (page === _certCurrentPage) return;
+    renderCertificatesPage(page, true);
+};
+
+// Touch swipe gestures for mobile certificate carousel
+(function initCertSwipe() {
+    const grid = document.getElementById("certificates-grid");
+    if (!grid) return;
+    grid.addEventListener("touchstart", (e) => {
+        _certTouchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    grid.addEventListener("touchend", (e) => {
+        _certTouchEndX = e.changedTouches[0].screenX;
+        const diff = _certTouchStartX - _certTouchEndX;
+        const totalPages = Math.ceil((_allCertificatesList.length || 1) / getCertsPerPage());
+        if (diff > 45 && _certCurrentPage < totalPages) {
+            goToCertPage(_certCurrentPage + 1);
+        } else if (diff < -45 && _certCurrentPage > 1) {
+            goToCertPage(_certCurrentPage - 1);
+        }
+    }, { passive: true });
+})();
+
+// Debounced resize handler to recalculate cards per page when switching between mobile/desktop
+let _certResizeTimer = null;
+let _lastCertsPerPage = getCertsPerPage();
+window.addEventListener("resize", () => {
+    clearTimeout(_certResizeTimer);
+    _certResizeTimer = setTimeout(() => {
+        const currentPerPage = getCertsPerPage();
+        if (currentPerPage !== _lastCertsPerPage) {
+            _lastCertsPerPage = currentPerPage;
+            if (_allCertificatesList.length) {
+                renderCertificatesPage(1, true);
+            }
+        }
+    }, 150);
+});
 
 function attachCertInteractions(items) {
     const list = items || currentCertificatesList;
