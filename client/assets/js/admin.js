@@ -912,7 +912,7 @@ async function loadCertificates() {
 function renderCertificatesTable(list) {
   const tbody = document.getElementById('certificates-table-body');
   if (!list || list.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">لا توجد شهادات مضافة حالياً.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">لا توجد شهادات مضافة حالياً.</td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(item => {
@@ -938,6 +938,7 @@ function renderCertificatesTable(list) {
 
     return `
       <tr>
+        <td><span class="badge badge-primary">#${item.orderIndex || 1}</span></td>
         <td><strong>${item.name}</strong></td>
         <td><span class="badge badge-info">${item.issuer}</span></td>
         <td><small class="text-muted">${item.issueDate || '-'}</small></td>
@@ -959,6 +960,7 @@ function openAddCertificateModal() {
   if (titleEl) titleEl.innerHTML = `<i class="ri-award-line"></i> إضافة شهادة جديدة`;
   const form = document.getElementById('certificate-form');
   if (form) form.reset();
+  setVal('cert-order', (certificatesCache.length + 1));
   const statusEl = document.getElementById('cert-upload-status');
   if (statusEl) statusEl.textContent = '';
   const modal = document.getElementById('certificate-modal');
@@ -973,6 +975,7 @@ function openEditCertificateModal(id) {
   if (titleEl) titleEl.innerHTML = `<i class="ri-edit-line"></i> تعديل بيانات الشهادة`;
   setVal('cert-name', item.name || item.title || '');
   setVal('cert-issuer', item.issuer || item.subtitle || '');
+  setVal('cert-order', item.orderIndex || 1);
   setVal('cert-date', item.issueDate || item.year || '');
   setVal('cert-file', item.image || item.pdfFile || item.fileUrl || '');
   const modal = document.getElementById('certificate-modal');
@@ -1022,6 +1025,7 @@ if (certForm) {
     const payload = {
       name: document.getElementById('cert-name').value.trim(),
       issuer: document.getElementById('cert-issuer').value.trim(),
+      orderIndex: parseInt(document.getElementById('cert-order').value) || 1,
       issueDate: document.getElementById('cert-date').value.trim(),
       pdfFile: fileVal,
       image: isImg ? fileVal : ''

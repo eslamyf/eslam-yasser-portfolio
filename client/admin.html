@@ -434,6 +434,7 @@
                             <table class="data-table">
                                 <thead>
                                     <tr>
+                                        <th>الترتيب</th>
                                         <th>اسم الشهادة</th>
                                         <th>الجهة المصدرة</th>
                                         <th>تاريخ الإصدار</th>
@@ -443,7 +444,7 @@
                                 </thead>
                                 <tbody id="certificates-table-body">
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">جاري تحميل الشهادات...</td>
+                                        <td colspan="6" class="text-center text-muted">جاري تحميل الشهادات...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -940,6 +941,10 @@ assets/img/aqario.webp, assets/img/About.webp, uploads/images/..."></textarea>
                 <div class="form-group">
                     <label>الجهة المصدرة <span class="required-star">*</span></label>
                     <input type="text" id="cert-issuer" placeholder="مثال: National Telecommunication Institute (NTI)" required>
+                </div>
+                <div class="form-group">
+                    <label>ترتيب الظهور (Order Index)</label>
+                    <input type="number" id="cert-order" placeholder="مثال: 1" min="1" value="1">
                 </div>
                 <div class="form-group">
                     <label>تاريخ الإصدار</label>

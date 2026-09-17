@@ -243,8 +243,10 @@ const handleUpdateCertificate = async (req, res) => {
           pdfFile: data.pdfFile || workData.certificates[index].pdfFile,
           originalPdfName: data.originalPdfName !== undefined ? data.originalPdfName : workData.certificates[index].originalPdfName,
           link: data.link !== undefined ? data.link : workData.certificates[index].link,
+          orderIndex: data.orderIndex !== undefined ? parseInt(data.orderIndex) : workData.certificates[index].orderIndex,
           description: data.description !== undefined ? data.description : workData.certificates[index].description
         };
+        workData.certificates.sort((a, b) => (a.orderIndex || 99) - (b.orderIndex || 99));
         saveWorkData(workData);
         return res.json({ success: true, message: 'Certificate updated successfully', data: workData.certificates[index] });
       }
