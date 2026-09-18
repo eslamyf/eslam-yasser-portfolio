@@ -7,9 +7,10 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-// Load .env locally if available
+// Load .env locally if available (from server dir or root dir)
 try {
   require('dotenv').config({ path: path.join(__dirname, '.env') });
+  require('dotenv').config({ path: path.join(__dirname, '../.env') });
 } catch (e) {}
 
 const connectDB = require('./config/db');

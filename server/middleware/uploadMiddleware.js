@@ -12,7 +12,6 @@ const dirs = {
   certificates: path.join(baseUploadDir, 'certificates'),
   projects: path.join(baseUploadDir, 'projects'),
   documents: path.join(baseUploadDir, 'documents'),
-  videos: path.join(baseUploadDir, 'videos'),
   images: path.join(baseUploadDir, 'images')
 };
 

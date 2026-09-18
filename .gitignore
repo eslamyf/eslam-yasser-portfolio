@@ -1,46 +1,32 @@
-# === Visual Studio & C++ (Audio Decoder) ===
-.vs/
-x64/
-[Dd]ebug/
-[Rr]elease/
-bin/
-obj/
-*.user
-*.userosscache
-*.sln.docstates
-*.suo
-*.pdb
-*.ilk
-*.exe
-*.dll
-*.sdf
-*.opensdf
-*.ipch
-*.iobj
-*.ipdb
-*.tlog/
-*.lastbuildstate
-
-# === JetBrains IDEs (From .idea folder in your image) ===
-.idea/
-
-# === Web Development (Assets & OS) ===
-.DS_Store
-Thumbs.db
-
-# === Environment & Secrets ===
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# === Node Modules ===
+# === Dependencies ===
 node_modules/
+server/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# === Backup & Logs ===
+# === Environment & Secrets ===
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# === Logs & Runtime ===
 *.log
-*.bak
+logs/
+server/logs/
+
+# === OS & IDE Artifacts ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.vs/
+*.suo
+*.user
+
+# === Local Uploads (Dynamic Files) ===
+server/uploads/*
+!server/uploads/.gitkeep

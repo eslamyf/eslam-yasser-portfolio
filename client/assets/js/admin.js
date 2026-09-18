@@ -324,7 +324,7 @@ function renderProjectsTable(projects) {
     return `
       <tr>
         <td>
-          <img src="${p.coverImage || p.image || 'assets/img/backend_api.jpg'}" alt="${p.title}" class="table-img" onerror="this.src='assets/img/backend_api.jpg'">
+          <img src="${p.coverImage || p.image || 'assets/img/backend_api.webp'}" alt="${p.title}" class="table-img" onerror="this.src='assets/img/backend_api.webp'">
         </td>
         <td>
           <strong>${p.title}</strong>
@@ -366,7 +366,7 @@ function openAddProjectModal() {
   document.getElementById('project-id').value = '';
   document.getElementById('modal-title').innerHTML = `<i class="ri-folder-add-line"></i> إضافة مشروع جديد`;
   document.getElementById('project-form').reset();
-  document.getElementById('image-preview').src = 'assets/img/backend_api.jpg';
+  document.getElementById('image-preview').src = 'assets/img/backend_api.webp';
   const galEl = document.getElementById('p-gallery-urls');
   if (galEl) galEl.value = '';
   document.getElementById('project-modal').style.display = 'flex';
@@ -396,7 +396,7 @@ function openEditProjectModal(id) {
   document.getElementById('p-status').value = project.status || 'published';
   document.getElementById('p-order').value = project.orderIndex || 0;
 
-  document.getElementById('image-preview').src = project.coverImage || project.image || 'assets/img/backend_api.jpg';
+  document.getElementById('image-preview').src = project.coverImage || project.image || 'assets/img/backend_api.webp';
 
   document.getElementById('project-modal').style.display = 'flex';
 }
@@ -447,7 +447,7 @@ if (projectForm) {
     const token = localStorage.getItem('admin_token');
     const saveBtn = document.getElementById('save-project-btn');
 
-    const cover = document.getElementById('p-image-url').value.trim() || 'assets/img/backend_api.jpg';
+    const cover = document.getElementById('p-image-url').value.trim() || 'assets/img/backend_api.webp';
     
     // Parse gallery URLs
     const rawGal = document.getElementById('p-gallery-urls') ? document.getElementById('p-gallery-urls').value : '';

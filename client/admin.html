@@ -724,7 +724,7 @@
                     <div class="image-upload-wrapper">
                         <div class="form-group span-2">
                             <label for="p-image-url">مسار أو رابط الصورة</label>
-                            <input type="text" id="p-image-url" placeholder="مثال: assets/img/aqario.png" required>
+                            <input type="text" id="p-image-url" placeholder="مثال: assets/img/aqario.webp" required>
                         </div>
 
                         <div class="upload-file-box">
@@ -737,7 +737,7 @@
                         </div>
 
                         <div class="image-preview-container">
-                            <img id="image-preview" src="assets/img/backend_api.jpg" alt="Preview">
+                            <img id="image-preview" src="assets/img/backend_api.webp" alt="Preview">
                         </div>
                     </div>
                 </div>
@@ -965,58 +965,6 @@ assets/img/aqario.webp, assets/img/About.webp, uploads/images/..."></textarea>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeCertificateModal()">إلغاء</button>
                     <button type="submit" class="btn btn-primary"><i class="ri-save-line"></i> حفظ الشهادة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ==================== MODAL: ADD / EDIT VIDEO ==================== -->
-    <div id="video-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 id="video-modal-title"><i class="ri-video-line"></i> إضافة فيديو جديد</h3>
-                <button class="modal-close" onclick="closeVideoModal()"><i class="ri-close-line"></i></button>
-            </div>
-            <form id="video-form" class="modal-form">
-                <input type="hidden" id="video-id">
-                <div class="form-group">
-                    <label>عنوان الفيديو <span class="required-star">*</span></label>
-                    <input type="text" id="vid-title" placeholder="مثال: Complete Node.js API Tutorial" required>
-                </div>
-                <div class="form-group">
-                    <label>نوع الفيديو</label>
-                    <select id="vid-source" onchange="toggleVideoSourceType(this.value)">
-                        <option value="youtube">رابط يوتيوب (YouTube)</option>
-                        <option value="local">ملف فيديو مخزن بالسيرفر (Local Server Stream)</option>
-                    </select>
-                </div>
-                <div id="vid-youtube-box" class="form-group">
-                    <label>رابط فيديو يوتيوب</label>
-                    <input type="url" id="vid-youtube-url" placeholder="https://www.youtube.com/watch?v=...">
-                </div>
-                <div id="vid-local-box" class="form-group" style="display:none;">
-                    <label>مسار فيديو السيرفر المحلي</label>
-                    <input type="text" id="vid-local-path" placeholder="uploads/videos/demo.mp4">
-                    <label class="btn btn-secondary btn-upload mt-2 w-100">
-                        <i class="ri-upload-cloud-line"></i>
-                        <span>رفع فيديو MP4 من جهازك</span>
-                        <input type="file" id="vid-upload-input" accept="video/mp4,video/webm" style="display:none;" onchange="handleVideoUpload(this)">
-                    </label>
-                    <span id="vid-upload-status" class="text-muted block mt-2"></span>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>المدة (Duration)</label>
-                        <input type="text" id="vid-duration" placeholder="15:30">
-                    </div>
-                    <div class="form-group">
-                        <label>التصنيف</label>
-                        <input type="text" id="vid-category" placeholder="Backend, Tutorial...">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeVideoModal()">إلغاء</button>
-                    <button type="submit" class="btn btn-primary"><i class="ri-save-line"></i> حفظ الفيديو</button>
                 </div>
             </form>
         </div>
