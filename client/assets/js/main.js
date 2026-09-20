@@ -191,6 +191,7 @@ const runProfessionLoop = () => {
 
 // Function to trigger once preloader sequence completes
 const finishIntro = () => {
+    if (introComplete) return;
     introComplete = true;
 
     // Remove virtual scroll event listeners
@@ -202,29 +203,40 @@ const finishIntro = () => {
     document.body.classList.remove("preloader-active");
 
     // Initialize scenes early so WebGL and Canvas are ready for the fade-in
-    initThreeHeroScene();
-    initParticleCanvas();
+    try {
+        initThreeHeroScene();
+        initParticleCanvas();
+    } catch (e) {
+        console.warn("Scene initialization warning:", e);
+    }
 
     // Exit transition of the preloader
     const exitTl = gsap.timeline({
         onComplete: () => {
             // Initialize Lenis Smooth Scroll
-            lenis = new Lenis({
-                duration: 1.2,
-                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                smoothWheel: true,
-                smoothTouch: false,
-            });
+            try {
+                if (typeof Lenis !== "undefined") {
+                    lenis = new Lenis({
+                        duration: 1.2,
+                        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                        smoothWheel: true,
+                        smoothTouch: false,
+                    });
 
-            lenis.on('scroll', ScrollTrigger.update);
+                    lenis.on('scroll', ScrollTrigger.update);
 
-            gsap.ticker.add((time) => {
-                lenis.raf(time * 1000);
-            });
-            gsap.ticker.lagSmoothing(0);
+                    gsap.ticker.add((time) => {
+                        lenis.raf(time * 1000);
+                    });
+                    gsap.ticker.lagSmoothing(0);
+                }
+            } catch (e) {
+                console.warn("Lenis init warning:", e);
+            }
 
-            // Hide loader completely and initialize reveals
+            // Hide loader completely and ensure nav elements are fully visible and unrestrained
             gsap.set("#intro-loader", { display: "none" });
+            gsap.set(".nav__link, .nav__icon, .nav__list li, .nav__logo", { clearProps: "opacity,transform,visibility" });
             runProfessionLoop();
             initScrollReveals();
         }
@@ -241,7 +253,7 @@ const finishIntro = () => {
         .to("#particle-canvas", { opacity: 0.75, duration: 1.8, ease: "power2.out" }, "<")
         .fromTo(".home__image .blob-animate", { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.6, ease: "power2.out" }, "<")
         .from(".home__perfil", { scale: 0.82, opacity: 0, y: 35, duration: 1.4, ease: "power3.out" }, "-=1.3")
-        .from(".nav__logo, .nav__link", { y: -25, opacity: 0, stagger: 0.06, duration: 0.8, ease: "power2.out" }, "-=1.0")
+        .fromTo(".nav__logo, .nav__link", { y: -20, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.05, duration: 0.7, ease: "power2.out", clearProps: "opacity,transform" }, "-=1.0")
         .from(".home__greeting", { x: -40, opacity: 0, duration: 0.85, ease: "power2.out" }, "-=0.8")
         .from(".home__name", { y: 40, opacity: 0, duration: 1.1, ease: "power3.out" }, "-=0.7")
         .from(".home__social-link", { scale: 0, opacity: 0, stagger: 0.08, duration: 0.6, ease: "back.out(1.6)" }, "-=0.6")
@@ -249,6 +261,16 @@ const finishIntro = () => {
         .from(".home__profession-box", { opacity: 0, y: 20, duration: 0.85, ease: "power2.out" }, "-=0.6")
         .from(".home__cv", { y: 25, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.5");
 };
+
+// Allow user to click/tap anywhere on preloader to enter immediately
+if (introLoader) {
+    introLoader.addEventListener("click", finishIntro);
+}
+
+// Safety fallback for mobile or slow connections
+setTimeout(() => {
+    if (!introComplete) finishIntro();
+}, 4000);
 
 // Handle virtual scroll
 const onVirtualScroll = (e) => {
@@ -269,7 +291,8 @@ const onVirtualScroll = (e) => {
         onUpdate: () => {
             const currentPercent = Math.round(introTl.progress() * 100);
             gsap.to(".intro-loader__progress-bar", { width: `${currentPercent}%`, duration: 0.1 });
-            document.querySelector(".intro-loader__progress-num").textContent = `${currentPercent}%`;
+            const progressEl = document.querySelector(".intro-loader__progress-num");
+            if (progressEl) progressEl.textContent = `${currentPercent}%`;
         },
         onComplete: () => {
             if (virtualProgress >= 1 && !introComplete) {
@@ -291,16 +314,17 @@ const onTouchMove = (e) => {
 
     if (Math.abs(diff) > 8) {
         const direction = diff > 0 ? 1 : -1;
-        virtualProgress = Math.min(Math.max(virtualProgress + direction * 0.08, 0), 1);
+        virtualProgress = Math.min(Math.max(virtualProgress + direction * 0.12, 0), 1);
 
         gsap.to(introTl, {
             progress: virtualProgress,
-            duration: 0.4,
+            duration: 0.35,
             ease: "power1.out",
             onUpdate: () => {
                 const currentPercent = Math.round(introTl.progress() * 100);
                 gsap.to(".intro-loader__progress-bar", { width: `${currentPercent}%`, duration: 0.1 });
-                document.querySelector(".intro-loader__progress-num").textContent = `${currentPercent}%`;
+                const progressEl = document.querySelector(".intro-loader__progress-num");
+                if (progressEl) progressEl.textContent = `${currentPercent}%`;
             },
             onComplete: () => {
                 if (virtualProgress >= 1 && !introComplete) {
