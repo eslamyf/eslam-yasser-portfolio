@@ -88,7 +88,9 @@ app.use((req, res, next) => {
 
 // Serve Static Assets & Uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/assets', express.static(path.join(__dirname, '../client/public/assets')));
 app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
+app.use(express.static(path.join(__dirname, '../client/public')));
 app.use(express.static(path.join(__dirname, '../client')));
 
 // Database Connection & Initial Seeding
@@ -266,6 +268,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
 app.use('/api/testimonials', require('./routes/testimonialRoutes'));
 app.use('/api/experience', require('./routes/experienceRoutes'));
+app.use('/api/experiences', require('./routes/experienceRoutes'));
 app.use('/api/education', require('./routes/educationRoutes'));
 app.use('/api/volunteering', require('./routes/volunteeringRoutes'));
 app.use('/api/certificates', require('./routes/certificateRoutes'));
@@ -275,13 +278,21 @@ app.use('/api/files', require('./routes/fileRoutes'));
 app.use('/api/inquiries', require('./routes/inquiryRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
-// Admin Dashboard route
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/admin.html'));
-});
+// Serve React SPA bundle from client/dist if available
+const clientDistPath = path.join(__dirname, '../client/dist');
+const hasDist = fs.existsSync(clientDistPath);
+if (hasDist) {
+  app.use(express.static(clientDistPath));
+}
 
-// Fallback for single page app
-app.get('/', (req, res) => {
+// Single-page app fallback for all frontend routes (excluding /api and /uploads)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+    return next();
+  }
+  if (hasDist) {
+    return res.sendFile(path.join(clientDistPath, 'index.html'));
+  }
   res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
@@ -294,7 +305,7 @@ app.use((err, req, res, next) => {
 // Start Server (Only when run directly and not in Vercel Serverless environment)
 if (require.main === module && !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 =====================================================
 🚀 Full-Stack Portfolio Server Running!
