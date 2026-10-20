@@ -29,7 +29,7 @@ export const ProjectsSection = () => {
           setProjects(dbProjects);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -59,10 +59,10 @@ export const ProjectsSection = () => {
           span.className = line.startsWith('$')
             ? 'cmd'
             : line.includes('200') || line.includes('201')
-            ? 'ok'
-            : line.includes('403')
-            ? 'err'
-            : 'warn';
+              ? 'ok'
+              : line.includes('403')
+                ? 'err'
+                : 'warn';
           term.appendChild(span);
 
           if (line.startsWith('$')) {
@@ -119,7 +119,7 @@ export const ProjectsSection = () => {
                   <li key={tIdx}>{tag}</li>
                 ))}
               </ul>
-              <div className="proj__links proj__links--desktop">
+              <div className="proj__links">
                 {proj.codeUrl && (
                   <a
                     href={proj.codeUrl}
@@ -203,31 +203,6 @@ export const ProjectsSection = () => {
                   </div>
                   <pre className="term" ref={termRef} id="term"></pre>
                 </div>
-              )}
-            </div>
-
-            <div className="proj__links proj__links--mobile">
-              {proj.codeUrl && (
-                <a
-                  href={proj.codeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn--ghost btn--sm"
-                >
-                  <IconGithub className="i i--fill" />
-                  <span>Code</span>
-                </a>
-              )}
-              {proj.liveUrl && (
-                <a
-                  href={proj.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn--primary btn--sm"
-                >
-                  <span>Live Demo</span>
-                  <IconArrowUR className="i" />
-                </a>
               )}
             </div>
           </article>
