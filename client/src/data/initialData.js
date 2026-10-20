@@ -194,7 +194,7 @@ export const initialCertificates = [
     credentialId: 'CREATIVA-PY-102',
     tags: ['Python 3', 'OOP', 'Data Structures', 'Scripting'],
     description: 'Completed intensive training in Python core programming, data structures, and script automation.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://creativa.gov.eg/'
   },
   {
@@ -208,7 +208,7 @@ export const initialCertificates = [
     credentialId: 'UC-CPP-OOP-7712',
     tags: ['C++', 'OOP', 'Memory Management', 'Data Structures'],
     description: 'Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://www.udemy.com/'
   },
   {
@@ -222,7 +222,7 @@ export const initialCertificates = [
     credentialId: 'ECPC-QUAL-2026',
     tags: ['Algorithms', 'Data Structures', 'C++', 'Competitive Programming'],
     description: 'Qualified and competed in the Egyptian Collegiate Programming Contest solving complex algorithmic and data structure problems.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://icpc.global/'
   },
   {
@@ -236,7 +236,7 @@ export const initialCertificates = [
     credentialId: 'AWS-PSA-88231',
     tags: ['AWS', 'Cloud Architecture', 'S3', 'EC2', 'Lambda'],
     description: 'Architecting resilient, scalable, and high-performance cloud applications on AWS.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://aws.amazon.com/certification/'
   },
   {
@@ -250,7 +250,7 @@ export const initialCertificates = [
     credentialId: 'NTI-SEC-2025',
     tags: ['Network Defense', 'Vulnerability Assessment', 'Linux'],
     description: 'Completed undergraduate cybersecurity academy covering network defense, vulnerability assessment, and security fundamentals.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://www.nti.sci.eg/'
   },
   {
@@ -264,7 +264,7 @@ export const initialCertificates = [
     credentialId: 'NASA-APPS-2026',
     tags: ['Space Science', 'Data Analysis', 'Python', 'Problem Solving'],
     description: 'Participated in global hackathon solving space science, data analysis, and environmental engineering challenges.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://www.spaceappschallenge.org/'
   },
   {
@@ -278,7 +278,7 @@ export const initialCertificates = [
     credentialId: 'TIEC-INNOV-894',
     tags: ['Tech Entrepreneurship', 'MVP Design', 'Lean Startup'],
     description: 'Completed innovation and tech entrepreneurship training program focused on creating technology ventures and commercialization.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://tiec.gov.eg/'
   },
   {
@@ -292,7 +292,7 @@ export const initialCertificates = [
     credentialId: 'TIEC-LAB-2026',
     tags: ['Lean Model', 'Prototyping', 'Business Strategy', 'Agile'],
     description: 'Participated in an intensive startup incubator program focused on lean methodology, MVP development, business models, and pitching.',
-    img: 'https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png',
+    img: null,
     link: 'https://creativa.gov.eg/'
   }
 ];
