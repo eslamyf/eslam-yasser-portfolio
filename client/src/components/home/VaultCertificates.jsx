@@ -86,7 +86,14 @@ export const VaultCertificates = () => {
     if (mobilePillsRef.current) {
       const activePill = mobilePillsRef.current.querySelector('.vault__mobile-pill.is-active');
       if (activePill) {
-        activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        const container = mobilePillsRef.current;
+        const pillLeft = activePill.offsetLeft;
+        const pillWidth = activePill.offsetWidth;
+        const containerWidth = container.offsetWidth;
+        container.scrollTo({
+          left: Math.max(0, pillLeft - containerWidth / 2 + pillWidth / 2),
+          behavior: 'smooth'
+        });
       }
     }
   }, [activeIdx]);
