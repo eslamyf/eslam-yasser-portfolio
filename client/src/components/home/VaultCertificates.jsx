@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { initialCertificates } from '../../data/initialData';
 import { certificateApi } from '../../api/client';
-import { IconShield, IconArrowUR } from '../../assets/icons';
+import { IconShield, IconArrowUR, IconArrowL, IconArrowR } from '../../assets/icons';
 
 const escapeXml = (unsafe) => {
   return String(unsafe || '')
@@ -61,6 +61,35 @@ export const VaultCertificates = () => {
   const [activeIdx, setActiveIdx] = useState(0);
   const [selectedImg, setSelectedImg] = useState(null);
   const vaultRef = useRef(null);
+  const mobilePillsRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.changedTouches[0].clientX;
+    touchStartY.current = e.changedTouches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    const diffX = touchStartX.current - e.changedTouches[0].clientX;
+    const diffY = touchStartY.current - e.changedTouches[0].clientY;
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > 0) {
+        setActiveIdx((prev) => Math.min(certs.length - 1, prev + 1));
+      } else {
+        setActiveIdx((prev) => Math.max(0, prev - 1));
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (mobilePillsRef.current) {
+      const activePill = mobilePillsRef.current.querySelector('.vault__mobile-pill.is-active');
+      if (activePill) {
+        activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [activeIdx]);
 
   useEffect(() => {
     certificateApi
@@ -105,9 +134,10 @@ export const VaultCertificates = () => {
       .catch(() => {});
   }, []);
 
-  // Update active certificate as user scrolls through the 3D vault
+  // Update active certificate as user scrolls through the 3D vault (desktop)
   useEffect(() => {
     const handleScroll = () => {
+      if (window.innerWidth <= 860) return;
       const vault = vaultRef.current;
       if (!vault || certs.length === 0) return;
       const r = vault.getBoundingClientRect();
@@ -125,6 +155,7 @@ export const VaultCertificates = () => {
 
   const jumpToCert = (idx) => {
     setActiveIdx(idx);
+    if (window.innerWidth <= 860) return;
     const vault = vaultRef.current;
     if (!vault) return;
     const top = vault.getBoundingClientRect().top + window.pageYOffset;
@@ -138,24 +169,76 @@ export const VaultCertificates = () => {
   return (
     <div className="vault" id="vault" ref={vaultRef} style={{ '--n': certs.length }}>
       <div className="vault__pin">
-        <div className="wrap vault__grid">
-          {/* Left Side: Certificates index list */}
-          <ol className="vault__index" id="vaultIndex" aria-label="Certificates">
-            {certs.map((cert, i) => (
-              <li key={cert._id || i} className={activeIdx === i ? 'is-on' : ''}>
-                <button type="button" onClick={() => jumpToCert(i)} data-i={i}>
-                  <span>{String(i + 1).padStart(2, '0')}</span>
-                  <div className="vault__btn-text">
-                    <b>{cert.title}</b>
-                    <small>{cert.org}</small>
-                  </div>
+        <div className="wrap">
+          {/* Mobile Interactive Header & Pills (Hidden on Desktop) */}
+          <div className="vault__mobile-ctrl" aria-label="Certificate Navigation">
+            <div className="vault__mobile-top">
+              <div className="vault__mobile-status">
+                <span className="vault__mobile-counter">
+                  <b>{String(activeIdx + 1).padStart(2, '0')}</b> / {String(certs.length).padStart(2, '0')}
+                </span>
+                <span className="vault__mobile-hint">Swipe or tap to explore</span>
+              </div>
+              <div className="vault__mobile-arrows">
+                <button
+                  type="button"
+                  className="vault__mobile-btn"
+                  onClick={() => setActiveIdx((prev) => Math.max(0, prev - 1))}
+                  disabled={activeIdx === 0}
+                  aria-label="Previous certificate"
+                >
+                  <IconArrowL className="i" />
                 </button>
-              </li>
-            ))}
-          </ol>
+                <button
+                  type="button"
+                  className="vault__mobile-btn"
+                  onClick={() => setActiveIdx((prev) => Math.min(certs.length - 1, prev + 1))}
+                  disabled={activeIdx === certs.length - 1}
+                  aria-label="Next certificate"
+                >
+                  <IconArrowR className="i" />
+                </button>
+              </div>
+            </div>
 
-          {/* Right Side: 3D stage with active certificate card */}
-          <div className="vault__stage" id="vaultStage">
+            <div className="vault__mobile-pills" ref={mobilePillsRef}>
+              {certs.map((cert, i) => (
+                <button
+                  key={cert._id || i}
+                  type="button"
+                  className={`vault__mobile-pill ${activeIdx === i ? 'is-active' : ''}`}
+                  onClick={() => setActiveIdx(i)}
+                >
+                  <span className="pill-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="pill-title">{cert.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="vault__grid">
+            {/* Desktop Left Side: Certificates index list */}
+            <ol className="vault__index" id="vaultIndex" aria-label="Certificates">
+              {certs.map((cert, i) => (
+                <li key={cert._id || i} className={activeIdx === i ? 'is-on' : ''}>
+                  <button type="button" onClick={() => jumpToCert(i)} data-i={i}>
+                    <span>{String(i + 1).padStart(2, '0')}</span>
+                    <div className="vault__btn-text">
+                      <b>{cert.title}</b>
+                      <small>{cert.org}</small>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ol>
+
+            {/* 3D Stage with active certificate card */}
+            <div
+              className="vault__stage"
+              id="vaultStage"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
             {certs.map((cert, i) => {
               const isActive = activeIdx === i;
               const isPast = activeIdx > i;
@@ -237,6 +320,7 @@ export const VaultCertificates = () => {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Lightbox Modal for Certificate Preview */}
       {selectedImg && (
