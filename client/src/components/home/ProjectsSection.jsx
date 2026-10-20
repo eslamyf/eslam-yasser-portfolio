@@ -119,7 +119,7 @@ export const ProjectsSection = () => {
                   <li key={tIdx}>{tag}</li>
                 ))}
               </ul>
-              <div className="proj__links">
+              <div className="proj__links proj__links--desktop">
                 {proj.codeUrl && (
                   <a
                     href={proj.codeUrl}
@@ -203,6 +203,31 @@ export const ProjectsSection = () => {
                   </div>
                   <pre className="term" ref={termRef} id="term"></pre>
                 </div>
+              )}
+            </div>
+
+            <div className="proj__links proj__links--mobile">
+              {proj.codeUrl && (
+                <a
+                  href={proj.codeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn--ghost btn--sm"
+                >
+                  <IconGithub className="i i--fill" />
+                  <span>Code</span>
+                </a>
+              )}
+              {proj.liveUrl && (
+                <a
+                  href={proj.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn--primary btn--sm"
+                >
+                  <span>Live Demo</span>
+                  <IconArrowUR className="i" />
+                </a>
               )}
             </div>
           </article>

@@ -385,8 +385,8 @@ p, h1, h2, h3, h4, h5, h6, span, a, button {
 .proj h3 { margin-top: 1rem; font-family: var(--font-display); font-weight: 800; font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1; letter-spacing: -0.04em; }
 .proj__sub { margin-top: 0.5rem; color: hsl(var(--accent)); font-weight: 600; }
 .proj__desc { margin: 1.1rem 0 1.4rem; color: var(--mut); max-width: 52ch; }
-.proj .tags li { border-color: hsl(var(--accent) / 0.25); }
 .proj__links { display: flex; gap: 0.7rem; margin-top: 1.6rem; }
+.proj__links--mobile { display: none; }
 
 /* mockups */
 .mock { width: 100%; border-radius: 20px; border: 1px solid var(--line); background: #0a1322; box-shadow: 0 30px 70px -25px rgba(0, 0, 0, 0.85), 0 0 80px -30px hsl(var(--accent) / 0.55);
@@ -931,8 +931,154 @@ p, h1, h2, h3, h4, h5, h6, span, a, button {
   .xs { --s: min(75vw, 320px); }
   .xs__stage { min-height: calc(var(--s) * 1.5); overflow: hidden; width: 100%; max-width: 100%; }
   .js:not(.no-motion) .xs__item:not(.is-on) { display: none; }
-  .proj { position: relative; top: auto; grid-template-columns: 1fr; min-height: 0; transform: none !important; filter: none !important; width: 100%; max-width: 100%; }
-  .proj__shot { order: -1; width: 100%; max-width: 100%; overflow: hidden; }
+
+  /* Premium Mobile Project Cards */
+  .stack { display: flex; flex-direction: column; gap: 2.2rem; }
+  .proj {
+    position: relative;
+    top: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    transform: none !important;
+    filter: none !important;
+    width: 100%;
+    max-width: 100%;
+    padding: 1.6rem 1.25rem;
+    border-radius: 28px;
+    margin-bottom: 0;
+    border: 1px solid hsl(var(--accent) / 0.35);
+    background: linear-gradient(160deg, hsl(var(--accent) / 0.12), rgb(var(--ov2) / 0.96) 42%);
+    box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.7);
+  }
+  .proj__info {
+    width: 100%;
+  }
+  .proj__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.8rem;
+  }
+  .proj__no {
+    font-size: 2.4rem;
+    line-height: 1;
+    -webkit-text-stroke: 1.2px hsl(var(--accent));
+  }
+  .proj__type {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .proj h3 {
+    margin-top: 0.7rem;
+    font-size: clamp(1.4rem, 5.5vw, 1.85rem);
+    line-height: 1.2;
+  }
+  .proj__sub {
+    margin-top: 0.35rem;
+    font-size: 0.88rem;
+    color: hsl(var(--accent));
+    font-weight: 600;
+  }
+  .proj__desc {
+    margin: 0.75rem 0 1rem;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--mut);
+    max-width: 100%;
+  }
+  .proj .tags {
+    gap: 0.45rem;
+  }
+  .proj .tags li {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.65rem;
+  }
+  .proj__links--desktop {
+    display: none;
+  }
+
+  /* Mockup Showcase in the Middle */
+  .proj__shot {
+    order: 0;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 1.2rem;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Phone Mockup on Mobile - Compact & Sharp */
+  .mock--phone {
+    padding: 0.4rem 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .phone {
+    width: min(100%, 220px);
+    aspect-ratio: auto;
+    height: 375px;
+    padding: 28px 12px 12px;
+    border-radius: 28px;
+    border-width: 5px;
+    gap: 8px;
+    animation: none;
+    box-shadow: 0 16px 40px -15px rgba(0, 0, 0, 0.8), 0 0 50px -20px hsl(var(--accent) / 0.45);
+  }
+  .phone__notch {
+    width: 60px;
+    height: 14px;
+    margin-left: -30px;
+    top: 6px;
+  }
+  .phone__top { font-size: 0.65rem; }
+  .phone__top b { font-size: 0.72rem; }
+  .phone__top i { width: 18px; height: 18px; font-size: 0.6rem; }
+  .phone__chips { gap: 4px; }
+  .phone__chips em { font-size: 0.58rem; padding: 0.2rem 0.5rem; }
+  .phone__item { padding: 6px; gap: 8px; }
+  .phone__item s { width: 32px; height: 32px; border-radius: 8px; }
+  .phone__item p { font-size: 0.7rem; }
+  .phone__item small { font-size: 0.58rem; }
+  .phone__item b { width: 20px; height: 20px; font-size: 0.8rem; }
+  .phone__cart { padding: 0.55rem; font-size: 0.72rem; border-radius: 10px; }
+
+  /* Web Mockup on Mobile */
+  .mock--web { width: 100%; max-width: 100%; border-radius: 16px; }
+  .mock__bar { height: 30px; padding-inline: 10px; }
+  .mock__bar span { font-size: 0.62rem; padding: 0.1rem 0.6rem; }
+  .mock--web .mock__body { padding: 10px; gap: 8px; }
+  .mock__hero { height: 95px; padding: 10px; border-radius: 10px; }
+  .mock__hero u { font-size: 1.1rem; }
+  .mock__cards { grid-template-columns: 1fr; gap: 6px; }
+  .mock__cards > div { display: flex; align-items: center; gap: 10px; padding: 6px 10px; animation: none; }
+  .mock__cards s { width: 44px; height: 30px; margin-bottom: 0; flex-shrink: 0; }
+
+  /* Terminal Mockup on Mobile */
+  .mock--term { width: 100%; max-width: 100%; border-radius: 16px; }
+  .mock--term .term { min-height: 200px; padding: 10px 12px; font-size: 0.62rem; line-height: 1.6; }
+
+  /* Mobile Bottom Action Bar */
+  .proj__links--mobile {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1.25rem;
+  }
+  .proj__links--mobile .btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
+    border-radius: 14px;
+    min-width: 0;
+  }
 }
 @media (max-width: 760px) {
   .hero-wrap { height: auto; min-height: 100vh; width: 100%; overflow: hidden; }
@@ -963,8 +1109,8 @@ p, h1, h2, h3, h4, h5, h6, span, a, button {
   .svc__panel > div { padding-left: 0; }
   .svc__title { font-size: clamp(1.2rem, 4.5vw, 1.6rem); }
   .tabs { display: flex; width: 100%; } .tab { flex: 1; padding-inline: 0.4rem; font-size: 0.85rem; }
-  .proj { padding: 1.25rem 0.9rem; border-radius: 20px; margin-bottom: 1.5rem; }
-  .proj h3 { font-size: clamp(1.35rem, 5vw, 1.8rem); line-height: 1.15; }
+  .proj { padding: 1.35rem 1rem; border-radius: 24px; }
+  .proj h3 { font-size: clamp(1.3rem, 5vw, 1.7rem); line-height: 1.15; }
   .proj__links { flex-wrap: wrap; gap: 0.5rem; }
   .proj__links .btn { flex: 1 1 auto; }
   .mock--web .mock__cards { grid-template-columns: 1fr; gap: 8px; }
