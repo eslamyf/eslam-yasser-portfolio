@@ -11,7 +11,9 @@ const mongoose = require('mongoose');
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
-const workJsonPath = path.join(__dirname, '../../client/assets/data/work.json');
+const candidateWorkPath1 = path.join(__dirname, '../../client/public/assets/data/work.json');
+const candidateWorkPath2 = path.join(__dirname, '../../client/assets/data/work.json');
+const workJsonPath = fs.existsSync(candidateWorkPath1) ? candidateWorkPath1 : candidateWorkPath2;
 
 const getWorkData = () => {
   if (fs.existsSync(workJsonPath)) {
@@ -124,6 +126,16 @@ const handleCreateCertificate = async (req, res) => {
           }).catch(() => {});
         }
       }
+    }
+
+    data.name = (data.name || data.title || '').trim();
+    data.issuer = (data.issuer || data.organization || data.subtitle || 'Verified Institution').trim();
+    data.issueDate = (data.issueDate || data.year || new Date().getFullYear().toString()).trim();
+    if (data.credentialUrl && !data.link) data.link = data.credentialUrl;
+    if (data.link && !data.credentialUrl) data.credentialUrl = data.link;
+
+    if (!data.name) {
+      return res.status(400).json({ success: false, message: 'Certificate title/name is required' });
     }
 
     if (data.pdfFile && isImgUrl(data.pdfFile) && !data.image) {
@@ -265,7 +277,7 @@ router.put('/admin/certificates/:id', authMiddleware, uploadFields, handleUpdate
 const handleDeleteCertificate = async (req, res) => {
   try {
     const id = req.params.id;
-    if (isMongoReady()) {
+    if (isMongoReady() && mongoose.Types.ObjectId.isValid(id)) {
       const item = await Certificate.findByIdAndDelete(id);
       if (item) {
         return res.json({ success: true, message: 'Certificate deleted successfully' });

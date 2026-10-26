@@ -102,13 +102,13 @@ export const AdminLoginPage = () => {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1.25rem' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--mut)', marginBottom: '0.5rem' }}>
-              Email Address
+              Email Address or Username
             </label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@eslamyasser.com"
+              placeholder="eslam9076460@gmail.com or admin"
               required
               style={{
                 width: '100%',

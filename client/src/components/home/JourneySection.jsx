@@ -128,7 +128,7 @@ export const JourneySection = () => {
               <li key={item._id || i} className="tl">
                 <span className="tl__dot"></span>
                 <div className="tl__card">
-                  <time>{item.time || item.period || 'Present'}</time>
+                  <time>{item.time || item.period || (item.startDate ? `${item.startDate} — ${item.endDate || 'Present'}` : 'Present')}</time>
                   <h3>{item.title || item.role}</h3>
                   <p className="tl__org">{item.org || item.organization}</p>
                   <p>{item.desc || item.description}</p>

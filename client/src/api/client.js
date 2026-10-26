@@ -97,3 +97,9 @@ export const analyticsApi = {
   track: (eventData) => api.post('/analytics/track', eventData),
   getStats: () => api.get('/analytics/stats')
 };
+
+export const authApi = {
+  login: (data) => api.post('/auth/login', data),
+  getMe: () => api.get('/auth/me'),
+  changePassword: (data) => api.post('/auth/change-password', data)
+};

@@ -9,7 +9,9 @@ const { protect } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 const { uploadToCloudinary, isCloudinaryConfigured, deleteFromCloudinary, extractPublicId } = require('../config/cloudinary');
 
-const jsonPath = path.join(__dirname, '../../client/assets/data/projects.json');
+const candidateProjPath1 = path.join(__dirname, '../../client/public/assets/data/projects.json');
+const candidateProjPath2 = path.join(__dirname, '../../client/assets/data/projects.json');
+const jsonPath = fs.existsSync(candidateProjPath1) ? candidateProjPath1 : candidateProjPath2;
 
 // Helper to read fallback JSON projects
 const getFallbackProjects = () => {
@@ -159,6 +161,9 @@ const handleCreateProject = async (req, res) => {
 
     const mainCover = coverImage || image || 'assets/img/backend_api.webp';
 
+    const projectLiveUrl = demo || req.body.liveUrl || '';
+    const projectGithubUrl = github || req.body.githubUrl || '';
+
     let newProjectData = {
       title,
       category,
@@ -170,8 +175,10 @@ const handleCreateProject = async (req, res) => {
       gallery: parsedGallery,
       images: parsedGallery,
       date: date || new Date().getFullYear().toString(),
-      demo: demo || '',
-      github: github || '',
+      demo: projectLiveUrl,
+      liveUrl: projectLiveUrl,
+      github: projectGithubUrl,
+      githubUrl: projectGithubUrl,
       technologies: parsedTech,
       isFeatured: isFeatured === true || isFeatured === 'true',
       status: status || 'published',
@@ -236,6 +243,10 @@ const handleUpdateProject = async (req, res) => {
         }
         if (req.body.coverImage) req.body.image = req.body.coverImage;
         if (req.body.image && !req.body.coverImage) req.body.coverImage = req.body.image;
+        if (req.body.liveUrl && !req.body.demo) req.body.demo = req.body.liveUrl;
+        if (req.body.demo && !req.body.liveUrl) req.body.liveUrl = req.body.demo;
+        if (req.body.githubUrl && !req.body.github) req.body.github = req.body.githubUrl;
+        if (req.body.github && !req.body.githubUrl) req.body.githubUrl = req.body.github;
 
         project = await Project.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
         return res.json({
@@ -276,7 +287,7 @@ const handleDeleteProject = async (req, res) => {
   try {
     const id = req.params.id;
 
-    if (isMongoReady()) {
+    if (isMongoReady() && mongoose.Types.ObjectId.isValid(id)) {
       const project = await Project.findById(id);
       if (project) {
         await project.deleteOne();

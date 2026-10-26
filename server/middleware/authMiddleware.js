@@ -2,14 +2,14 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-const DEFAULT_JWT_SECRET = '6e66d8f540eaf88fbbf38ac4f38a3465c56fd4e9473fafb116f92772b6f26cdd31fb56c088c755ca8455e678914a4f57342e79f1775268dc57e6b31e605bf764';
+const getJwtSecret = () => process.env.JWT_SECRET || 'dev_jwt_secret_configure_in_env_for_production';
 
 const protect = async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      const secret = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
+      const secret = getJwtSecret();
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, secret);
 

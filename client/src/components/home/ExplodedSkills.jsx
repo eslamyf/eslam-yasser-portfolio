@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { initialStackLayers, initialBentoSkills } from '../../data/initialData';
+import { skillApi } from '../../api/client';
 import { IconCode, IconServer, IconCap, IconShield } from '../../assets/icons';
 
 export const ExplodedSkills = () => {
@@ -7,6 +8,41 @@ export const ExplodedSkills = () => {
   const xsSceneRef = useRef(null);
   const [activeLayer, setActiveLayer] = useState(0);
   const [filter, setFilter] = useState('all');
+  const [bentoSkills, setBentoSkills] = useState(initialBentoSkills);
+
+  useEffect(() => {
+    skillApi.getAll().then((res) => {
+      if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        const dbSkills = res.data.data;
+        const updated = {
+          frontend: { ...initialBentoSkills.frontend, skills: [...initialBentoSkills.frontend.skills] },
+          backend: { ...initialBentoSkills.backend, skills: [...initialBentoSkills.backend.skills] },
+          foundations: { ...initialBentoSkills.foundations, skills: [...initialBentoSkills.foundations.skills] },
+          workflow: { ...initialBentoSkills.workflow, skills: [...initialBentoSkills.workflow.skills] }
+        };
+
+        dbSkills.forEach((s) => {
+          const cat = (s.category || '').toLowerCase();
+          const skillObj = { name: s.name, core: (s.level || '').toLowerCase() === 'advanced' || (s.proficiency && s.proficiency >= 90) };
+          if (cat === 'frontend') {
+            if (!updated.frontend.skills.some((x) => x.name.toLowerCase() === s.name.toLowerCase())) {
+              updated.frontend.skills.push(skillObj);
+            }
+          } else if (cat === 'backend') {
+            if (!updated.backend.skills.some((x) => x.name.toLowerCase() === s.name.toLowerCase())) {
+              updated.backend.skills.push(skillObj);
+            }
+          } else {
+            if (!updated.workflow.skills.some((x) => x.name.toLowerCase() === s.name.toLowerCase()) &&
+                !updated.foundations.skills.some((x) => x.name.toLowerCase() === s.name.toLowerCase())) {
+              updated.workflow.skills.push(skillObj);
+            }
+          }
+        });
+        setBentoSkills(updated);
+      }
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -137,10 +173,10 @@ export const ExplodedSkills = () => {
             data-group="frontend"
           >
             <h3>
-              <IconCode className="i" /> {initialBentoSkills.frontend.title}
+              <IconCode className="i" /> {bentoSkills.frontend.title}
             </h3>
             <ul className="chips">
-              {initialBentoSkills.frontend.skills.map((s, i) => (
+              {bentoSkills.frontend.skills.map((s, i) => (
                 <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
                   {s.name}
                 </li>
@@ -153,10 +189,10 @@ export const ExplodedSkills = () => {
             data-group="backend"
           >
             <h3>
-              <IconServer className="i" /> {initialBentoSkills.backend.title}
+              <IconServer className="i" /> {bentoSkills.backend.title}
             </h3>
             <ul className="chips">
-              {initialBentoSkills.backend.skills.map((s, i) => (
+              {bentoSkills.backend.skills.map((s, i) => (
                 <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
                   {s.name}
                 </li>
@@ -169,10 +205,10 @@ export const ExplodedSkills = () => {
             data-group="tools"
           >
             <h3>
-              <IconCap className="i" /> {initialBentoSkills.foundations.title}
+              <IconCap className="i" /> {bentoSkills.foundations.title}
             </h3>
             <ul className="chips">
-              {initialBentoSkills.foundations.skills.map((s, i) => (
+              {bentoSkills.foundations.skills.map((s, i) => (
                 <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
                   {s.name}
                 </li>
@@ -185,10 +221,10 @@ export const ExplodedSkills = () => {
             data-group="tools"
           >
             <h3>
-              <IconShield className="i" /> {initialBentoSkills.workflow.title}
+              <IconShield className="i" /> {bentoSkills.workflow.title}
             </h3>
             <ul className="chips">
-              {initialBentoSkills.workflow.skills.map((s, i) => (
+              {bentoSkills.workflow.skills.map((s, i) => (
                 <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
                   {s.name}
                 </li>

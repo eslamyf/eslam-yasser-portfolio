@@ -36,13 +36,17 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = async (identifier, password) => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post('/api/auth/login', {
+        username: identifier,
+        email: identifier,
+        password
+      });
       if (res.data?.success && res.data?.token) {
         setToken(res.data.token);
-        setUser(res.data.user || { email });
+        setUser(res.data.user || { username: identifier, email: identifier });
         localStorage.setItem('adminToken', res.data.token);
         if (res.data.user) {
           localStorage.setItem('adminUser', JSON.stringify(res.data.user));

@@ -1,42 +1,50 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const { protect } = require('../middleware/authMiddleware');
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
-const DEFAULT_JWT_SECRET = '6e66d8f540eaf88fbbf38ac4f38a3465c56fd4e9473fafb116f92772b6f26cdd31fb56c088c755ca8455e678914a4f57342e79f1775268dc57e6b31e605bf764';
+const getJwtSecret = () => process.env.JWT_SECRET || 'dev_jwt_secret_configure_in_env_for_production';
 
 // Generate JWT Token
 const generateToken = (id) => {
-  const secret = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
-  return jwt.sign({ id }, secret, {
+  return jwt.sign({ id }, getJwtSecret(), {
     expiresIn: '7d'
   });
 };
 
 const handleLogin = async (req, res) => {
   try {
-    const { username, password } = req.body || {};
+    const rawIdentifier = (req.body.username || req.body.email || '').trim();
+    const password = (req.body.password || '').trim();
 
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Please enter username and password' });
+    if (!rawIdentifier || !password) {
+      return res.status(400).json({ success: false, message: 'Please enter username/email and password' });
     }
 
-    const envAdminUsername = process.env.ADMIN_USERNAME || 'admin';
-    const envAdminPassword = process.env.ADMIN_PASSWORD || 'iLGCxZeBBg6eJE6I';
+    const envAdminEmail = (process.env.ADMIN_EMAIL || 'eslam9076460@gmail.com').toLowerCase().trim();
+    const envAdminUsername = (process.env.ADMIN_USERNAME || 'admin').toLowerCase().trim();
+    const lowerIdentifier = rawIdentifier.toLowerCase();
 
-    // 1. Try Mongo DB authentication if connected
+    // 1. Try MongoDB authentication if connected
     if (isMongoReady()) {
       try {
-        const user = await User.findOne({ username }).maxTimeMS(3000);
+        const user = await User.findOne({
+          $or: [
+            { email: lowerIdentifier },
+            { username: rawIdentifier }
+          ]
+        }).maxTimeMS(3000);
+
         if (user && (await user.matchPassword(password))) {
           return res.json({
             success: true,
             token: generateToken(user._id),
-            user: { id: user._id, username: user.username, role: user.role }
+            user: { id: user._id, username: user.username, email: user.email, role: user.role }
           });
         }
       } catch (dbErr) {
@@ -44,18 +52,31 @@ const handleLogin = async (req, res) => {
       }
     }
 
-    // 2. Fallback authentication check using configured environment variables
-    if (username === envAdminUsername && password === envAdminPassword) {
-      return res.json({
-        success: true,
-        token: generateToken('fallback-admin-id-123'),
-        user: { id: 'fallback-admin-id-123', username: envAdminUsername, role: 'admin' }
-      });
+    // 2. Fallback authentication using secure ADMIN_PASSWORD_HASH or ADMIN_PASSWORD from environment variables
+    const isIdentifierValid = lowerIdentifier === envAdminEmail || lowerIdentifier === envAdminUsername || lowerIdentifier === 'admin';
+
+    if (isIdentifierValid) {
+      if (process.env.ADMIN_PASSWORD_HASH) {
+        const isHashMatch = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
+        if (isHashMatch) {
+          return res.json({
+            success: true,
+            token: generateToken('fallback-admin-id-123'),
+            user: { id: 'fallback-admin-id-123', username: process.env.ADMIN_USERNAME || 'admin', email: envAdminEmail, role: 'admin' }
+          });
+        }
+      } else if (process.env.ADMIN_PASSWORD && password === process.env.ADMIN_PASSWORD) {
+        return res.json({
+          success: true,
+          token: generateToken('fallback-admin-id-123'),
+          user: { id: 'fallback-admin-id-123', username: process.env.ADMIN_USERNAME || 'admin', email: envAdminEmail, role: 'admin' }
+        });
+      }
     }
 
     return res.status(401).json({
       success: false,
-      message: 'Invalid username or password (اسم المستخدم أو كلمة المرور غير صحيحة)'
+      message: 'Invalid email/username or password (اسم المستخدم أو كلمة المرور غير صحيحة)'
     });
   } catch (error) {
     console.error('Login error:', error);

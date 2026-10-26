@@ -11,7 +11,9 @@ const mongoose = require('mongoose');
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
-const workJsonPath = path.join(__dirname, '../../client/assets/data/work.json');
+const candidateWorkPath1 = path.join(__dirname, '../../client/public/assets/data/work.json');
+const candidateWorkPath2 = path.join(__dirname, '../../client/assets/data/work.json');
+const workJsonPath = fs.existsSync(candidateWorkPath1) ? candidateWorkPath1 : candidateWorkPath2;
 
 const getWorkData = () => {
   if (fs.existsSync(workJsonPath)) {
@@ -113,6 +115,15 @@ const handleCreateVolunteering = async (req, res) => {
           }
         }
       }
+    }
+
+    data.role = (data.role || data.title || '').trim();
+    data.organization = (data.organization || data.subtitle || 'Community').trim();
+    data.startDate = (data.startDate || (data.year ? data.year.split('-')[0].trim() : '2026')).trim();
+    data.endDate = (data.endDate || (data.year && data.year.includes('-') ? data.year.split('-')[1].trim() : 'Present')).trim();
+
+    if (!data.role) {
+      return res.status(400).json({ success: false, message: 'Volunteering role/title is required' });
     }
 
     if (isMongoReady()) {
@@ -236,7 +247,7 @@ router.put('/admin/volunteering/:id', authMiddleware, uploadFields, handleUpdate
 const handleDeleteVolunteering = async (req, res) => {
   try {
     const id = req.params.id;
-    if (isMongoReady()) {
+    if (isMongoReady() && mongoose.Types.ObjectId.isValid(id)) {
       const item = await Volunteering.findByIdAndDelete(id);
       if (item) {
         return res.json({ success: true, message: 'Volunteering entry deleted successfully' });

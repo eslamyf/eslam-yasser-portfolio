@@ -42,7 +42,8 @@ const allowedOrigins = [
   'http://localhost:5501',
   'http://127.0.0.1:5500',
   'http://127.0.0.1:5501',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://localhost:5173'
 ];
 
 if (process.env.ALLOWED_ORIGINS && process.env.ALLOWED_ORIGINS !== '*') {
@@ -72,6 +73,17 @@ const globalApiLimiter = rateLimit({
   message: { success: false, message: 'Too many requests from this IP. Please try again after 15 minutes.' }
 });
 app.use('/api', globalApiLimiter);
+
+// 4. Strict Rate Limiter for Authentication to prevent brute-force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many login attempts. Please wait 15 minutes.' }
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/admin/login', authLimiter);
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -116,18 +128,36 @@ app.use(async (req, res, next) => {
 // Helper function to seed initial admin user & default records from JSON files
 async function seedInitialData() {
   try {
-    // 1. Seed Admin User
-    const adminCount = await User.countDocuments();
-    if (adminCount === 0) {
-      const defaultUsername = process.env.ADMIN_USERNAME || 'admin';
-      const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
-      const admin = new User({
-        username: defaultUsername,
-        password: defaultPassword,
+    // 1. Seed / Ensure Admin User
+    const adminEmail = (process.env.ADMIN_EMAIL || 'eslam9076460@gmail.com').toLowerCase().trim();
+    const adminUsername = (process.env.ADMIN_USERNAME || 'admin').trim();
+    let admin = await User.findOne({
+      $or: [{ email: adminEmail }, { username: adminUsername }]
+    });
+
+    if (!admin) {
+      admin = new User({
+        username: adminUsername,
+        email: adminEmail,
+        password: process.env.ADMIN_PASSWORD_HASH || '$2a$12$KzXzX/zQHH/tk58GGR7nKOAH9u./VNl1T3PdTlXSocn8CrylIQJW.',
         role: 'admin'
       });
       await admin.save();
-      console.log(`[Seed] Default Admin Created -> Username: "${defaultUsername}", Password: "${defaultPassword}"`);
+      console.log(`[Seed] Admin User Created -> Username: "${adminUsername}", Email: "${adminEmail}"`);
+    } else {
+      let needsSave = false;
+      if (!admin.email) {
+        admin.email = adminEmail;
+        needsSave = true;
+      }
+      if (process.env.ADMIN_PASSWORD_HASH && admin.password !== process.env.ADMIN_PASSWORD_HASH) {
+        admin.password = process.env.ADMIN_PASSWORD_HASH;
+        needsSave = true;
+      }
+      if (needsSave) {
+        await admin.save();
+        console.log(`[Seed] Admin User Updated -> Email & Hash synchronized.`);
+      }
     }
 
     // 2. Seed Projects
@@ -256,6 +286,28 @@ async function seedInitialData() {
         }
         console.log('[Seed] Imported Testimonials records.');
       }
+    }
+
+    // 6. Seed Skills if empty
+    if (await Skill.countDocuments() === 0) {
+      const defaultSkills = [
+        { name: 'Angular', category: 'frontend', level: 'Advanced', proficiency: 90, icon: 'ri-angularjs-line', orderIndex: 1 },
+        { name: 'TypeScript', category: 'frontend', level: 'Advanced', proficiency: 88, icon: 'ri-javascript-line', orderIndex: 2 },
+        { name: 'JavaScript', category: 'frontend', level: 'Advanced', proficiency: 92, icon: 'ri-javascript-fill', orderIndex: 3 },
+        { name: 'HTML5 & CSS3', category: 'frontend', level: 'Advanced', proficiency: 95, icon: 'ri-html5-line', orderIndex: 4 },
+        { name: 'Bootstrap & Tailwind', category: 'frontend', level: 'Intermediate', proficiency: 85, icon: 'ri-layout-line', orderIndex: 5 },
+        { name: 'Node.js', category: 'backend', level: 'Advanced', proficiency: 92, icon: 'ri-nodejs-line', orderIndex: 6 },
+        { name: 'Express.js', category: 'backend', level: 'Advanced', proficiency: 90, icon: 'ri-server-line', orderIndex: 7 },
+        { name: 'MongoDB', category: 'backend', level: 'Advanced', proficiency: 88, icon: 'ri-database-2-line', orderIndex: 8 },
+        { name: 'REST APIs & JWT', category: 'backend', level: 'Advanced', proficiency: 90, icon: 'ri-shield-keyhole-line', orderIndex: 9 },
+        { name: 'Data Structures & Algorithms', category: 'tools', level: 'Advanced', proficiency: 88, icon: 'ri-git-branch-line', orderIndex: 10 },
+        { name: 'C++ & OOP', category: 'tools', level: 'Advanced', proficiency: 85, icon: 'ri-terminal-box-line', orderIndex: 11 },
+        { name: 'Python', category: 'tools', level: 'Intermediate', proficiency: 80, icon: 'ri-code-box-line', orderIndex: 12 },
+        { name: 'Git & GitHub', category: 'tools', level: 'Advanced', proficiency: 90, icon: 'ri-github-fill', orderIndex: 13 },
+        { name: 'Cloudinary CDN', category: 'tools', level: 'Advanced', proficiency: 85, icon: 'ri-cloud-line', orderIndex: 14 }
+      ];
+      await Skill.insertMany(defaultSkills);
+      console.log('[Seed] Imported default Skills records.');
     }
 
   } catch (error) {

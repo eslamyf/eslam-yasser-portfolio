@@ -22,8 +22,8 @@ export const ProjectsSection = () => {
             subtitle: p.subtitle || p.shortDescription || '',
             description: p.description,
             tags: p.technologies || p.tags || ['Angular', 'Node.js', 'MongoDB'],
-            codeUrl: p.githubUrl || 'https://github.com/eslamyasser',
-            liveUrl: p.liveUrl || '',
+            codeUrl: p.githubUrl || p.github || 'https://github.com/eslamyasser',
+            liveUrl: p.liveUrl || p.demo || '',
             mockType: idx === 0 ? 'web' : idx === 1 ? 'phone' : 'term'
           }));
           setProjects(dbProjects);

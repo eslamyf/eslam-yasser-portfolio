@@ -33,20 +33,29 @@ router.get('/', async (req, res) => {
 // Admin Routes - Create Skill
 const handleCreateSkill = async (req, res) => {
   try {
+    const payload = {
+      name: req.body.name,
+      category: (req.body.category || 'backend').toString().trim().toLowerCase(),
+      level: req.body.level || 'Advanced',
+      proficiency: req.body.proficiency ? parseInt(req.body.proficiency) : 85,
+      icon: req.body.icon || req.body.iconClass || 'ri-code-line',
+      status: req.body.status || 'published',
+      orderIndex: req.body.orderIndex ? parseInt(req.body.orderIndex) : 1
+    };
+
+    if (!payload.name) {
+      return res.status(400).json({ success: false, message: 'Skill name is required' });
+    }
+
     if (isMongoReady()) {
-      const item = new Skill(req.body);
+      const item = new Skill(payload);
       await item.save();
       return res.json({ success: true, message: 'Skill added successfully', data: item });
     }
 
     const newSkill = {
       _id: `skill-${Date.now()}`,
-      name: req.body.name,
-      category: req.body.category || 'Backend',
-      proficiency: req.body.proficiency ? parseInt(req.body.proficiency) : 90,
-      iconClass: req.body.iconClass || 'ri-code-line',
-      active: true,
-      orderIndex: fallbackSkills.length + 1
+      ...payload
     };
     fallbackSkills.push(newSkill);
     res.json({ success: true, message: 'Skill added successfully', data: newSkill });
@@ -86,7 +95,7 @@ router.put('/admin/skills/:id', authMiddleware, handleUpdateSkill);
 const handleDeleteSkill = async (req, res) => {
   try {
     const id = req.params.id;
-    if (isMongoReady()) {
+    if (isMongoReady() && mongoose.Types.ObjectId.isValid(id)) {
       await Skill.findByIdAndDelete(id);
     }
     fallbackSkills = fallbackSkills.filter(s => s._id !== id);
