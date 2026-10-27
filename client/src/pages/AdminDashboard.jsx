@@ -23,6 +23,7 @@ import {
   IconKey,
   IconCheck
 } from '../assets/icons';
+import { Logo } from '../assets/Logo';
 
 export const AdminDashboard = () => {
   const { token, user, logout, isAuthenticated } = useAuth();
@@ -407,18 +408,7 @@ export const AdminDashboard = () => {
         zIndex: 50
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '42px',
-            height: '42px',
-            borderRadius: '12px',
-            background: 'hsl(var(--brand) / 0.15)',
-            color: 'hsl(var(--brand))'
-          }}>
-            <IconShield className="i" />
-          </span>
+          <Logo size={42} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Eslam Yasser · CMS</h1>

@@ -167,7 +167,7 @@ export const ExplodedSkills = () => {
           </button>
         </div>
 
-        <div className="bento" id="bento">
+        <div className="bento is-in" id="bento">
           <div
             className={`bento__cell bento__cell--lg ${filter !== 'all' && filter !== 'frontend' ? 'is-dim' : ''}`}
             data-group="frontend"

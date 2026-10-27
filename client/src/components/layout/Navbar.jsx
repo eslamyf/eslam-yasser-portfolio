@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { IconSun, IconMoon } from '../../assets/icons';
+import { Logo } from '../../assets/Logo';
 
 export const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
@@ -69,7 +70,7 @@ export const Navbar = () => {
     <>
       <header className={`nav ${isScrolled ? 'is-scrolled' : ''}`} id="nav">
         <a href="#home" onClick={(e) => scrollTo(e, 'home')} className="nav__logo" aria-label="Eslam Yasser — home">
-          <span className="nav__mark">E</span>
+          <Logo size={36} className="nav__logo-svg" />
           <span className="nav__name">Eslam</span>
         </a>
 

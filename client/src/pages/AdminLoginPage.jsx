@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/layout/Toast';
 import { IconShield, IconArrowL } from '../assets/icons';
+import { Logo } from '../assets/Logo';
 
 export const AdminLoginPage = () => {
   const { login, loading } = useAuth();
@@ -63,18 +64,8 @@ export const AdminLoginPage = () => {
         boxShadow: '0 24px 60px -20px rgba(0,0,0,0.5)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '56px',
-            height: '56px',
-            borderRadius: '16px',
-            background: 'hsl(var(--brand) / 0.15)',
-            color: 'hsl(var(--brand))',
-            marginBottom: '1rem'
-          }}>
-            <IconShield className="i" style={{ width: '28px', height: '28px' }} />
+          <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
+            <Logo size={64} />
           </div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
             Admin Portal

@@ -414,6 +414,16 @@ ol {
   transform: rotate(-12deg) scale(1.08);
 }
 
+.ey-logo-svg {
+  transition: transform 0.4s var(--ease), filter 0.4s var(--ease);
+}
+
+.nav__logo:hover .ey-logo-svg,
+.ey-brand-logo:hover .ey-logo-svg {
+  transform: translateY(-2px) scale(1.06);
+  filter: drop-shadow(0 0 14px rgba(0, 245, 255, 0.65));
+}
+
 .nav__pill {
   position: relative;
   display: flex;
@@ -2265,16 +2275,17 @@ ol {
   box-shadow: 0 0 10px hsl(var(--brand));
 }
 
+.chips .chip-s,
 .js .chips .chip-s {
-  opacity: 0;
-  transform: translateY(14px);
+  opacity: 1;
+  transform: none;
 }
 
 .js .bento.is-in .chips .chip-s {
   opacity: 1;
   transform: none;
   transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), background 0.3s, color 0.3s, border-color 0.3s;
-  transition-delay: calc(var(--k, 0) * 55ms + 0.2s), calc(var(--k, 0) * 55ms + 0.2s), 0s, 0s, 0s;
+  transition-delay: calc(var(--k, 0) * 35ms), calc(var(--k, 0) * 35ms), 0s, 0s, 0s;
 }
 
 /* ---------- Skills · exploded stack ---------- */

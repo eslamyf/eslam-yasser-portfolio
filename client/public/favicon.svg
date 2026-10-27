@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <!-- Deep Cyber Glass Radial Background -->
+    <radialGradient id="fav-bg" cx="50%" cy="25%" r="85%">
+      <stop offset="0%" stop-color="#0d1b33" />
+      <stop offset="60%" stop-color="#070d1a" />
+      <stop offset="100%" stop-color="#03060c" />
+    </radialGradient>
+
+    <!-- Electric Neon Gradients -->
+    <linearGradient id="fav-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5FF" />
+      <stop offset="50%" stop-color="#0072FF" />
+      <stop offset="100%" stop-color="#9d4edd" />
+    </linearGradient>
+
+    <linearGradient id="fav-secondary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="60%" stop-color="#0066ff" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+
+    <linearGradient id="fav-border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5FF" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#0072FF" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#9d4edd" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Neon Glow Filter -->
+    <filter id="fav-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="fav-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#0072FF" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Tile -->
+  <rect x="4" y="4" width="92" height="92" rx="24" fill="url(#fav-bg)" stroke="url(#fav-border)" stroke-width="2" filter="url(#fav-shadow)" />
+
+  <!-- Ambient Glow -->
+  <circle cx="50" cy="50" r="30" fill="#0072FF" opacity="0.15" filter="url(#fav-glow)" />
+
+  <!-- Master Monogram Layer -->
+  <g filter="url(#fav-glow)">
+    <!-- Letter 'E' Path -->
+    <path
+      d="M 46 28 H 27 C 23.5 28 21 30.5 21 34 V 66 C 21 69.5 23.5 72 27 72 H 46"
+      stroke="url(#fav-primary)"
+      stroke-width="7.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+    <!-- 'E' Middle Cyber Bar -->
+    <path
+      d="M 23 50 H 41"
+      stroke="url(#fav-primary)"
+      stroke-width="7.5"
+      stroke-linecap="round"
+      fill="none"
+    />
+
+    <!-- Letter 'Y' Upper Branch -->
+    <path
+      d="M 54 28 L 66 48 L 78 28"
+      stroke="url(#fav-secondary)"
+      stroke-width="7.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+    <!-- Letter 'Y' Stem -->
+    <path
+      d="M 66 48 V 72"
+      stroke="url(#fav-secondary)"
+      stroke-width="7.5"
+      stroke-linecap="round"
+      fill="none"
+    />
+
+    <!-- Terminal Dot Accent -->
+    <circle cx="78" cy="72" r="3.5" fill="#00F5FF" />
+
+    <!-- Sparkle Diamond -->
+    <path
+      d="M 83 18 L 84.5 22.5 L 89 24 L 84.5 25.5 L 83 30 L 81.5 25.5 L 77 24 L 81.5 22.5 Z"
+      fill="#00F5FF"
+    />
+  </g>
+</svg>
