@@ -1,253 +1,235 @@
 {
-    "experience": [
-        {
-            "_id": "exp-1789326218367",
-            "title": "Full-Stack Web Developer",
-            "subtitle": "Freelance & Solutions",
-            "company": "Freelance",
-            "year": "2026 - Present",
-            "startDate": "2026",
-            "endDate": "Present",
-            "description": "Building scalable web solutions and RESTful backend architectures.",
-            "orderIndex": 1
-        },
-        {
-            "title": "MEAN Stack Web Developer Trainee",
-            "subtitle": "NTI - Creativa Innovation Hubs (DEY Initiative), Egypt - Qena",
-            "year": "January 2026 - May 2026",
-            "description": "Completed the intensive 'MEAN Stack: Web Developer Career Accelerator' program. Trained practically on building scalable full-stack applications using MongoDB, Express.js, Angular, and Node.js. Gained hands-on experience in RESTful APIs, asynchronous programming, and responsive UI design.",
-            "link": "https://www.nti.sci.eg/"
-        },
-        {
-            "title": "Web Development Instructor",
-            "subtitle": "Support Web Program, Qena, Egypt",
-            "year": "June 2026 - Present",
-            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples.",
-            "link": ""
-        }
-    ],
-    "education": [
-        {
-            "_id": "edu-1789326218372",
-            "title": "B.Sc. in Computer Science",
-            "degree": "B.Sc. in Computer Science",
-            "subtitle": "Test University",
-            "institution": "Test University",
-            "year": "2024 - 2028",
-            "startDate": "2024",
-            "endDate": "2028",
-            "description": "",
-            "orderIndex": 2
-        },
-        {
-            "title": "Bachelor’s Degree in Computers and Information",
-            "subtitle": "Qena University, Egypt - Qena",
-            "year": "September 2024 - June 2028",
-            "description": "Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming (C++), Database Systems, Software Engineering, Operating Systems, Computer Networks, Web Development, and Problem Solving Techniques.",
-            "link": ""
-        }
-    ],
-    "volunteering": [
-        {
-            "_id": "vol-1789326218375",
-            "title": "Community Mentor",
-            "role": "Community Mentor",
-            "subtitle": "Tech Community",
-            "organization": "Tech Community",
-            "year": "2026 - Present",
-            "startDate": "2026",
-            "endDate": "Present",
-            "description": "",
-            "orderIndex": 4
-        },
-        {
-            "title": "Web Development Instructor",
-            "subtitle": "Support Web Program, Qena, Egypt",
-            "year": "June 2026 - Present",
-            "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples.",
-            "link": ""
-        },
-        {
-            "title": "Head of PR Team",
-            "subtitle": "Students for Egypt - Faculty of Computers and Information",
-            "year": "Present",
-            "description": "Leading public relations team and student communications for the Faculty of Computers and Information.",
-            "link": ""
-        },
-        {
-            "title": "Content Data Collector",
-            "subtitle": "ClassMate Platform",
-            "year": "Present",
-            "description": "Collecting, structuring, and organizing educational data and content resources for the platform.",
-            "link": ""
-        }
-    ],
-    "certificates": [
-        {
-            "title": "Python Programming Fundamentals",
-            "name": "Python Programming Fundamentals",
-            "subtitle": "Creativa TIEC Qena",
-            "issuer": "Creativa Hubs",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-            "year": "July 2026",
-            "issueDate": "July 2026",
-            "duration": "30 Hours",
-            "credentialId": "CREATIVA-PY-102",
-            "skills": [
-                "Python 3",
-                "OOP",
-                "Data Structures",
-                "Scripting"
-            ],
-            "description": "Completed intensive training in Python core programming, data structures, and script automation.",
-            "image": "https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png",
-            "pdfFile": "https://res.cloudinary.com/azk1xpfli/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbxg8c3v.png",
-            "link": "https://creativa.gov.eg/",
-            "orderIndex": 1
-        },
-        {
-            "title": "Learn C++ & OOP from Scratch",
-            "name": "Learn C++ & OOP from Scratch",
-            "subtitle": "Udemy",
-            "issuer": "Udemy",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-plain.svg",
-            "year": "September 2025",
-            "issueDate": "September 2025",
-            "duration": "32 Hours",
-            "credentialId": "UC-CPP-OOP-7712",
-            "skills": [
-                "C++",
-                "OOP",
-                "Memory Management",
-                "Pointers",
-                "Data Structures"
-            ],
-            "description": "Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures.",
-            "link": "https://www.udemy.com/",
-            "orderIndex": 2
-        },
-        {
-            "title": "The 2026 ICPC Egyptian Collegiate Programming Contest",
-            "name": "The 2026 ICPC Egyptian Collegiate Programming Contest",
-            "subtitle": "ICPC ECPC Qualifications",
-            "issuer": "ICPC / ECPC",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg",
-            "year": "August 2026",
-            "issueDate": "August 2026",
-            "duration": "Competitive Finalist",
-            "credentialId": "ECPC-QUAL-2026",
-            "skills": [
-                "Algorithms",
-                "Data Structures",
-                "C++",
-                "Competitive Programming"
-            ],
-            "description": "Qualified and competed in the Egyptian Collegiate Programming Contest solving complex algorithmic and data structure problems.",
-            "link": "https://icpc.global/",
-            "orderIndex": 3
-        },
-        {
-            "_id": "cert-1789326218379",
-            "title": "AWS Certified Solutions Architect",
-            "name": "AWS Certified Solutions Architect",
-            "subtitle": "Amazon Web Services",
-            "issuer": "Amazon Web Services",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg",
-            "year": "2026",
-            "issueDate": "2026",
-            "duration": "60 Hours",
-            "credentialId": "AWS-PSA-88231",
-            "skills": [
-                "AWS",
-                "Cloud Architecture",
-                "S3",
-                "EC2",
-                "Lambda"
-            ],
-            "description": "Architecting resilient, scalable, and high-performance cloud applications on AWS.",
-            "pdfFile": "/assets/pdf/EslamCV.pdf",
-            "link": "https://aws.amazon.com/certification/",
-            "orderIndex": 4
-        },
-        {
-            "title": "Cybersecurity Academy (Undergraduate)",
-            "name": "Cybersecurity Academy (Undergraduate)",
-            "subtitle": "NTI & EG-CERT",
-            "issuer": "NTI & EG-CERT",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg",
-            "year": "June 2025",
-            "issueDate": "June 2025",
-            "duration": "120 Hours",
-            "credentialId": "NTI-SEC-2025",
-            "skills": [
-                "Network Defense",
-                "Vulnerability Assessment",
-                "Cybersecurity",
-                "Linux"
-            ],
-            "description": "Completed undergraduate cybersecurity academy covering network defense, vulnerability assessment, and security fundamentals.",
-            "link": "https://www.nti.sci.eg/",
-            "orderIndex": 5
-        },
-        {
-            "title": "NASA International Space Apps Challenge",
-            "name": "NASA International Space Apps Challenge",
-            "subtitle": "NASA",
-            "issuer": "NASA",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-            "year": "October 2026",
-            "issueDate": "October 2026",
-            "duration": "Hackathon (48h)",
-            "credentialId": "NASA-APPS-2026",
-            "skills": [
-                "Space Science",
-                "Data Analysis",
-                "Python",
-                "Problem Solving"
-            ],
-            "description": "Participated in global hackathon solving space science, data analysis, and environmental engineering challenges.",
-            "link": "https://www.spaceappschallenge.org/",
-            "orderIndex": 6
-        },
-        {
-            "title": "InnovEgypt Innovation & Entrepreneurship",
-            "name": "InnovEgypt Innovation & Entrepreneurship",
-            "subtitle": "TIEC & Ministry of Communications",
-            "issuer": "TIEC / Creativa",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg",
-            "year": "August 2026",
-            "issueDate": "August 2026",
-            "duration": "40 Hours",
-            "credentialId": "TIEC-INNOV-894",
-            "skills": [
-                "Tech Entrepreneurship",
-                "MVP Design",
-                "Lean Startup",
-                "Pitching"
-            ],
-            "description": "Completed innovation and tech entrepreneurship training program focused on creating technology ventures and commercialization.",
-            "link": "https://tiec.gov.eg/",
-            "orderIndex": 7
-        },
-        {
-            "title": "Startup Innovation Lab",
-            "name": "Startup Innovation Lab",
-            "subtitle": "Creativa TIEC Qena",
-            "issuer": "Creativa Hubs",
-            "issuerLogo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-            "year": "June 2026",
-            "issueDate": "June 2026",
-            "duration": "Incubator Lab",
-            "credentialId": "TIEC-LAB-2026",
-            "skills": [
-                "Lean Model",
-                "Prototyping",
-                "Business Strategy",
-                "Agile"
-            ],
-            "description": "Participated in an intensive startup incubator program focused on lean methodology, MVP development, business models, and pitching.",
-            "link": "https://creativa.gov.eg/",
-            "orderIndex": 8
-        }
-    ]
+  "experience": [
+    {
+      "_id": "exp-1789326218367",
+      "title": "Full-Stack Web Developer",
+      "subtitle": "Freelance & Solutions",
+      "company": "Freelance",
+      "year": "2026 - Present",
+      "startDate": "2026",
+      "endDate": "Present",
+      "description": "Building scalable web solutions and RESTful backend architectures.",
+      "orderIndex": 1
+    },
+    {
+      "title": "MEAN Stack Web Developer Trainee",
+      "subtitle": "NTI - Creativa Innovation Hubs (DEY Initiative), Egypt - Qena",
+      "year": "January 2026 - May 2026",
+      "description": "Completed the intensive 'MEAN Stack: Web Developer Career Accelerator' program. Trained practically on building scalable full-stack applications using MongoDB, Express.js, Angular, and Node.js. Gained hands-on experience in RESTful APIs, asynchronous programming, and responsive UI design.",
+      "link": "https://www.nti.sci.eg/"
+    },
+    {
+      "title": "Web Development Instructor",
+      "subtitle": "Support Web Program, Qena, Egypt",
+      "year": "June 2026 - Present",
+      "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples.",
+      "link": ""
+    }
+  ],
+  "education": [
+    {
+      "_id": "edu-1789326218372",
+      "title": "B.Sc. in Computer Science",
+      "degree": "B.Sc. in Computer Science",
+      "subtitle": "Test University",
+      "institution": "Test University",
+      "year": "2024 - 2028",
+      "startDate": "2024",
+      "endDate": "2028",
+      "description": "",
+      "orderIndex": 2
+    },
+    {
+      "title": "Bachelor’s Degree in Computers and Information",
+      "subtitle": "Qena University, Egypt - Qena",
+      "year": "September 2024 - June 2028",
+      "description": "Relevant Coursework: Data Structures, Algorithms, Object-Oriented Programming (C++), Database Systems, Software Engineering, Operating Systems, Computer Networks, Web Development, and Problem Solving Techniques.",
+      "link": ""
+    }
+  ],
+  "volunteering": [
+    {
+      "_id": "vol-1789326218375",
+      "title": "Community Mentor",
+      "role": "Community Mentor",
+      "subtitle": "Tech Community",
+      "organization": "Tech Community",
+      "year": "2026 - Present",
+      "startDate": "2026",
+      "endDate": "Present",
+      "description": "",
+      "orderIndex": 4
+    },
+    {
+      "title": "Web Development Instructor",
+      "subtitle": "Support Web Program, Qena, Egypt",
+      "year": "June 2026 - Present",
+      "description": "Delivered practical sessions covering HTML, CSS, and JavaScript for Computer Science students and simplified programming concepts through practical examples.",
+      "link": ""
+    },
+    {
+      "title": "Head of PR Team",
+      "subtitle": "Students for Egypt - Faculty of Computers and Information",
+      "year": "Present",
+      "description": "Leading public relations team and student communications for the Faculty of Computers and Information.",
+      "link": ""
+    },
+    {
+      "title": "Content Data Collector",
+      "subtitle": "ClassMate Platform",
+      "year": "Present",
+      "description": "Collecting, structuring, and organizing educational data and content resources for the platform.",
+      "link": ""
+    }
+  ],
+  "certificates": [
+    {
+      "_id": "6aa813117af7417ec6d1a3d4",
+      "name": "Python Programming Fundamentals",
+      "title": "Python Programming Fundamentals",
+      "issuer": "Creativa TIEC Qena",
+      "org": "Creativa TIEC Qena",
+      "issueDate": "July 2026",
+      "date": "July 2026",
+      "duration": "30 Hours",
+      "credentialId": "CREATIVA-PY-102",
+      "tags": [
+        "Python 3",
+        "OOP",
+        "Data Structures",
+        "Scripting"
+      ],
+      "description": "Completed intensive training in Python core programming, data structures, and script automation.",
+      "img": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbcg8c3v.png",
+      "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbcg8c3v.png",
+      "link": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbcg8c3v.png"
+    },
+    {
+      "_id": "6aa813117af7417ec6d1a3d8",
+      "name": "Learn C++ from Scratch",
+      "title": "Learn C++ from Scratch",
+      "issuer": "Udemy",
+      "org": "Udemy",
+      "issueDate": "September 2025",
+      "date": "September 2025",
+      "duration": "32 Hours",
+      "credentialId": "UC-CPP-OOP-7712",
+      "tags": [
+        "C++",
+        "OOP",
+        "Memory Management",
+        "Data Structures"
+      ],
+      "description": "Mastered C++ programming fundamentals, object-oriented programming (OOP) principles, memory management, and data structures.",
+      "img": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564458/portfolio/image/zseinvumc9kv0avxpvrn.jpg",
+      "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564458/portfolio/image/zseinvumc9kv0avxpvrn.jpg",
+      "link": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564458/portfolio/image/zseinvumc9kv0avxpvrn.jpg"
+    },
+    {
+      "_id": "6aa813107af7417ec6d1a3d0",
+      "name": "The 2026 ICPC Egyptian Collegiate Programming Contest (ECPC)",
+      "title": "The 2026 ICPC Egyptian Collegiate Programming Contest (ECPC)",
+      "issuer": "ICPC ECPC Qualifications",
+      "org": "ICPC ECPC Qualifications",
+      "issueDate": "August 2026",
+      "date": "August 2026",
+      "duration": "Competitive Finalist",
+      "credentialId": "ECPC-QUAL-2026",
+      "tags": [
+        "Algorithms",
+        "Data Structures",
+        "C++",
+        "Problem Solving"
+      ],
+      "description": "Qualified and competed in the Egyptian Collegiate Programming Contest solving complex algorithmic and data structure problems.",
+      "img": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbcg8c3v.png",
+      "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789469355/portfolio/image/nnzkclycuu6mnbcg8c3v.png",
+      "pdfFile": "https://res.cloudinary.com/azk1xpfi/raw/upload/v1789564505/portfolio/document/eq7e0glrx1jmjzemedm3.pdf",
+      "link": "https://res.cloudinary.com/azk1xpfi/raw/upload/v1789564505/portfolio/document/eq7e0glrx1jmjzemedm3.pdf"
+    },
+    {
+      "_id": "6aa813107af7417ec6d1a3cc",
+      "name": "Cybersecurity Academy (Undergraduate Level)",
+      "title": "Cybersecurity Academy (Undergraduate Level)",
+      "issuer": "NTI & EG-CERT",
+      "org": "NTI & EG-CERT",
+      "issueDate": "June 2025",
+      "date": "June 2025",
+      "duration": "120 Hours",
+      "credentialId": "NTI-SEC-2025",
+      "tags": [
+        "Network Defense",
+        "Vulnerability Assessment",
+        "Cybersecurity",
+        "Linux"
+      ],
+      "description": "Completed undergraduate cybersecurity academy covering network defense, vulnerability assessment, and security fundamentals.",
+      "img": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564541/portfolio/image/vbrgtxk8wc6omwhu6fte.jpg",
+      "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564541/portfolio/image/vbrgtxk8wc6omwhu6fte.jpg",
+      "link": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564541/portfolio/image/vbrgtxk8wc6omwhu6fte.jpg"
+    },
+    {
+      "_id": "6aa813107af7417ec6d1a3ce",
+      "name": "NASA International Space Apps Challenge",
+      "title": "NASA International Space Apps Challenge",
+      "issuer": "NASA",
+      "org": "NASA",
+      "issueDate": "October 2026",
+      "date": "October 2026",
+      "duration": "Hackathon (48h)",
+      "credentialId": "NASA-APPS-2026",
+      "tags": [
+        "Space Science",
+        "Data Analysis",
+        "Python",
+        "Problem Solving"
+      ],
+      "description": "Participated in global hackathon solving space science, data analysis, and environmental engineering challenges.",
+      "img": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564527/portfolio/image/o6bljfinza2ourl18wob.jpg",
+      "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564527/portfolio/image/o6bljfinza2ourl18wob.jpg",
+      "link": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564527/portfolio/image/o6bljfinza2ourl18wob.jpg"
+    },
+    {
+      "_id": "6aa813117af7417ec6d1a3d2",
+      "name": "InnovEgypt Program",
+      "title": "InnovEgypt Program",
+      "issuer": "Innovation & Entrepreneurship Track",
+      "org": "TIEC & Ministry of Communications",
+      "issueDate": "August 2026",
+      "date": "August 2026",
+      "duration": "40 Hours",
+      "credentialId": "TIEC-INNOV-894",
+      "tags": [
+        "Tech Entrepreneurship",
+        "MVP Design",
+        "Lean Startup",
+        "Pitching"
+      ],
+      "description": "Completed innovation and tech entrepreneurship training program focused on creating technology ventures and commercialization.",
+      "img": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789470440/portfolio/image/o8vkkylhjvvhiuucigu5.jpg",
+      "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789470440/portfolio/image/o8vkkylhjvvhiuucigu5.jpg",
+      "link": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789470440/portfolio/image/o8vkkylhjvvhiuucigu5.jpg"
+    },
+    {
+      "_id": "6aa813117af7417ec6d1a3d6",
+      "name": "Startup Innovation Lab",
+      "title": "Startup Innovation Lab",
+      "issuer": "Creativa TIEC Qena",
+      "org": "Creativa TIEC Qena",
+      "issueDate": "June 2026",
+      "date": "June 2026",
+      "duration": "Incubator Lab",
+      "credentialId": "TIEC-LAB-2026",
+      "tags": [
+        "Lean Model",
+        "Prototyping",
+        "Business Strategy",
+        "Agile"
+      ],
+      "description": "Participated in an intensive startup incubator program focused on lean methodology, MVP development, business models, and pitching.",
+      "img": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564444/portfolio/image/qoargnwjtgmolxql2d5h.png",
+      "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564444/portfolio/image/qoargnwjtgmolxql2d5h.png",
+      "link": "https://res.cloudinary.com/azk1xpfi/image/upload/v1789564444/portfolio/image/qoargnwjtgmolxql2d5h.png"
+    }
+  ]
 }

@@ -1,13 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { initialCertificates } from '../../data/initialData';
 import { certificateApi } from '../../api/client';
-import { IconShield, IconArrowUR } from '../../assets/icons';
+import { IconShield, IconArrowUR, IconArrowL, IconArrowR } from '../../assets/icons';
 
 export const VaultCertificates = () => {
   const [certs, setCerts] = useState(initialCertificates);
   const [activeIdx, setActiveIdx] = useState(0);
   const [selectedImg, setSelectedImg] = useState(null);
   const vaultRef = useRef(null);
+  const touchStartRef = useRef({ x: 0, y: 0 });
+
+  const prevCert = () => setActiveIdx((prev) => Math.max(0, prev - 1));
+  const nextCert = () => setActiveIdx((prev) => Math.min(certs.length - 1, prev + 1));
+
+  const handleTouchStart = (e) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY
+    };
+  };
+
+  const handleTouchEnd = (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+    const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) nextCert();
+      else prevCert();
+    }
+  };
 
   useEffect(() => {
     certificateApi
@@ -26,7 +46,10 @@ export const VaultCertificates = () => {
               );
             };
 
-            const imgUrl = c.image || (isImg(c.pdfFile) ? c.pdfFile : (c.img || ''));
+            const rawImg = c.image || (isImg(c.pdfFile) ? c.pdfFile : (c.img || ''));
+            const imgUrl = rawImg && typeof rawImg === 'string'
+              ? rawImg.replace('azk1xpfli', 'azk1xpfi').replace('nnzkclycuu6mnbxg8c3v.png', 'nnzkclycuu6mnbcg8c3v.png')
+              : '';
 
             return {
               _id: c._id || `cert-${i}`,
@@ -35,7 +58,7 @@ export const VaultCertificates = () => {
               org: c.issuer || c.subtitle || c.organization || 'Verified Institution',
               date: c.issueDate || c.year || '2026',
               duration: c.duration || '',
-              credentialId: c.credentialId || `CERT-${i + 101}`,
+              credentialId: c.credentialId || '',
               desc: c.description || '',
               tags: Array.isArray(c.skills) && c.skills.length > 0
                 ? c.skills
@@ -102,10 +125,44 @@ export const VaultCertificates = () => {
           </ol>
 
           {/* Right Side: 3D stage with active certificate card */}
-          <div className="vault__stage" id="vaultStage">
+          <div
+            className="vault__stage"
+            id="vaultStage"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div className="vault__mobile-nav" aria-label="Certificate navigation">
+              <button
+                type="button"
+                onClick={prevCert}
+                disabled={activeIdx === 0}
+                aria-label="Previous certificate"
+                style={{ opacity: activeIdx === 0 ? 0.35 : 1 }}
+              >
+                <IconArrowL className="i" />
+              </button>
+              <span className="vault__mobile-counter">
+                {String(activeIdx + 1).padStart(2, '0')} / {String(certs.length).padStart(2, '0')}
+              </span>
+              <button
+                type="button"
+                onClick={nextCert}
+                disabled={activeIdx === certs.length - 1}
+                aria-label="Next certificate"
+                style={{ opacity: activeIdx === certs.length - 1 ? 0.35 : 1 }}
+              >
+                <IconArrowR className="i" />
+              </button>
+            </div>
+
             {certs.map((cert, i) => {
               const isActive = activeIdx === i;
               const isPast = activeIdx > i;
+              const rawVisual = cert.img || cert.image;
+              const visualSrc = rawVisual && typeof rawVisual === 'string'
+                ? rawVisual.replace('azk1xpfli', 'azk1xpfi').replace('nnzkclycuu6mnbxg8c3v.png', 'nnzkclycuu6mnbcg8c3v.png')
+                : '';
+
               return (
                 <article
                   key={cert._id || i}
@@ -142,21 +199,37 @@ export const VaultCertificates = () => {
                           </ul>
                         </div>
 
-                        {cert.img && (
+                        {visualSrc ? (
                           <div
                             className="vc__preview"
-                            title="Click to view full image"
-                            onClick={() => setSelectedImg(cert.img)}
+                            title="Click to view full certificate"
+                            onClick={() => setSelectedImg(visualSrc)}
                           >
                             <img
-                              src={cert.img}
+                              src={visualSrc}
                               alt={cert.title}
                               loading="lazy"
-                              onError={(e) => {
-                                e.target.parentElement.style.display = 'none';
-                              }}
                             />
+                            <span className="vc__preview-hint" aria-hidden="true">
+                              <IconArrowUR className="i" />
+                            </span>
                           </div>
+                        ) : (
+                          <a
+                            href={cert.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="vc__preview vc__preview--doc"
+                            title="View PDF Credential"
+                          >
+                            <div style={{ textAlign: 'center', padding: '0.8rem', color: 'hsl(var(--brand))' }}>
+                              <IconShield style={{ width: '28px', height: '28px', margin: '0 auto 4px', display: 'block' }} />
+                              <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>PDF Document</span>
+                            </div>
+                            <span className="vc__preview-hint" aria-hidden="true">
+                              <IconArrowUR className="i" />
+                            </span>
+                          </a>
                         )}
                       </div>
 

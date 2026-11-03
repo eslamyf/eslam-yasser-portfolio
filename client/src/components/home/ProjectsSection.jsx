@@ -87,6 +87,34 @@ export const ProjectsSection = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const stack = stackRef.current;
+      if (!stack) return;
+      const cards = stack.querySelectorAll('.proj');
+      const vh = window.innerHeight;
+      cards.forEach((card, i) => {
+        const nextCard = cards[i + 1];
+        if (nextCard) {
+          const nextR = nextCard.getBoundingClientRect();
+          const threshold = Math.max(card.offsetHeight * 0.75, 1);
+          const diff = Math.max(0, Math.min(1, (vh - nextR.top) / threshold));
+          const s = 1 - diff * 0.05;
+          const b = 1 - diff * 0.15;
+          card.style.setProperty('--s', s.toFixed(3));
+          card.style.setProperty('--b', b.toFixed(3));
+        } else {
+          card.style.setProperty('--s', '1');
+          card.style.setProperty('--b', '1');
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [projects]);
+
   return (
     <section className="section projects" id="projects">
       <div className="wrap">
@@ -103,7 +131,7 @@ export const ProjectsSection = () => {
           <article
             key={proj._id || i}
             className="proj"
-            style={{ '--accent': proj.accent || '205 100% 62%' }}
+            style={{ '--accent': proj.accent || '205 100% 62%', '--n': i }}
           >
             <div className="proj__spot" aria-hidden="true"></div>
             <div className="proj__info">

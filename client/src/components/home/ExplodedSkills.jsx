@@ -52,17 +52,19 @@ export const ExplodedSkills = () => {
 
       const total = Math.max(xs.offsetHeight - window.innerHeight, 1);
       const p = Math.min(1, Math.max(0, -xs.getBoundingClientRect().top / total));
+
       let open = Math.min(1, Math.max(0, p / 0.3));
       open = 1 - Math.pow(1 - open, 3);
 
-      const maxGap = window.innerWidth <= 860 ? 58 : 104;
-      const currentGap = 12 + open * (maxGap - 12);
+      const isMobile = window.innerWidth <= 860;
+      const maxGap = isMobile ? 48 : 100;
+      const currentGap = 10 + open * (maxGap - 10);
       scene.style.setProperty('--gap', currentGap.toFixed(1));
       scene.style.setProperty('--xr', p.toFixed(3));
 
       const idx = Math.min(
         initialStackLayers.length - 1,
-        Math.max(0, Math.floor(Math.min(0.999, Math.max(0, (p - 0.12) / 0.88)) * initialStackLayers.length))
+        Math.max(0, Math.floor(Math.min(0.999, Math.max(0, (p - 0.05) / 0.9)) * initialStackLayers.length))
       );
       setActiveLayer(idx);
     };
@@ -83,7 +85,7 @@ export const ExplodedSkills = () => {
         </div>
       </div>
 
-      <div className="xs" id="xs" ref={xsRef}>
+      <div className="xs" id="xs" ref={xsRef} style={{ '--layers': initialStackLayers.length }}>
         <div className="xs__pin">
           <div className="wrap xs__grid">
             <div className="xs__stage" aria-hidden="true">
@@ -101,12 +103,27 @@ export const ExplodedSkills = () => {
               </div>
             </div>
 
+            <div className="xs__mobile-pills" role="tablist" aria-label="Skill layers">
+              {initialStackLayers.map((layer, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`xs__mobile-pill ${activeLayer === i ? 'is-active' : ''}`}
+                  style={{ '--a': layer.accent }}
+                  onClick={() => setActiveLayer(i)}
+                >
+                  {layer.name}
+                </button>
+              ))}
+            </div>
+
             <ol className="xs__list" id="xsList">
               {initialStackLayers.map((layer, i) => (
                 <li
                   key={i}
                   className={`xs__item ${activeLayer === i ? 'is-on' : ''}`}
                   style={{ '--a': layer.accent }}
+                  onClick={() => setActiveLayer(i)}
                 >
                   <h3>
                     {layer.name}
