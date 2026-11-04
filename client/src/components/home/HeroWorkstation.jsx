@@ -283,13 +283,15 @@ export const HeroWorkstation = () => {
           >
             <div className="float__card" style={{ '--r': '-4deg' }}>
               <div className="win__bar">
-                <i></i><i></i><i></i>
-                <span>listings.component.ts</span>
+                <span className="dot dot--cyan"></span>
+                <span>eslam.engineer.ts</span>
+                <span className="badge-pill">Angular 19</span>
               </div>
               <pre className="code">
-                <span className="k">@Component</span>({`{ selector: `}<span className="s">'app-listings'</span>{` }`}){'\n'}
-                <span className="k">export class</span> Listings {'{\n'}
-                {'  '}items$ = api.<span className="f">get</span>(<span className="s">'/listings'</span>);{'\n'}
+                <span className="k">@Component</span>({`{ selector: `}<span className="s">'architect'</span>{` }`}){'\n'}
+                <span className="k">export class</span> Eslam {'{\n'}
+                {'  '}stack = [<span className="s">'Angular'</span>, <span className="s">'Node.js'</span>];{'\n'}
+                {'  '}ready = <span className="f">signal</span>(<span className="s">'Deploy 🚀'</span>);{'\n'}
                 {'}'}
               </pre>
             </div>
@@ -304,12 +306,12 @@ export const HeroWorkstation = () => {
             <div className="float__card" style={{ '--r': '3deg' }}>
               <div className="api__row">
                 <b>200</b>
-                <span>GET /api/listings</span>
-                <em>42ms</em>
+                <span>POST /api/v1/build</span>
+                <em>12ms</em>
               </div>
               <pre className="code">
-                {'{ '}<span className="f">"role"</span>: <span className="s">"admin"</span>,{'\n'}
-                {'  '}<span className="f">"jwt"</span>: <span className="s">"valid"</span>{' }'}
+                {'{ '}<span className="f">"author"</span>: <span className="s">"Eslam Yasser"</span>,{'\n'}
+                {'  '}<span className="f">"status"</span>: <span className="s">"High-Scale API"</span>{' }'}
               </pre>
             </div>
           </div>
@@ -372,12 +374,14 @@ export const HeroWorkstation = () => {
           >
             <div className="float__card" style={{ '--r': '3deg' }}>
               <div className="db__head">
-                <IconDb className="i" /> listings
+                <IconDb className="i" /> mongodb.cluster
+                <span className="badge-pill badge-pill--green">Atlas</span>
               </div>
               <pre className="code">
-                {'{ '}<span className="f">_id</span>: <span className="s">ObjectId(…)</span>,{'\n'}
-                {'  '}<span className="f">type</span>: <span className="s">"Villa"</span>,{'\n'}
-                {'  '}<span className="f">price</span>: <span className="n">420000</span>{' }'}
+                db.projects.<span className="f">find</span>({`{\n`}
+                {'  '}lead: <span className="s">"Eslam Yasser"</span>,{'\n'}
+                {'  '}stack: <span className="s">"MEAN Stack"</span>{'\n'}
+                {`}`})
               </pre>
             </div>
           </div>
