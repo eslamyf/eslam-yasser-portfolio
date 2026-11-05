@@ -275,44 +275,47 @@ export const HeroWorkstation = () => {
           <div className="stage__floor" aria-hidden="true"></div>
           <div className="stage__halo" aria-hidden="true"></div>
 
-          {/* Card 1: Angular Component (BEHIND person) */}
+          {/* Card 1: Frontend Architecture Telemetry */}
           <div
             className="float float--code"
             aria-hidden="true"
             style={{ '--k': -18, '--ox': '-34vw', '--oy': '-8vh', '--or': '-16deg', '--d': '1.0s' }}
           >
-            <div className="float__card" style={{ '--r': '-4deg' }}>
-              <div className="win__bar">
-                <span className="dot dot--cyan"></span>
-                <span>eslam.engineer.ts</span>
-                <span className="badge-pill">Angular 19</span>
+            <div className="float__card float__card--hud" style={{ '--r': '-4deg' }}>
+              <div className="hud__header">
+                <span className="hud__pulse"></span>
+                <span className="hud__label">Frontend Core</span>
+                <span className="hud__tag">Angular 19</span>
               </div>
-              <pre className="code">
-                <span className="k">@Component</span>({`{ selector: `}<span className="s">'architect'</span>{` }`}){'\n'}
-                <span className="k">export class</span> Eslam {'{\n'}
-                {'  '}stack = [<span className="s">'Angular'</span>, <span className="s">'Node.js'</span>];{'\n'}
-                {'  '}ready = <span className="f">signal</span>(<span className="s">'Deploy 🚀'</span>);{'\n'}
-                {'}'}
-              </pre>
+              <div className="hud__body">
+                <div className="hud__title">⚡ Clean Architecture</div>
+                <div className="hud__metrics">
+                  <span className="hud__metric"><em>Signals:</em> Reactive</span>
+                  <span className="hud__metric"><em>Type-Safe:</em> 100%</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Card 2: REST API Response (BEHIND person) */}
+          {/* Card 2: CS Instructor Impact */}
           <div
             className="float float--api"
             aria-hidden="true"
             style={{ '--k': 22, '--ox': '34vw', '--oy': '-10vh', '--or': '14deg', '--d': '1.15s' }}
           >
-            <div className="float__card" style={{ '--r': '3deg' }}>
-              <div className="api__row">
-                <b>200</b>
-                <span>POST /api/v1/build</span>
-                <em>12ms</em>
+            <div className="float__card float__card--hud" style={{ '--r': '3deg' }}>
+              <div className="hud__header">
+                <span className="hud__pulse hud__pulse--purple"></span>
+                <span className="hud__label">CS Mentor</span>
+                <span className="hud__tag hud__tag--purple">Instructor</span>
               </div>
-              <pre className="code">
-                {'{ '}<span className="f">"author"</span>: <span className="s">"Eslam Yasser"</span>,{'\n'}
-                {'  '}<span className="f">"status"</span>: <span className="s">"High-Scale API"</span>{' }'}
-              </pre>
+              <div className="hud__body">
+                <div className="hud__title">🎓 2,000+ Students Mentored</div>
+                <div className="hud__metrics">
+                  <span className="hud__metric"><em>Track:</em> MEAN Stack</span>
+                  <span className="hud__metric"><em>DSA &amp; OOP</em></span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -366,23 +369,25 @@ export const HeroWorkstation = () => {
             </div>
           </figure>
 
-          {/* Card 3: MongoDB Document (IN FRONT of person) */}
+          {/* Card 3: Backend & Cloud Telemetry */}
           <div
             className="float float--db float--front"
             aria-hidden="true"
             style={{ '--k': -30, '--ox': '30vw', '--oy': '16vh', '--or': '10deg', '--d': '1.45s' }}
           >
-            <div className="float__card" style={{ '--r': '3deg' }}>
-              <div className="db__head">
-                <IconDb className="i" /> mongodb.cluster
-                <span className="badge-pill badge-pill--green">Atlas</span>
+            <div className="float__card float__card--hud" style={{ '--r': '3deg' }}>
+              <div className="hud__header">
+                <span className="hud__pulse hud__pulse--green"></span>
+                <span className="hud__label">Cloud &amp; Backend</span>
+                <span className="hud__tag hud__tag--green">200 OK</span>
               </div>
-              <pre className="code">
-                db.projects.<span className="f">find</span>({`{\n`}
-                {'  '}lead: <span className="s">"Eslam Yasser"</span>,{'\n'}
-                {'  '}stack: <span className="s">"MEAN Stack"</span>{'\n'}
-                {`}`})
-              </pre>
+              <div className="hud__body">
+                <div className="hud__title">🍃 Node · Express · Mongo</div>
+                <div className="hud__metrics">
+                  <span className="hud__metric"><em>Latency:</em> 12ms</span>
+                  <span className="hud__metric"><em>JWT Auth:</em> Active ✓</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -421,6 +426,26 @@ export const HeroWorkstation = () => {
                 })}
               </span>
             </p>
+
+            <div className="hero__tech-capsules hero-in" style={{ '--d': '1.05s' }}>
+              <span className="tech-capsule tech-capsule--cyan">
+                <i className="tech-capsule__dot"></i>
+                <b>Angular 19</b>
+              </span>
+              <span className="tech-capsule tech-capsule--green">
+                <i className="tech-capsule__dot"></i>
+                <b>Node · Express</b>
+              </span>
+              <span className="tech-capsule tech-capsule--emerald">
+                <i className="tech-capsule__dot"></i>
+                <b>MongoDB Atlas</b>
+              </span>
+              <span className="tech-capsule tech-capsule--purple">
+                <i className="tech-capsule__dot"></i>
+                <b>REST APIs</b>
+              </span>
+            </div>
+
             <p className="hero__lead hero-in" style={{ '--d': '1.1s' }}>
               Full-Stack developer working with Angular, React, Node.js, Express and MongoDB &mdash; and an instructor who makes programming click for CS students.
             </p>

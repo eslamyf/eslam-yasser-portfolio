@@ -16,7 +16,7 @@ const protect = async (req, res, next) => {
       if (mongoose.connection.readyState === 1 && decoded.id !== 'fallback-admin-id-123') {
         req.user = await User.findById(decoded.id).select('-password');
       }
-      
+
       if (!req.user) {
         req.user = { id: decoded.id, username: process.env.ADMIN_USERNAME || 'admin', role: 'admin' };
       }
