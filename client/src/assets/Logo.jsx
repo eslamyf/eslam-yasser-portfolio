@@ -13,30 +13,32 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
         style={{ flexShrink: 0, overflow: 'visible' }}
       >
         <defs>
-          {/* Deep cyber dark glass background */}
+          {/* Deep Navy Glass Background */}
           <radialGradient id="ey-bg-grad" cx="50%" cy="25%" r="85%">
-            <stop offset="0%" stopColor="#0d1b33" />
-            <stop offset="60%" stopColor="#070d1a" />
-            <stop offset="100%" stopColor="#03060c" />
+            <stop offset="0%" stopColor="#1E2F52" />
+            <stop offset="60%" stopColor="#14213D" />
+            <stop offset="100%" stopColor="#0B1220" />
           </radialGradient>
 
-          {/* Electric Neon Brand Gradients */}
+          {/* Coral Primary Brand Gradient */}
           <linearGradient id="ey-primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00F5FF" />
-            <stop offset="50%" stopColor="#0072FF" />
-            <stop offset="100%" stopColor="#9d4edd" />
+            <stop offset="0%" stopColor="#FF8375" />
+            <stop offset="50%" stopColor="#FF6B5B" />
+            <stop offset="100%" stopColor="#E64C3B" />
           </linearGradient>
 
+          {/* Cream Secondary Gradient */}
           <linearGradient id="ey-secondary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#38bdf8" />
-            <stop offset="60%" stopColor="#0066ff" />
-            <stop offset="100%" stopColor="#c084fc" />
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="50%" stopColor="#F4EDE0" />
+            <stop offset="100%" stopColor="#D9CFC1" />
           </linearGradient>
 
+          {/* Border Gradient (Coral -> Cream -> Navy) */}
           <linearGradient id="ey-border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00F5FF" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#0072FF" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#9d4edd" stopOpacity="0.75" />
+            <stop offset="0%" stopColor="#FF6B5B" stopOpacity="0.85" />
+            <stop offset="50%" stopColor="#F4EDE0" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#14213D" stopOpacity="0.8" />
           </linearGradient>
 
           {/* Precision Neon Glow Filter */}
@@ -50,9 +52,9 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             </feMerge>
           </filter>
 
-          {/* Shadow Filter */}
+          {/* Drop Shadow */}
           <filter id="ey-drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#0072FF" floodOpacity="0.35" />
+            <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#FF6B5B" floodOpacity="0.30" />
           </filter>
         </defs>
 
@@ -70,7 +72,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
         />
 
         {/* Ambient Core Lighting */}
-        <circle cx="50" cy="50" r="30" fill="#0072FF" opacity="0.1" filter="url(#ey-neon-glow)" />
+        <circle cx="50" cy="50" r="30" fill="#FF6B5B" opacity="0.14" filter="url(#ey-neon-glow)" />
 
         {/* Monogram Graphic Layer */}
         <g filter="url(#ey-neon-glow)">
@@ -83,7 +85,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             strokeLinejoin="round"
             fill="none"
           />
-          {/* 'E' Middle Cyber Bar */}
+          {/* 'E' Middle Bar */}
           <path
             d="M 23 50 H 41"
             stroke="url(#ey-primary-grad)"
@@ -92,7 +94,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             fill="none"
           />
 
-          {/* Letter 'Y' Upper Branch (Code Bracket / Slash Inspired) */}
+          {/* Letter 'Y' Upper Branch */}
           <path
             d="M 54 28 L 66 48 L 78 28"
             stroke="url(#ey-secondary-grad)"
@@ -110,13 +112,13 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             fill="none"
           />
 
-          {/* High-Tech Terminal Accent Dot */}
-          <circle cx="78" cy="72" r="3.5" fill="#00F5FF" />
+          {/* Terminal Accent Dot */}
+          <circle cx="78" cy="72" r="3.5" fill="#FF6B5B" />
 
-          {/* Subtle Code Spark / Star at Top Right */}
+          {/* Subtle Star at Top Right */}
           <path
             d="M 83 18 L 84.5 22.5 L 89 24 L 84.5 25.5 L 83 30 L 81.5 25.5 L 77 24 L 81.5 22.5 Z"
-            fill="#00F5FF"
+            fill="#F4EDE0"
             opacity="0.95"
           />
         </g>
@@ -128,7 +130,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             fontSize: `${Math.round(size * 0.44)}px`,
             fontWeight: 800,
             letterSpacing: '-0.02em',
-            background: 'linear-gradient(135deg, #FFFFFF 30%, #00F5FF 100%)',
+            background: 'linear-gradient(135deg, #F4EDE0 40%, #FF6B5B 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             fontFamily: 'inherit'
@@ -140,7 +142,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             fontWeight: 600,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'hsl(var(--fg-muted, 215 15% 65%))',
+            color: 'var(--mut, #C4B9AA)',
             marginTop: '2px'
           }}>
             Full-Stack Dev

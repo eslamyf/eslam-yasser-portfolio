@@ -1,509 +1,554 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useTheme } from '../../context/ThemeContext';
-import {
-  IconArrowR,
-  IconDownload,
-  IconGithub,
-  IconLinkedin,
-  IconWhatsapp,
-  IconMail,
-  IconDb
-} from '../../assets/icons';
+import React, { useEffect, useRef } from 'react';
+import { IconGithub, IconLinkedin, IconWhatsapp, IconMail } from '../../assets/icons';
 
 export const HeroWorkstation = () => {
-  const { theme } = useTheme();
   const heroRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [clock, setClock] = useState('--:--');
-  const [portraitLoaded, setPortraitLoaded] = useState(true);
+  const glowRef = useRef(null);
+  const namesRef = useRef(null);
+  const photoRef = useRef(null);
+  const bandWrapRef = useRef(null);
+  const bandRef = useRef(null);
+  const trackRef = useRef(null);
+  const rollRef = useRef(null);
+  const sideWrapRef = useRef(null);
+  const sideInRef = useRef(null);
+  const rightWrapRef = useRef(null);
+  const rightInRef = useRef(null);
 
-  // Role rotator state
-  const roles = [
-    'scalable web apps',
-    'REST APIs that last',
-    'MEAN stack products',
-    'clean architecture'
+  const techLogos = [
+    { title: 'Angular', src: '/assets/img/tech/angular.svg' },
+    { title: 'React', src: '/assets/img/tech/react.svg' },
+    { title: 'TypeScript', src: '/assets/img/tech/typescript.svg' },
+    { title: 'Node.js', src: '/assets/img/tech/nodedotjs.svg' },
+    { title: 'Express', src: '/assets/img/tech/express.svg' },
+    { title: 'MongoDB', src: '/assets/img/tech/mongodb.svg' },
+    { title: 'JavaScript', src: '/assets/img/tech/javascript.svg' },
+    { title: 'HTML5', src: '/assets/img/tech/html5.svg' },
+    { title: 'CSS3', src: '/assets/img/tech/css.svg' },
+    { title: 'Git', src: '/assets/img/tech/git.svg' },
+    { title: 'GitHub', src: '/assets/img/tech/github.svg' },
+    { title: 'Postman', src: '/assets/img/tech/postman.svg' },
+    { title: 'Bootstrap', src: '/assets/img/tech/bootstrap.svg' },
+    { title: 'C++', src: '/assets/img/tech/cplusplus.svg' },
+    { title: 'Python', src: '/assets/img/tech/python.svg' }
   ];
-  const [currentRole, setCurrentRole] = useState(0);
-  const [prevRole, setPrevRole] = useState(-1);
-  const rotatorRef = useRef(null);
-  const wordRefs = useRef([]);
-
-  // Title entrance state
-  const [titleIn, setTitleIn] = useState(false);
-
-  // Dynamic Cairo clock
-  useEffect(() => {
-    const updateClock = () => {
-      try {
-        const t = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: 'Africa/Cairo'
-        }).format(new Date());
-        setClock(t || '--:--');
-      } catch (e) {
-        setClock('--:--');
-      }
-    };
-    updateClock();
-    const timer = setInterval(updateClock, 30000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Title line entrance animation
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setTitleIn(true);
-    }, 150);
-    return () => clearTimeout(t);
-  }, []);
-
-  // Role rotator sizing and transitions
-  useEffect(() => {
-    const updateSize = () => {
-      if (rotatorRef.current && wordRefs.current[currentRole]) {
-        const w = wordRefs.current[currentRole].offsetWidth;
-        if (w > 0) {
-          rotatorRef.current.style.width = `${w}px`;
-        }
-      }
-    };
-
-    updateSize();
-    if (document.fonts?.ready) {
-      document.fonts.ready.then(updateSize);
-    }
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
-  }, [currentRole]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPrevRole(currentRole);
-      setCurrentRole((prev) => (prev + 1) % roles.length);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [currentRole, roles.length]);
-
-  useEffect(() => {
-    if (prevRole !== -1) {
-      const timer = setTimeout(() => {
-        setPrevRole(-1);
-      }, 750);
-      return () => clearTimeout(timer);
-    }
-  }, [prevRole]);
-
-  // Pointer depth (hx and hy)
-  useEffect(() => {
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
     const heroEl = heroRef.current;
     if (!heroEl) return;
 
-    const handlePointerMove = (e) => {
-      const r = heroEl.getBoundingClientRect();
-      const hx = (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3);
-      const hy = (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3);
-      heroEl.style.setProperty('--hx', hx);
-      heroEl.style.setProperty('--hy', hy);
+    // --- High-Performance Precision Fit-To-Width Function ---
+    const fitNames = () => {
+      if (window.innerWidth > 860) {
+        if (namesRef.current) {
+          namesRef.current.style.removeProperty('--fit-1');
+          namesRef.current.style.removeProperty('--fit-2');
+        }
+        return;
+      }
+
+      if (!namesRef.current || !heroEl) return;
+
+      const availableWidth = Math.max(240, Math.min(window.innerWidth - 32, 680));
+
+      let measurer = document.getElementById('hero-name-measurer');
+      if (!measurer) {
+        measurer = document.createElement('span');
+        measurer.id = 'hero-name-measurer';
+        measurer.style.cssText =
+          'position:fixed;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;' +
+          'font-family:"Archivo",sans-serif;font-weight:900;font-stretch:62%;' +
+          'text-transform:uppercase;font-size:100px;letter-spacing:-0.005em;pointer-events:none;transform:none !important;';
+        document.body.appendChild(measurer);
+      }
+
+      measurer.textContent = 'ESLAM';
+      const w1 = measurer.getBoundingClientRect().width || 340;
+
+      measurer.textContent = 'YASSER';
+      const w2 = measurer.getBoundingClientRect().width || 410;
+
+      if (w1 > 0 && w2 > 0) {
+        const fs1 = Math.min(180, (availableWidth / w1) * 100);
+        const fs2 = Math.min(150, (availableWidth / w2) * 100);
+
+        namesRef.current.style.setProperty('--fit-1', `${fs1.toFixed(2)}px`);
+        namesRef.current.style.setProperty('--fit-2', `${fs2.toFixed(2)}px`);
+      }
     };
 
-    const handlePointerLeave = () => {
-      heroEl.style.setProperty('--hx', '0');
-      heroEl.style.setProperty('--hy', '0');
+    fitNames();
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth <= 860;
+
+    // Fallback if GSAP is unavailable or reduced motion is preferred
+    if (!gsap || prefersReducedMotion) {
+      if (namesRef.current) namesRef.current.style.opacity = '1';
+      if (photoRef.current) {
+        photoRef.current.style.transform = isMobile ? 'none' : 'translateX(-50%)';
+      }
+      if (sideInRef.current) sideInRef.current.style.opacity = '1';
+      if (rightInRef.current) rightInRef.current.style.opacity = '1';
+      return;
+    }
+
+    if (ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+
+    const mm = gsap.matchMedia();
+    const ctx = gsap.context(() => {
+      // 1. Initial State
+      gsap.set('.hero-ref__names', { opacity: 1 });
+      gsap.set(photoRef.current, { clearProps: 'transform' });
+      if (bandRef.current) {
+        gsap.set(bandRef.current, { rotation: -2.5, transformOrigin: 'center center' });
+      }
+
+      // 2. Intro Entrance Timeline
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+
+      const navChildren = document.querySelectorAll('.nav > *');
+      if (navChildren.length) {
+        tl.from(
+          navChildren,
+          { y: -20, opacity: 0, duration: 0.9, stagger: 0.08, clearProps: 'transform,opacity' },
+          0
+        );
+      }
+
+      // First name rises from below
+      tl.fromTo(
+        '.hero-ref__n1 .hero-ref__ch',
+        { yPercent: 115, rotate: 8 },
+        { yPercent: 0, rotate: 0, duration: 1.3, stagger: 0.07, clearProps: 'transform' },
+        0.1
+      )
+        // Last name drops from above
+        .fromTo(
+          '.hero-ref__n2 .hero-ref__ch',
+          { yPercent: -115, rotate: -8 },
+          { yPercent: 0, rotate: 0, duration: 1.3, stagger: 0.07, clearProps: 'transform' },
+          0.35
+        )
+        // Tilted logo band scales horizontally
+        .fromTo(
+          bandRef.current,
+          { scaleX: 0 },
+          { scaleX: 1, duration: 1.3, clearProps: 'transform' },
+          0.3
+        )
+        // Photo reveals with clip-path from bottom to top
+        .fromTo(
+          '.hero-ref__photo img',
+          { clipPath: 'inset(100% 0% 0% 0%)', yPercent: 8 },
+          { clipPath: 'inset(0% 0% 0% 0%)', yPercent: 0, duration: 1.5 },
+          0.5
+        )
+        // Left & Right inner blocks slide and fade in cleanly
+        .fromTo(
+          [sideInRef.current, rightInRef.current].filter(Boolean),
+          { y: 32, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.0, stagger: 0.1, clearProps: 'all' },
+          0.95
+        );
+
+      if (bandRef.current) {
+        gsap.set(bandRef.current, { rotation: -2.5 });
+      }
+
+      // 3. Infinite Logo Marquee Band (Single Driver: GSAP only)
+      const trackEl = trackRef.current;
+      const bandEl = bandRef.current;
+      if (trackEl && bandEl) {
+        const BAND_SPEED_PX_PER_SEC = isMobile ? 26 : 36;
+        const distanceTravelled = trackEl.scrollWidth / 2 || (isMobile ? 1200 : 2200);
+        const dynamicDuration = distanceTravelled / BAND_SPEED_PX_PER_SEC;
+
+        const marqueeTween = gsap.to(trackEl, {
+          xPercent: -50,
+          duration: dynamicDuration,
+          ease: 'none',
+          repeat: -1
+        });
+
+        // Hover: slow to half speed
+        const handleMouseEnter = () => {
+          gsap.to(marqueeTween, { timeScale: 0.5, duration: 0.35 });
+        };
+        const handleMouseLeave = () => {
+          gsap.to(marqueeTween, { timeScale: 1, duration: 0.35 });
+        };
+
+        bandEl.addEventListener('mouseenter', handleMouseEnter);
+        bandEl.addEventListener('mouseleave', handleMouseLeave);
+      }
+
+      // 4. Rotating words inside masked line (1.7s swap, 0.85s power4.inOut)
+      const rollInner = rollRef.current;
+      if (rollInner) {
+        const wordCount = rollInner.children.length;
+        if (wordCount > 1) {
+          const rollTl = gsap.timeline({ repeat: -1, delay: 2.2 });
+          for (let i = 1; i < wordCount; i++) {
+            rollTl.to(
+              rollInner,
+              { yPercent: (-100 / wordCount) * i, duration: 0.85, ease: 'power4.inOut' },
+              '+=1.7'
+            );
+          }
+          rollTl.set(rollInner, { yPercent: 0 });
+        }
+      }
+
+      // 5. Desktop-Only Media Queries using gsap.matchMedia()
+      mm.add('(min-width: 861px) and (pointer: fine)', () => {
+        // Desktop Scroll Scene
+        if (ScrollTrigger) {
+          const stMain = { trigger: heroEl, start: 'top top', end: 'bottom top', scrub: 0.6 };
+          gsap.to('.hero-ref__n1', { xPercent: -12, yPercent: -10, scrollTrigger: stMain, ease: 'none' });
+          gsap.to('.hero-ref__n2', { xPercent: 12, yPercent: 8, scrollTrigger: stMain, ease: 'none' });
+          gsap.to(photoRef.current, { yPercent: 10, scale: 1.08, transformOrigin: '50% 100%', scrollTrigger: stMain, ease: 'none' });
+
+          gsap.to([sideWrapRef.current, rightWrapRef.current].filter(Boolean), {
+            opacity: 0,
+            y: -45,
+            immediateRender: false,
+            scrollTrigger: { trigger: heroEl, start: 'top top', end: '55% top', scrub: 0.6 },
+            ease: 'none'
+          });
+        }
+
+        // Desktop Mouse Parallax Depth
+        const layers = [
+          { el: '.hero-ref__n1', d: 0.03 },
+          { el: '.hero-ref__n2', d: -0.05 },
+          { el: photoRef.current, d: 0.014 }
+        ].map((item) => ({
+          x: gsap.quickTo(item.el, 'x', { duration: 1, ease: 'power3' }),
+          y: gsap.quickTo(item.el, 'y', { duration: 1, ease: 'power3' }),
+          d: item.d
+        }));
+
+        const onMouseMove = (e) => {
+          const cx = e.clientX - window.innerWidth / 2;
+          const cy = e.clientY - window.innerHeight / 2;
+          layers.forEach((layer) => {
+            layer.x(cx * layer.d);
+            layer.y(cy * layer.d * 0.6);
+          });
+        };
+        const onMouseLeave = () => {
+          layers.forEach((layer) => {
+            layer.x(0);
+            layer.y(0);
+          });
+        };
+        heroEl.addEventListener('mousemove', onMouseMove);
+        heroEl.addEventListener('mouseleave', onMouseLeave);
+        window.addEventListener('blur', onMouseLeave);
+
+        // Soft Follower Glow
+        const glowEl = glowRef.current;
+        let onGlowMove = null;
+        if (glowEl) {
+          glowEl.style.display = 'block';
+          gsap.set(glowEl, { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+          const gx = gsap.quickTo(glowEl, 'x', { duration: 0.8, ease: 'power3' });
+          const gy = gsap.quickTo(glowEl, 'y', { duration: 0.8, ease: 'power3' });
+
+          onGlowMove = (e) => {
+            const rect = heroEl.getBoundingClientRect();
+            gx(e.clientX - rect.left);
+            gy(e.clientY - rect.top);
+          };
+          heroEl.addEventListener('mousemove', onGlowMove);
+        }
+
+        // Magnetic Buttons
+        const magBtns = heroEl.querySelectorAll('.mag');
+        const btnCleanups = [];
+        magBtns.forEach((btn) => {
+          const mx = gsap.quickTo(btn, 'x', { duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+          const my = gsap.quickTo(btn, 'y', { duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+
+          const onBtnMove = (e) => {
+            const b = btn.getBoundingClientRect();
+            mx((e.clientX - b.left - b.width / 2) * 0.35);
+            my((e.clientY - b.top - b.height / 2) * 0.35);
+          };
+          const onBtnLeave = () => {
+            mx(0);
+            my(0);
+          };
+
+          btn.addEventListener('mousemove', onBtnMove);
+          btn.addEventListener('mouseleave', onBtnLeave);
+          btnCleanups.push(() => {
+            btn.removeEventListener('mousemove', onBtnMove);
+            btn.removeEventListener('mouseleave', onBtnLeave);
+          });
+        });
+
+        return () => {
+          heroEl.removeEventListener('mousemove', onMouseMove);
+          heroEl.removeEventListener('mouseleave', onMouseLeave);
+          window.removeEventListener('blur', onMouseLeave);
+          if (onGlowMove) heroEl.removeEventListener('mousemove', onGlowMove);
+          btnCleanups.forEach(fn => fn());
+          gsap.set(['.hero-ref__n1', '.hero-ref__n2', photoRef.current], {
+            clearProps: 'x,y,xPercent,yPercent,transform'
+          });
+          if (glowEl) glowEl.style.display = 'none';
+        };
+      });
+
+      // Mobile Mode: ensure zero horizontal offset
+      mm.add('(max-width: 860px)', () => {
+        gsap.set(['.hero-ref__n1', '.hero-ref__n2', photoRef.current], {
+          clearProps: 'x,y,xPercent,yPercent,transform'
+        });
+        if (glowRef.current) glowRef.current.style.display = 'none';
+      });
+    }, heroRef);
+
+    const safetyTimer = setTimeout(() => {
+      if (sideInRef.current) sideInRef.current.style.opacity = '1';
+      if (rightInRef.current) rightInRef.current.style.opacity = '1';
+      if (sideWrapRef.current && window.scrollY < 50) sideWrapRef.current.style.opacity = '1';
+      if (rightWrapRef.current && window.scrollY < 50) rightWrapRef.current.style.opacity = '1';
+    }, 3500);
+
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        fitNames();
+        if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      });
+    }
+
+    const onResize = () => {
+      fitNames();
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
     };
 
-    heroEl.addEventListener('pointermove', handlePointerMove);
-    heroEl.addEventListener('pointerleave', handlePointerLeave);
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+
+    let resizeObserver = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        fitNames();
+      });
+      resizeObserver.observe(heroEl);
+    }
 
     return () => {
-      heroEl.removeEventListener('pointermove', handlePointerMove);
-      heroEl.removeEventListener('pointerleave', handlePointerLeave);
+      clearTimeout(safetyTimer);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+      const measurer = document.getElementById('hero-name-measurer');
+      if (measurer) measurer.remove();
+      if (resizeObserver) resizeObserver.disconnect();
+      mm.revert();
+      ctx.revert();
     };
   }, []);
 
-  // Background Canvas particles
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let W = 0, H = 0, dpr = 1;
-    let particles = [];
-    let rafId;
-    let pointer = { x: -9999, y: -9999 };
-
-    const resize = () => {
-      const r = canvas.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = r.width;
-      H = r.height;
-      canvas.width = Math.round(W * dpr);
-      canvas.height = Math.round(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const count = Math.min(85, Math.max(24, Math.round((W * H) / 17000)));
-      particles = [];
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
-          vx: (Math.random() - 0.5) * 0.28,
-          vy: (Math.random() - 0.5) * 0.28,
-          r: Math.random() * 1.4 + 0.6
-        });
-      }
-    };
-
-    const handlePointerMove = (e) => {
-      const r = canvas.getBoundingClientRect();
-      pointer.x = e.clientX - r.left;
-      pointer.y = e.clientY - r.top;
-    };
-
-    const handlePointerLeave = () => {
-      pointer.x = -9999;
-      pointer.y = -9999;
-    };
-
-    window.addEventListener('resize', resize);
-    window.addEventListener('pointermove', handlePointerMove);
-    document.documentElement.addEventListener('mouseleave', handlePointerLeave);
-    resize();
-
-    const draw = () => {
-      ctx.clearRect(0, 0, W, H);
-      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-      const col = isLight
-        ? { p: 'rgba(30,90,200,0.45)', l: 'rgba(30,90,200,' }
-        : { p: 'rgba(130,180,255,0.65)', l: 'rgba(100,160,255,' };
-
-      const linkDist = 125;
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < -10) p.x = W + 10;
-        else if (p.x > W + 10) p.x = -10;
-        if (p.y < -10) p.y = H + 10;
-        else if (p.y > H + 10) p.y = -10;
-
-        const dxm = p.x - pointer.x;
-        const dym = p.y - pointer.y;
-        const dm = Math.sqrt(dxm * dxm + dym * dym);
-        if (dm < 140 && dm > 0) {
-          p.x += (dxm / dm) * 0.6;
-          p.y += (dym / dm) * 0.6;
-        }
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = col.p;
-        ctx.fill();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const q = particles[j];
-          const dx = p.x - q.x;
-          const dy = p.y - q.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < linkDist * linkDist) {
-            const a = 1 - Math.sqrt(d2) / linkDist;
-            ctx.strokeStyle = `${col.l}${(a * 0.22).toFixed(3)})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.stroke();
-          }
-        }
-      }
-      rafId = requestAnimationFrame(draw);
-    };
-
-    rafId = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('pointermove', handlePointerMove);
-      document.documentElement.removeEventListener('mouseleave', handlePointerLeave);
-    };
-  }, [theme]);
-
-  const scrollTo = (e, id) => {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  const firstLetters = 'Eslam'.split('');
+  const lastLetters = 'Yasser'.split('');
 
   return (
-    <div className="hero-wrap" id="home">
-      <section className="hero" ref={heroRef} aria-label="Introduction">
-        <canvas className="hero__canvas" ref={canvasRef} id="bgCanvas" aria-hidden="true"></canvas>
-        <div className="hero__glow" aria-hidden="true"></div>
+    <section className="hero-ref" id="home" ref={heroRef} aria-label="Introduction">
+      <div className="hero-ref__glow" ref={glowRef} aria-hidden="true"></div>
 
-        {/* The giant name sits BEHIND the person */}
-        <h1 className="hero__title" aria-label="Eslam Yasser">
-          <span
-            className={`hero__line ${titleIn ? 'is-in' : ''}`}
-            data-split
-            style={{ '--base': '0s' }}
-          >
-            {'ESLAM'.split('').map((char, i) => (
-              <span key={i} className="char" style={{ '--i': i }}>
+      <div className="hero-ref__names" ref={namesRef}>
+        <div className="hero-ref__name hero-ref__n1" aria-label="Eslam">
+          <span className="hero-ref__mask" aria-hidden="true">
+            {firstLetters.map((char, index) => (
+              <span key={index} className="hero-ref__ch">
                 {char}
               </span>
             ))}
           </span>
-          <span
-            className={`hero__line hero__line--outline ${titleIn ? 'is-in' : ''}`}
-            data-split
-            style={{ '--base': '0.2s' }}
-          >
-            {'YASSER'.split('').map((char, i) => (
-              <span key={i} className="char" style={{ '--i': i }}>
+        </div>
+        <div className="hero-ref__name hero-ref__n2" aria-label="Yasser">
+          <span className="hero-ref__mask" aria-hidden="true">
+            {lastLetters.map((char, index) => (
+              <span key={index} className="hero-ref__ch">
                 {char}
               </span>
             ))}
           </span>
-        </h1>
+        </div>
+      </div>
 
-        <div className="stage" id="stage">
-          <div className="stage__floor" aria-hidden="true"></div>
-          <div className="stage__halo" aria-hidden="true"></div>
+      <div className="hero-ref__band-wrap" ref={bandWrapRef}>
+        <section className="strip" aria-label="Technologies I work with" ref={bandRef}>
+          <div className="strip__track" ref={trackRef}>
+            {[0, 1, 2, 3].map((groupIndex) => (
+              <ul
+                key={groupIndex}
+                className="strip__group"
+                aria-hidden={groupIndex > 0 ? 'true' : undefined}
+              >
+                {techLogos.map((logo, i) => (
+                  <React.Fragment key={`${groupIndex}-${i}`}>
+                    <li className="logo" title={logo.title}>
+                      <span
+                        className="logo-icon"
+                        style={{
+                          WebkitMaskImage: `url(${logo.src})`,
+                          maskImage: `url(${logo.src})`,
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain'
+                        }}
+                        aria-label={logo.title}
+                      />
+                    </li>
+                    <li className="strip__sep-item" aria-hidden="true">
+                      <span className="strip__sep"></span>
+                    </li>
+                  </React.Fragment>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </section>
+      </div>
 
-          {/* Card 1: Frontend Architecture Telemetry */}
-          <div
-            className="float float--code"
-            aria-hidden="true"
-            style={{ '--k': -18, '--ox': '-34vw', '--oy': '-8vh', '--or': '-16deg', '--d': '1.0s' }}
-          >
-            <div className="float__card float__card--hud" style={{ '--r': '-4deg' }}>
-              <div className="hud__header">
-                <span className="hud__pulse"></span>
-                <span className="hud__label">Frontend Core</span>
-                <span className="hud__tag">Angular 19</span>
-              </div>
-              <div className="hud__body">
-                <div className="hud__title">⚡ Clean Architecture</div>
-                <div className="hud__metrics">
-                  <span className="hud__metric"><em>Signals:</em> Reactive</span>
-                  <span className="hud__metric"><em>Type-Safe:</em> 100%</span>
-                </div>
-              </div>
-            </div>
+      <div className="hero-ref__photo" ref={photoRef}>
+        <img
+          className="hero-ref__me"
+          src="./assets/me.png"
+          alt="Eslam Yasser - Full-Stack Developer"
+          onLoad={() => {
+            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+          }}
+          onError={(e) => {
+            if (!e.currentTarget.src.includes('Eslam_Portfolio3')) {
+              e.currentTarget.src = '/assets/img/Eslam_Portfolio3-removebg-preview.png';
+            }
+          }}
+        />
+      </div>
+
+      <div className="hero-ref__side-wrap" ref={sideWrapRef}>
+        <div className="hero-ref__side-in" ref={sideInRef}>
+          <div className="hero-ref__status">
+            <i aria-hidden="true"></i>
+            <span>Open to work &amp; freelance</span>
+          </div>
+          <h1 aria-label="I build APIs that last">
+            I build{' '}
+            <span className="hero-ref__roll" aria-hidden="true">
+              <span className="hero-ref__roll-in" ref={rollRef}>
+                <span className="hero-ref__w">APIs that last</span>
+                <span className="hero-ref__w">Angular apps that scale</span>
+                <span className="hero-ref__w">MongoDB models that fit</span>
+                <span className="hero-ref__w">APIs that last</span>
+              </span>
+            </span>
+          </h1>
+          <div className="hero-ref__btns">
+            <a className="btn btn--primary mag" href="#projects">
+              <span>See my work</span>
+            </a>
+            <a
+              className="btn btn--ghost mag"
+              href="/assets/pdf/EslamCV.pdf"
+              download="Eslam_Yasser_CV.pdf"
+            >
+              <span>Download CV</span>
+            </a>
           </div>
 
-          {/* Card 2: CS Instructor Impact */}
-          <div
-            className="float float--api"
-            aria-hidden="true"
-            style={{ '--k': 22, '--ox': '34vw', '--oy': '-10vh', '--or': '14deg', '--d': '1.15s' }}
-          >
-            <div className="float__card float__card--hud" style={{ '--r': '3deg' }}>
-              <div className="hud__header">
-                <span className="hud__pulse hud__pulse--purple"></span>
-                <span className="hud__label">CS Mentor</span>
-                <span className="hud__tag hud__tag--purple">Instructor</span>
-              </div>
-              <div className="hud__body">
-                <div className="hud__title">🎓 2,000+ Students Mentored</div>
-                <div className="hud__metrics">
-                  <span className="hud__metric"><em>Track:</em> MEAN Stack</span>
-                  <span className="hud__metric"><em>DSA &amp; OOP</em></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Portrait cutout - constrained below navbar */}
-          <figure className={`portrait ${!portraitLoaded ? 'no-img' : ''}`} id="portrait">
-            <div className="portrait__in">
-              <img
-                src="/assets/img/Eslam_Portfolio3-removebg-preview.png"
-                alt="Portrait of Eslam Yasser"
-                width="620"
-                height="1228"
-                onError={() => setPortraitLoaded(false)}
-              />
-              {!portraitLoaded && (
-                <svg className="portrait__fallback" viewBox="0 0 400 500" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="fbBody" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0" stopColor="#3b82ff" />
-                      <stop offset="1" stopColor="#16327a" />
-                    </linearGradient>
-                    <linearGradient id="fbChair" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0" stopColor="#1b2b4d" />
-                      <stop offset="1" stopColor="#0b1730" />
-                    </linearGradient>
-                  </defs>
-                  <rect x="112" y="150" width="176" height="250" rx="44" fill="url(#fbChair)" stroke="#2b4a86" strokeWidth="2" />
-                  <rect x="190" y="400" width="20" height="62" rx="8" fill="#0f1f43" />
-                  <g stroke="#2b4a86" strokeWidth="9" strokeLinecap="round">
-                    <path d="M200 462 L112 486" />
-                    <path d="M200 462 L288 486" />
-                    <path d="M200 462 L200 490" />
-                  </g>
-                  <g fill="#0b1730" stroke="#2b4a86" strokeWidth="2">
-                    <circle cx="108" cy="490" r="9" />
-                    <circle cx="292" cy="490" r="9" />
-                    <circle cx="200" cy="494" r="9" />
-                  </g>
-                  <rect x="140" y="345" width="56" height="92" rx="24" fill="#0f1f43" />
-                  <rect x="204" y="345" width="56" height="92" rx="24" fill="#0f1f43" />
-                  <path d="M132 192 Q132 176 152 176 L248 176 Q268 176 268 192 L262 350 L138 350 Z" fill="url(#fbBody)" />
-                  <path d="M138 205 Q110 272 160 322" stroke="#2f6df0" strokeWidth="30" fill="none" strokeLinecap="round" />
-                  <path d="M262 205 Q290 272 240 322" stroke="#2f6df0" strokeWidth="30" fill="none" strokeLinecap="round" />
-                  <rect x="184" y="150" width="32" height="34" rx="12" fill="#d9a784" />
-                  <circle cx="200" cy="108" r="42" fill="#e7b894" />
-                  <path d="M158 104 Q158 62 200 62 Q242 62 242 104 Q226 84 200 84 Q174 84 158 104 Z" fill="#0d1426" />
-                  <path d="M118 346 L282 346 L264 322 L136 322 Z" fill="#1b2b4d" stroke="#3b82ff" strokeWidth="2" />
-                  <rect x="140" y="250" width="120" height="74" rx="6" fill="#0e1b36" stroke="#3b82ff" strokeWidth="2" />
-                  <text x="200" y="298" textAnchor="middle" fontFamily="monospace" fontSize="26" fill="#4be1d0">&lt;/&gt;</text>
-                </svg>
-              )}
-            </div>
-          </figure>
-
-          {/* Card 3: Backend & Cloud Telemetry */}
-          <div
-            className="float float--db float--front"
-            aria-hidden="true"
-            style={{ '--k': -30, '--ox': '30vw', '--oy': '16vh', '--or': '10deg', '--d': '1.45s' }}
-          >
-            <div className="float__card float__card--hud" style={{ '--r': '3deg' }}>
-              <div className="hud__header">
-                <span className="hud__pulse hud__pulse--green"></span>
-                <span className="hud__label">Cloud &amp; Backend</span>
-                <span className="hud__tag hud__tag--green">200 OK</span>
-              </div>
-              <div className="hud__body">
-                <div className="hud__title">🍃 Node · Express · Mongo</div>
-                <div className="hud__metrics">
-                  <span className="hud__metric"><em>Latency:</em> 12ms</span>
-                  <span className="hud__metric"><em>JWT Auth:</em> Active ✓</span>
-                </div>
-              </div>
-            </div>
+          <div className="hero-ref__mobile-soc" aria-label="Social profiles">
+            <a
+              href="https://github.com/eslamyf"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+            >
+              <IconGithub className="i" />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/eslam-yasser-swe/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
+              <IconLinkedin className="i" />
+            </a>
+            <a
+              href="https://wa.me/201016550774"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+            >
+              <IconWhatsapp className="i" />
+            </a>
+            <a
+              href="mailto:eslamyasser.swe@gmail.com"
+              aria-label="Email"
+            >
+              <IconMail className="i" />
+            </a>
           </div>
         </div>
+      </div>
 
-        <p className="corner corner--tl" style={{ '--d': '1.5s' }}>
-          <b>Full-Stack MEAN</b>
-          <span>Angular · Express · Node · MongoDB</span>
-        </p>
-
-        <p className="corner corner--tr" style={{ '--d': '1.6s' }}>
+      <div className="hero-ref__right-wrap" ref={rightWrapRef}>
+        <div className="hero-ref__right-in" ref={rightInRef}>
           <b>Qena, Egypt</b>
-          <span><span id="heroClock">{clock}</span> local time</span>
-        </p>
-
-        <div className="hero__foot">
-          <div className="hero__copy">
-            <p className="eyebrow hero-in" style={{ '--d': '.9s' }}>
-              <span className="pulse"></span> Open to work &amp; freelance
-            </p>
-            <p className="hero__role hero-in" style={{ '--d': '1s' }}>
-              <span className="hero__role-static">I build</span>{' '}
-              <span className="rotator" id="rotator" ref={rotatorRef} aria-live="polite">
-                {roles.map((role, idx) => {
-                  let cls = 'rotator__word';
-                  if (idx === currentRole) cls += ' is-in';
-                  else if (idx === prevRole) cls += ' is-out';
-                  return (
-                    <span
-                      key={idx}
-                      ref={(el) => (wordRefs.current[idx] = el)}
-                      className={cls}
-                    >
-                      {role}
-                    </span>
-                  );
-                })}
-              </span>
-            </p>
-
-            <div className="hero__tech-capsules hero-in" style={{ '--d': '1.05s' }}>
-              <span className="tech-capsule tech-capsule--cyan">
-                <i className="tech-capsule__dot"></i>
-                <b>Angular 19</b>
-              </span>
-              <span className="tech-capsule tech-capsule--green">
-                <i className="tech-capsule__dot"></i>
-                <b>Node · Express</b>
-              </span>
-              <span className="tech-capsule tech-capsule--emerald">
-                <i className="tech-capsule__dot"></i>
-                <b>MongoDB Atlas</b>
-              </span>
-              <span className="tech-capsule tech-capsule--purple">
-                <i className="tech-capsule__dot"></i>
-                <b>REST APIs</b>
-              </span>
-            </div>
-
-            <p className="hero__lead hero-in" style={{ '--d': '1.1s' }}>
-              Full-Stack developer working with Angular, React, Node.js, Express and MongoDB &mdash; and an instructor who makes programming click for CS students.
-            </p>
-            <div className="hero__cta hero-in" style={{ '--d': '1.2s' }}>
-              <a
-                href="#projects"
-                onClick={(e) => scrollTo(e, 'projects')}
-                className="btn btn--primary"
-                data-magnetic
-              >
-                <span>See my work</span>
-                <IconArrowR className="i" />
-              </a>
-              <a
-                href="/assets/pdf/EslamCV.pdf"
-                className="btn btn--ghost"
-                download
-                data-magnetic
-              >
-                <IconDownload className="i" />
-                <span>Download CV</span>
-              </a>
-            </div>
+          <span className="hero-ref__role">Full-stack developer, MEAN stack</span>
+          <div className="hero-ref__soc">
+            <a
+              href="https://github.com/eslamyf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mag"
+              aria-label="GitHub"
+            >
+              <IconGithub className="i" />
+              <span>GitHub</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/eslam-yasser-swe/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mag"
+              aria-label="LinkedIn"
+            >
+              <IconLinkedin className="i" />
+              <span>LinkedIn</span>
+            </a>
+            <a
+              href="https://wa.me/201016550774"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mag"
+              aria-label="WhatsApp"
+            >
+              <IconWhatsapp className="i" />
+            </a>
+            <a
+              href="mailto:eslamyasser.swe@gmail.com"
+              className="mag"
+              aria-label="Email"
+            >
+              <IconMail className="i" />
+              <span>Email</span>
+            </a>
           </div>
-
-          <ul className="hero__social hero-in" style={{ '--d': '1.3s' }} aria-label="Social links">
-            <li>
-              <a href="https://github.com/eslamyasser" target="_blank" rel="noopener noreferrer" aria-label="GitHub" data-magnetic>
-                <IconGithub className="i i--fill" />
-              </a>
-            </li>
-            <li>
-              <a href="https://www.linkedin.com/in/eslam-yasser" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" data-magnetic>
-                <IconLinkedin className="i i--fill" />
-              </a>
-            </li>
-            <li>
-              <a href="https://wa.me/201028103634" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" data-magnetic>
-                <IconWhatsapp className="i" />
-              </a>
-            </li>
-            <li>
-              <a href="mailto:eslam9076460@gmail.com" aria-label="Email" data-magnetic>
-                <IconMail className="i" />
-              </a>
-            </li>
-          </ul>
         </div>
-
-        <a
-          href="#about"
-          onClick={(e) => scrollTo(e, 'about')}
-          className="scroll-cue"
-          aria-label="Scroll to About"
-        >
-          <span></span>
-        </a>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 };
