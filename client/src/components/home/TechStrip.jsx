@@ -2,21 +2,21 @@ import React from 'react';
 
 export const TechStrip = () => {
   const logos = [
-    { title: 'Angular', src: 'https://cdn.simpleicons.org/angular' },
-    { title: 'React', src: 'https://cdn.simpleicons.org/react' },
-    { title: 'TypeScript', src: 'https://cdn.simpleicons.org/typescript' },
-    { title: 'Node.js', src: 'https://cdn.simpleicons.org/nodedotjs' },
-    { title: 'Express', src: 'https://cdn.simpleicons.org/express/FFFFFF', inv: true },
-    { title: 'MongoDB', src: 'https://cdn.simpleicons.org/mongodb' },
-    { title: 'JavaScript', src: 'https://cdn.simpleicons.org/javascript' },
-    { title: 'HTML5', src: 'https://cdn.simpleicons.org/html5' },
-    { title: 'CSS3', src: 'https://cdn.simpleicons.org/css3/3C99DC' },
-    { title: 'Git', src: 'https://cdn.simpleicons.org/git' },
-    { title: 'GitHub', src: 'https://cdn.simpleicons.org/github/FFFFFF', inv: true },
-    { title: 'Postman', src: 'https://cdn.simpleicons.org/postman' },
-    { title: 'Bootstrap', src: 'https://cdn.simpleicons.org/bootstrap' },
-    { title: 'C++', src: 'https://cdn.simpleicons.org/cplusplus/659AD2' },
-    { title: 'Python', src: 'https://cdn.simpleicons.org/python/4B8BBE' }
+    { title: 'MongoDB', src: '/assets/img/tech-color/mongodb.svg' },
+    { title: 'JavaScript', src: '/assets/img/tech-color/javascript.svg' },
+    { title: 'HTML5', src: '/assets/img/tech-color/html5.svg' },
+    { title: 'CSS3', src: '/assets/img/tech-color/css3.svg' },
+    { title: 'Git', src: '/assets/img/tech-color/git.svg' },
+    { title: 'GitHub', src: '/assets/img/tech-color/github.svg' },
+    { title: 'Postman', src: '/assets/img/tech-color/postman.svg' },
+    { title: 'Bootstrap', src: '/assets/img/tech-color/bootstrap.svg' },
+    { title: 'C++', src: '/assets/img/tech-color/cplusplus.svg' },
+    { title: 'Python', src: '/assets/img/tech-color/python.svg' },
+    { title: 'Angular', src: '/assets/img/tech-color/angular.svg' },
+    { title: 'React', src: '/assets/img/tech-color/react.svg' },
+    { title: 'Node.js', src: '/assets/img/tech-color/nodedotjs.svg' },
+    { title: 'Express', src: '/assets/img/tech-color/express.svg' },
+    { title: 'TypeScript', src: '/assets/img/tech-color/typescript.svg' }
   ];
 
   const handleImageError = (e, name) => {

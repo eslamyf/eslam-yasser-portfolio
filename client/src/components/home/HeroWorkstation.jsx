@@ -6,32 +6,11 @@ export const HeroWorkstation = () => {
   const glowRef = useRef(null);
   const namesRef = useRef(null);
   const photoRef = useRef(null);
-  const bandWrapRef = useRef(null);
-  const bandRef = useRef(null);
-  const trackRef = useRef(null);
   const rollRef = useRef(null);
   const sideWrapRef = useRef(null);
   const sideInRef = useRef(null);
   const rightWrapRef = useRef(null);
   const rightInRef = useRef(null);
-
-  const techLogos = [
-    { title: 'Angular', src: '/assets/img/tech/angular.svg' },
-    { title: 'React', src: '/assets/img/tech/react.svg' },
-    { title: 'TypeScript', src: '/assets/img/tech/typescript.svg' },
-    { title: 'Node.js', src: '/assets/img/tech/nodedotjs.svg' },
-    { title: 'Express', src: '/assets/img/tech/express.svg' },
-    { title: 'MongoDB', src: '/assets/img/tech/mongodb.svg' },
-    { title: 'JavaScript', src: '/assets/img/tech/javascript.svg' },
-    { title: 'HTML5', src: '/assets/img/tech/html5.svg' },
-    { title: 'CSS3', src: '/assets/img/tech/css.svg' },
-    { title: 'Git', src: '/assets/img/tech/git.svg' },
-    { title: 'GitHub', src: '/assets/img/tech/github.svg' },
-    { title: 'Postman', src: '/assets/img/tech/postman.svg' },
-    { title: 'Bootstrap', src: '/assets/img/tech/bootstrap.svg' },
-    { title: 'C++', src: '/assets/img/tech/cplusplus.svg' },
-    { title: 'Python', src: '/assets/img/tech/python.svg' }
-  ];
 
   useEffect(() => {
     const gsap = window.gsap;
@@ -104,9 +83,6 @@ export const HeroWorkstation = () => {
       // 1. Initial State
       gsap.set('.hero-ref__names', { opacity: 1 });
       gsap.set(photoRef.current, { clearProps: 'transform' });
-      if (bandRef.current) {
-        gsap.set(bandRef.current, { rotation: -2.5, transformOrigin: 'center center' });
-      }
 
       // 2. Intro Entrance Timeline
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
@@ -134,13 +110,6 @@ export const HeroWorkstation = () => {
           { yPercent: 0, rotate: 0, duration: 1.3, stagger: 0.07, clearProps: 'transform' },
           0.35
         )
-        // Tilted logo band scales horizontally
-        .fromTo(
-          bandRef.current,
-          { scaleX: 0 },
-          { scaleX: 1, duration: 1.3, clearProps: 'transform' },
-          0.3
-        )
         // Photo reveals with clip-path from bottom to top
         .fromTo(
           '.hero-ref__photo img',
@@ -155,37 +124,6 @@ export const HeroWorkstation = () => {
           { y: 0, opacity: 1, duration: 1.0, stagger: 0.1, clearProps: 'all' },
           0.95
         );
-
-      if (bandRef.current) {
-        gsap.set(bandRef.current, { rotation: -2.5 });
-      }
-
-      // 3. Infinite Logo Marquee Band (Single Driver: GSAP only)
-      const trackEl = trackRef.current;
-      const bandEl = bandRef.current;
-      if (trackEl && bandEl) {
-        const BAND_SPEED_PX_PER_SEC = isMobile ? 26 : 36;
-        const distanceTravelled = trackEl.scrollWidth / 2 || (isMobile ? 1200 : 2200);
-        const dynamicDuration = distanceTravelled / BAND_SPEED_PX_PER_SEC;
-
-        const marqueeTween = gsap.to(trackEl, {
-          xPercent: -50,
-          duration: dynamicDuration,
-          ease: 'none',
-          repeat: -1
-        });
-
-        // Hover: slow to half speed
-        const handleMouseEnter = () => {
-          gsap.to(marqueeTween, { timeScale: 0.5, duration: 0.35 });
-        };
-        const handleMouseLeave = () => {
-          gsap.to(marqueeTween, { timeScale: 1, duration: 0.35 });
-        };
-
-        bandEl.addEventListener('mouseenter', handleMouseEnter);
-        bandEl.addEventListener('mouseleave', handleMouseLeave);
-      }
 
       // 4. Rotating words inside masked line (1.7s swap, 0.85s power4.inOut)
       const rollInner = rollRef.current;
@@ -385,44 +323,6 @@ export const HeroWorkstation = () => {
         </div>
       </div>
 
-      <div className="hero-ref__band-wrap" ref={bandWrapRef}>
-        <section className="strip" aria-label="Technologies I work with" ref={bandRef}>
-          <div className="strip__track" ref={trackRef}>
-            {[0, 1, 2, 3].map((groupIndex) => (
-              <ul
-                key={groupIndex}
-                className="strip__group"
-                aria-hidden={groupIndex > 0 ? 'true' : undefined}
-              >
-                {techLogos.map((logo, i) => (
-                  <React.Fragment key={`${groupIndex}-${i}`}>
-                    <li className="logo" title={logo.title}>
-                      <span
-                        className="logo-icon"
-                        style={{
-                          WebkitMaskImage: `url(${logo.src})`,
-                          maskImage: `url(${logo.src})`,
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center',
-                          maskPosition: 'center',
-                          WebkitMaskSize: 'contain',
-                          maskSize: 'contain'
-                        }}
-                        aria-label={logo.title}
-                      />
-                    </li>
-                    <li className="strip__sep-item" aria-hidden="true">
-                      <span className="strip__sep"></span>
-                    </li>
-                  </React.Fragment>
-                ))}
-              </ul>
-            ))}
-          </div>
-        </section>
-      </div>
-
       <div className="hero-ref__photo" ref={photoRef}>
         <img
           className="hero-ref__me"
@@ -439,113 +339,116 @@ export const HeroWorkstation = () => {
         />
       </div>
 
-      <div className="hero-ref__side-wrap" ref={sideWrapRef}>
-        <div className="hero-ref__side-in" ref={sideInRef}>
-          <div className="hero-ref__status">
-            <i aria-hidden="true"></i>
-            <span>Open to work &amp; freelance</span>
-          </div>
-          <h1 aria-label="I build APIs that last">
-            I build{' '}
-            <span className="hero-ref__roll" aria-hidden="true">
-              <span className="hero-ref__roll-in" ref={rollRef}>
-                <span className="hero-ref__w">APIs that last</span>
-                <span className="hero-ref__w">Angular apps that scale</span>
-                <span className="hero-ref__w">MongoDB models that fit</span>
-                <span className="hero-ref__w">APIs that last</span>
+      <div className="hero-ref__container">
+        <div className="hero-ref__side-wrap" ref={sideWrapRef}>
+          <div className="hero-ref__side-in" ref={sideInRef}>
+            <div className="hero-ref__status">
+              <i aria-hidden="true"></i>
+              <span>Open to work &amp; freelance</span>
+            </div>
+            <h1 aria-label="I build APIs that last">
+              I build{' '}
+              <span className="hero-ref__roll" aria-hidden="true">
+                <span className="hero-ref__roll-in" ref={rollRef}>
+                  <span className="hero-ref__w">APIs that last</span>
+                  <span className="hero-ref__w">Angular apps that scale</span>
+                  <span className="hero-ref__w">MongoDB models that fit</span>
+                  <span className="hero-ref__w">APIs that last</span>
+                </span>
               </span>
-            </span>
-          </h1>
-          <div className="hero-ref__btns">
-            <a className="btn btn--primary mag" href="#projects">
-              <span>See my work</span>
-            </a>
-            <a
-              className="btn btn--ghost mag"
-              href="/assets/pdf/EslamCV.pdf"
-              download="Eslam_Yasser_CV.pdf"
-            >
-              <span>Download CV</span>
-            </a>
-          </div>
+            </h1>
+            <div className="hero-ref__btns">
+              <a className="btn btn--primary mag" href="#projects">
+                <span>See my work</span>
+              </a>
+              <a
+                className="btn btn--ghost mag"
+                href="/assets/pdf/EslamCV.pdf"
+                download="Eslam_Yasser_CV.pdf"
+              >
+                <span>Download CV</span>
+              </a>
+            </div>
 
-          <div className="hero-ref__mobile-soc" aria-label="Social profiles">
-            <a
-              href="https://github.com/eslamyf"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-            >
-              <IconGithub className="i" />
-            </a>
-            <a
-              href="https://www.linkedin.com/in/eslam-yasser-swe/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-            >
-              <IconLinkedin className="i" />
-            </a>
-            <a
-              href="https://wa.me/201016550774"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp"
-            >
-              <IconWhatsapp className="i" />
-            </a>
-            <a
-              href="mailto:eslamyasser.swe@gmail.com"
-              aria-label="Email"
-            >
-              <IconMail className="i" />
-            </a>
+            <div className="hero-ref__mobile-soc" aria-label="Social profiles">
+              <a
+                href="https://github.com/eslamyf"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+              >
+                <IconGithub className="i" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/eslam-yasser-swe/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+              >
+                <IconLinkedin className="i" />
+              </a>
+              <a
+                href="https://wa.me/201016550774"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+              >
+                <IconWhatsapp className="i" />
+              </a>
+              <a
+                href="mailto:eslamyasser.swe@gmail.com"
+                aria-label="Email"
+              >
+                <IconMail className="i" />
+              </a>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="hero-ref__right-wrap" ref={rightWrapRef}>
-        <div className="hero-ref__right-in" ref={rightInRef}>
-          <b>Qena, Egypt</b>
-          <span className="hero-ref__role">Full-stack developer, MEAN stack</span>
-          <div className="hero-ref__soc">
-            <a
-              href="https://github.com/eslamyf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mag"
-              aria-label="GitHub"
-            >
-              <IconGithub className="i" />
-              <span>GitHub</span>
-            </a>
-            <a
-              href="https://www.linkedin.com/in/eslam-yasser-swe/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mag"
-              aria-label="LinkedIn"
-            >
-              <IconLinkedin className="i" />
-              <span>LinkedIn</span>
-            </a>
-            <a
-              href="https://wa.me/201016550774"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mag"
-              aria-label="WhatsApp"
-            >
-              <IconWhatsapp className="i" />
-            </a>
-            <a
-              href="mailto:eslamyasser.swe@gmail.com"
-              className="mag"
-              aria-label="Email"
-            >
-              <IconMail className="i" />
-              <span>Email</span>
-            </a>
+        <div className="hero-ref__right-wrap" ref={rightWrapRef}>
+          <div className="hero-ref__right-in" ref={rightInRef}>
+            <b>Qena, Egypt</b>
+            <span className="hero-ref__role">Full-stack developer, MEAN stack</span>
+            <div className="hero-ref__soc">
+              <a
+                href="https://github.com/eslamyf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mag"
+                aria-label="GitHub"
+              >
+                <IconGithub className="i" />
+                <span>GitHub</span>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/eslam-yasser-swe/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mag"
+                aria-label="LinkedIn"
+              >
+                <IconLinkedin className="i" />
+                <span>LinkedIn</span>
+              </a>
+              <a
+                href="https://wa.me/201016550774"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mag"
+                aria-label="WhatsApp"
+              >
+                <IconWhatsapp className="i" />
+                <span>WhatsApp</span>
+              </a>
+              <a
+                href="mailto:eslamyasser.swe@gmail.com"
+                className="mag"
+                aria-label="Email"
+              >
+                <IconMail className="i" />
+                <span>Email</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>

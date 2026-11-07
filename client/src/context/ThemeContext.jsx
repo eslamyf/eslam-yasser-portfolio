@@ -20,7 +20,7 @@ export const ThemeProvider = ({ children }) => {
 
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', theme === 'light' ? '#FAF7F2' : '#0C1425');
+      meta.setAttribute('content', theme === 'light' ? '#F6F4EF' : '#0A0E2E');
     }
   }, [theme]);
 

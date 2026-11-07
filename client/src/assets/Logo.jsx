@@ -15,30 +15,30 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
         <defs>
           {/* Deep Navy Glass Background */}
           <radialGradient id="ey-bg-grad" cx="50%" cy="25%" r="85%">
-            <stop offset="0%" stopColor="#1E2F52" />
-            <stop offset="60%" stopColor="#14213D" />
-            <stop offset="100%" stopColor="#0B1220" />
+            <stop offset="0%" stopColor="#121742" />
+            <stop offset="60%" stopColor="#0A0E2E" />
+            <stop offset="100%" stopColor="#070A20" />
           </radialGradient>
 
-          {/* Coral Primary Brand Gradient */}
+          {/* Cobalt Primary Brand Gradient */}
           <linearGradient id="ey-primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF8375" />
-            <stop offset="50%" stopColor="#FF6B5B" />
-            <stop offset="100%" stopColor="#E64C3B" />
+            <stop offset="0%" stopColor="#4D5FFF" />
+            <stop offset="50%" stopColor="#2438F5" />
+            <stop offset="100%" stopColor="#1B2BD0" />
           </linearGradient>
 
-          {/* Cream Secondary Gradient */}
+          {/* Sun Yellow Secondary Gradient */}
           <linearGradient id="ey-secondary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="50%" stopColor="#F4EDE0" />
-            <stop offset="100%" stopColor="#D9CFC1" />
+            <stop offset="0%" stopColor="#FFF285" />
+            <stop offset="50%" stopColor="#FFE14D" />
+            <stop offset="100%" stopColor="#E6C429" />
           </linearGradient>
 
-          {/* Border Gradient (Coral -> Cream -> Navy) */}
+          {/* Border Gradient (Cobalt -> Yellow -> Navy) */}
           <linearGradient id="ey-border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF6B5B" stopOpacity="0.85" />
-            <stop offset="50%" stopColor="#F4EDE0" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#14213D" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="#2438F5" stopOpacity="0.85" />
+            <stop offset="50%" stopColor="#FFE14D" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#0A0E2E" stopOpacity="0.8" />
           </linearGradient>
 
           {/* Precision Neon Glow Filter */}
@@ -54,7 +54,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
 
           {/* Drop Shadow */}
           <filter id="ey-drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#FF6B5B" floodOpacity="0.30" />
+            <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#2438F5" floodOpacity="0.30" />
           </filter>
         </defs>
 
@@ -72,7 +72,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
         />
 
         {/* Ambient Core Lighting */}
-        <circle cx="50" cy="50" r="30" fill="#FF6B5B" opacity="0.14" filter="url(#ey-neon-glow)" />
+        <circle cx="50" cy="50" r="30" fill="#2438F5" opacity="0.16" filter="url(#ey-neon-glow)" />
 
         {/* Monogram Graphic Layer */}
         <g filter="url(#ey-neon-glow)">
@@ -113,12 +113,12 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
           />
 
           {/* Terminal Accent Dot */}
-          <circle cx="78" cy="72" r="3.5" fill="#FF6B5B" />
+          <circle cx="78" cy="72" r="3.5" fill="#FFE14D" />
 
           {/* Subtle Star at Top Right */}
           <path
             d="M 83 18 L 84.5 22.5 L 89 24 L 84.5 25.5 L 83 30 L 81.5 25.5 L 77 24 L 81.5 22.5 Z"
-            fill="#F4EDE0"
+            fill="#FFE14D"
             opacity="0.95"
           />
         </g>
@@ -130,7 +130,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             fontSize: `${Math.round(size * 0.44)}px`,
             fontWeight: 800,
             letterSpacing: '-0.02em',
-            background: 'linear-gradient(135deg, #F4EDE0 40%, #FF6B5B 100%)',
+            background: 'linear-gradient(135deg, #F6F4EF 40%, #FFE14D 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             fontFamily: 'inherit'
@@ -142,7 +142,7 @@ export const Logo = ({ size = 36, className = '', showText = false, animated = t
             fontWeight: 600,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'var(--mut, #C4B9AA)',
+            color: 'var(--mut, #A5A8C4)',
             marginTop: '2px'
           }}>
             Full-Stack Dev
