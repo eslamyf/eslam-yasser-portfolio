@@ -3,7 +3,6 @@ import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { CustomCursor } from '../components/layout/CustomCursor';
 import { HeroWorkstation } from '../components/home/HeroWorkstation';
-import { TechStrip } from '../components/home/TechStrip';
 import { AboutSection } from '../components/home/AboutSection';
 import { ServicesSection } from '../components/home/ServicesSection';
 import { ProjectsSection } from '../components/home/ProjectsSection';
@@ -134,7 +133,6 @@ export const HomePage = () => {
 
       <main id="main">
         <HeroWorkstation />
-        <TechStrip />
         <AboutSection />
         <ServicesSection />
         <ProjectsSection />

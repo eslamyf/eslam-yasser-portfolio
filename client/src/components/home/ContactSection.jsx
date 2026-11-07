@@ -10,6 +10,24 @@ import {
   IconGithub
 } from '../../assets/icons';
 
+const IconInstagram = ({ className = 'i' }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    width="24"
+    height="24"
+    strokeWidth="2"
+    stroke="currentColor"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
 export const ContactSection = () => {
   const { showToast } = useToast();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -185,14 +203,14 @@ export const ContactSection = () => {
             <a
               className="channel reveal is-in"
               style={{ '--d': '.19s' }}
-              href="https://www.linkedin.com/in/eslam-yasser"
+              href="https://www.linkedin.com/in/eslamyf/"
               target="_blank"
               rel="noopener noreferrer"
             >
               <IconLinkedin className="i i--fill" />
               <div>
                 <small>LinkedIn</small>
-                <b>/in/eslam-yasser</b>
+                <b>/in/eslamyf</b>
               </div>
               <span className="channel__act">
                 <IconArrowUR className="i" />
@@ -202,14 +220,31 @@ export const ContactSection = () => {
             <a
               className="channel reveal is-in"
               style={{ '--d': '.26s' }}
-              href="https://github.com/eslamyasser"
+              href="https://www.instagram.com/_eslamyf/?hl=ar"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <IconInstagram className="i" />
+              <div>
+                <small>Instagram</small>
+                <b>@_eslamyf</b>
+              </div>
+              <span className="channel__act">
+                <IconArrowUR className="i" />
+              </span>
+            </a>
+
+            <a
+              className="channel reveal is-in"
+              style={{ '--d': '.33s' }}
+              href="https://github.com/eslamyf"
               target="_blank"
               rel="noopener noreferrer"
             >
               <IconGithub className="i i--fill" />
               <div>
                 <small>GitHub</small>
-                <b>/eslamyasser</b>
+                <b>/eslamyf</b>
               </div>
               <span className="channel__act">
                 <IconArrowUR className="i" />

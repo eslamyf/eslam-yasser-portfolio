@@ -1,5 +1,27 @@
 import React, { useEffect, useRef } from 'react';
 import { IconGithub, IconLinkedin, IconWhatsapp, IconMail } from '../../assets/icons';
+import { TechStrip } from './TechStrip';
+import meWebp from '../../assets/me.webp';
+import me960Webp from '../../assets/me-960.webp';
+import mePng from '../../assets/me.png';
+
+const IconInstagram = ({ className = 'i' }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    width="24"
+    height="24"
+    strokeWidth="2"
+    stroke="currentColor"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
 
 export const HeroWorkstation = () => {
   const heroRef = useRef(null);
@@ -112,10 +134,17 @@ export const HeroWorkstation = () => {
         )
         // Photo reveals with clip-path from bottom to top
         .fromTo(
-          '.hero-ref__photo img',
+          '.hero-ref__photo .hero-ref__me',
           { clipPath: 'inset(100% 0% 0% 0%)', yPercent: 8 },
           { clipPath: 'inset(0% 0% 0% 0%)', yPercent: 0, duration: 1.5 },
           0.5
+        )
+        // Fade rim wrap in after the photo reveal
+        .fromTo(
+          '.hero-ref__rim-wrap',
+          { opacity: 0 },
+          { opacity: 1, duration: 1.2, ease: 'power2.out', clearProps: 'opacity' },
+          1.3
         )
         // Left & Right inner blocks slide and fade in cleanly
         .fromTo(
@@ -160,7 +189,9 @@ export const HeroWorkstation = () => {
           });
         }
 
-        // Desktop Mouse Parallax Depth
+        // Desktop Mouse Parallax Depth & Dynamic Light Direction
+        const lightX = gsap.quickTo(photoRef.current, '--mouse-light-x', { duration: 0.8, ease: 'power2.out' });
+
         const layers = [
           { el: '.hero-ref__n1', d: 0.03 },
           { el: '.hero-ref__n2', d: -0.05 },
@@ -178,12 +209,15 @@ export const HeroWorkstation = () => {
             layer.x(cx * layer.d);
             layer.y(cy * layer.d * 0.6);
           });
+          const normX = cx / (window.innerWidth / 2);
+          lightX(`${(normX * 10).toFixed(1)}px`);
         };
         const onMouseLeave = () => {
           layers.forEach((layer) => {
             layer.x(0);
             layer.y(0);
           });
+          lightX('0px');
         };
         heroEl.addEventListener('mousemove', onMouseMove);
         heroEl.addEventListener('mouseleave', onMouseLeave);
@@ -240,15 +274,21 @@ export const HeroWorkstation = () => {
           gsap.set(['.hero-ref__n1', '.hero-ref__n2', photoRef.current], {
             clearProps: 'x,y,xPercent,yPercent,transform'
           });
+          if (photoRef.current) {
+            photoRef.current.style.removeProperty('--mouse-light-x');
+          }
           if (glowEl) glowEl.style.display = 'none';
         };
       });
 
-      // Mobile Mode: ensure zero horizontal offset
+      // Mobile Mode: ensure zero horizontal offset & static lighting
       mm.add('(max-width: 860px)', () => {
         gsap.set(['.hero-ref__n1', '.hero-ref__n2', photoRef.current], {
           clearProps: 'x,y,xPercent,yPercent,transform'
         });
+        if (photoRef.current) {
+          photoRef.current.style.setProperty('--mouse-light-x', '0px');
+        }
         if (glowRef.current) glowRef.current.style.display = 'none';
       });
     }, heroRef);
@@ -324,19 +364,27 @@ export const HeroWorkstation = () => {
       </div>
 
       <div className="hero-ref__photo" ref={photoRef}>
-        <img
-          className="hero-ref__me"
-          src="./assets/me.png"
-          alt="Eslam Yasser - Full-Stack Developer"
-          onLoad={() => {
-            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-          }}
-          onError={(e) => {
-            if (!e.currentTarget.src.includes('Eslam_Portfolio3')) {
-              e.currentTarget.src = '/assets/img/Eslam_Portfolio3-removebg-preview.png';
-            }
-          }}
-        />
+        <div className="hero-ref__photo-inner">
+          <div className="hero-ref__rim-wrap">
+            <picture className="hero-ref__pic">
+              <source media="(max-width: 900px)" srcSet={me960Webp} type="image/webp" />
+              <source srcSet={meWebp} type="image/webp" />
+              <img
+                className="hero-ref__me"
+                src={mePng}
+                alt="Eslam Yasser - Full-Stack Developer"
+                width="1632"
+                height="1932"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                onLoad={() => {
+                  if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+                }}
+              />
+            </picture>
+          </div>
+        </div>
       </div>
 
       <div className="hero-ref__container">
@@ -380,7 +428,7 @@ export const HeroWorkstation = () => {
                 <IconGithub className="i" />
               </a>
               <a
-                href="https://www.linkedin.com/in/eslam-yasser-swe/"
+                href="https://www.linkedin.com/in/eslamyf/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -388,7 +436,7 @@ export const HeroWorkstation = () => {
                 <IconLinkedin className="i" />
               </a>
               <a
-                href="https://wa.me/201016550774"
+                href="https://wa.me/201028103634"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -396,7 +444,15 @@ export const HeroWorkstation = () => {
                 <IconWhatsapp className="i" />
               </a>
               <a
-                href="mailto:eslamyasser.swe@gmail.com"
+                href="https://www.instagram.com/_eslamyf"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+              >
+                <IconInstagram className="i" />
+              </a>
+              <a
+                href="mailto:eslam9076460@gmail.com"
                 aria-label="Email"
               >
                 <IconMail className="i" />
@@ -407,8 +463,8 @@ export const HeroWorkstation = () => {
 
         <div className="hero-ref__right-wrap" ref={rightWrapRef}>
           <div className="hero-ref__right-in" ref={rightInRef}>
-            <b>Qena, Egypt</b>
-            <span className="hero-ref__role">Full-stack developer, MEAN stack</span>
+            <b>Egypt</b>
+            <span className="hero-ref__role">Full-Stack Developer · React &amp; Angular</span>
             <div className="hero-ref__soc">
               <a
                 href="https://github.com/eslamyf"
@@ -421,7 +477,7 @@ export const HeroWorkstation = () => {
                 <span>GitHub</span>
               </a>
               <a
-                href="https://www.linkedin.com/in/eslam-yasser-swe/"
+                href="https://www.linkedin.com/in/eslamyf/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mag"
@@ -431,7 +487,7 @@ export const HeroWorkstation = () => {
                 <span>LinkedIn</span>
               </a>
               <a
-                href="https://wa.me/201016550774"
+                href="https://wa.me/201028103634"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mag"
@@ -441,7 +497,17 @@ export const HeroWorkstation = () => {
                 <span>WhatsApp</span>
               </a>
               <a
-                href="mailto:eslamyasser.swe@gmail.com"
+                href="https://www.instagram.com/_eslamyf/?hl=ar"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mag"
+                aria-label="Instagram"
+              >
+                <IconInstagram className="i" />
+                <span>Instagram</span>
+              </a>
+              <a
+                href="mailto:eslam9076460@gmail.com"
                 className="mag"
                 aria-label="Email"
               >
@@ -451,6 +517,11 @@ export const HeroWorkstation = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Tilted Moving Tech Strip */}
+      <div className="hero-ref__strip-wrap">
+        <TechStrip />
       </div>
     </section>
   );

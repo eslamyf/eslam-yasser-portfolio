@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const TechStrip = () => {
-  const logos = [
+  const baseLogos = [
     { title: 'MongoDB', src: '/assets/img/tech-color/mongodb.svg' },
     { title: 'JavaScript', src: '/assets/img/tech-color/javascript.svg' },
     { title: 'HTML5', src: '/assets/img/tech-color/html5.svg' },
@@ -19,6 +19,10 @@ export const TechStrip = () => {
     { title: 'TypeScript', src: '/assets/img/tech-color/typescript.svg' }
   ];
 
+  // Repeat 3 times per group (~3000px wide) so the band extends well beyond 1920/2560px
+  // and loops with 0 gaps, 0 lag, and continuous coverage at all times
+  const logos = [...baseLogos, ...baseLogos, ...baseLogos];
+
   const handleImageError = (e, name) => {
     const parent = e.target.parentElement;
     if (parent) {
@@ -31,13 +35,14 @@ export const TechStrip = () => {
       <div className="strip__track">
         <ul className="strip__group">
           {logos.map((logo, i) => (
-            <li key={i} className={`logo ${logo.inv ? 'logo--inv' : ''}`} title={logo.title}>
+            <li key={`g1-${i}`} className={`logo ${logo.inv ? 'logo--inv' : ''}`} title={logo.title}>
               <img
                 src={logo.src}
                 alt={logo.title}
                 width="34"
                 height="34"
-                loading="lazy"
+                loading="eager"
+                decoding="async"
                 onError={(e) => handleImageError(e, logo.title)}
               />
             </li>
@@ -45,13 +50,14 @@ export const TechStrip = () => {
         </ul>
         <ul className="strip__group" aria-hidden="true">
           {logos.map((logo, i) => (
-            <li key={`dup-${i}`} className={`logo ${logo.inv ? 'logo--inv' : ''}`} title={logo.title}>
+            <li key={`g2-${i}`} className={`logo ${logo.inv ? 'logo--inv' : ''}`} title={logo.title}>
               <img
                 src={logo.src}
                 alt={logo.title}
                 width="34"
                 height="34"
-                loading="lazy"
+                loading="eager"
+                decoding="async"
                 onError={(e) => handleImageError(e, logo.title)}
               />
             </li>

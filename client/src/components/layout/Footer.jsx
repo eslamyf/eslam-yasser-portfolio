@@ -35,10 +35,10 @@ export const Footer = () => {
       <div className="footer__giant" aria-hidden="true">ESLAM YASSER</div>
       <div className="wrap footer__row">
         <p>
-          &copy; <span id="year">{year}</span> Eslam Yasser · Full-Stack MEAN Developer &amp; Web Instructor
+          &copy; <span id="year">{year}</span> Eslam Yasser · Full-Stack Developer &amp; Web Instructor
         </p>
         <p className="footer__time">
-          <IconPin className="i" /> Qena, Egypt · <span id="cairoTime">{cairoTime || '--:--'}</span>
+          <IconPin className="i" /> Egypt · <span id="cairoTime">{cairoTime || '--:--'}</span>
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <Link to="/admin" style={{ opacity: 0.25, fontSize: '0.8rem', transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.target.style.opacity = 1} onMouseLeave={(e) => e.target.style.opacity = 0.25}>
