@@ -21,7 +21,20 @@ export const CustomCursor = () => {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
+    const isMobile = () => {
+      return (
+        window.innerWidth <= 860 ||
+        window.matchMedia('(max-width: 860px)').matches ||
+        window.matchMedia('(pointer: coarse)').matches
+      );
+    };
+
     const resize = () => {
+      if (isMobile()) {
+        document.documentElement.classList.remove('has-cursor');
+        if (ctx) ctx.clearRect(0, 0, width, height);
+        return;
+      }
       dpr = window.devicePixelRatio || 1;
       width = window.innerWidth;
       height = window.innerHeight;
@@ -48,6 +61,11 @@ export const CustomCursor = () => {
     let hasMoved = false;
 
     const handleMouseMove = (e) => {
+      if (isMobile()) {
+        isInside = false;
+        points = [];
+        return;
+      }
       mouseX = e.clientX;
       mouseY = e.clientY;
       isInside = true;
@@ -114,6 +132,11 @@ export const CustomCursor = () => {
 
     let rafId;
     const render = () => {
+      if (isMobile()) {
+        ctx.clearRect(0, 0, width, height);
+        rafId = requestAnimationFrame(render);
+        return;
+      }
       const now = performance.now();
 
       // Clean up points older than duration

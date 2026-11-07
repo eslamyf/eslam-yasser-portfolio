@@ -336,6 +336,23 @@ ol {
   z-index: 99999;
 }
 
+/* Hide custom cursor and trail completely on mobile and touch devices */
+@media (max-width: 860px), (pointer: coarse), (hover: none) {
+  .cursor,
+  .cursor__canvas {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .has-cursor,
+  .has-cursor a,
+  .has-cursor button {
+    cursor: auto !important;
+  }
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   position: relative;
