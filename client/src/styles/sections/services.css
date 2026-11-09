@@ -1,0 +1,120 @@
+﻿/* ---------- Services (expanding list) ---------- */
+.svc-list {
+  border-top: 1px solid var(--line);
+}
+
+.svc {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+
+.svc::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, hsl(var(--brand)), hsl(var(--violet)), transparent);
+  transition: transform 0.9s var(--ease);
+}
+
+.svc.is-open::after {
+  transform: scaleX(1);
+}
+
+.svc__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.4rem);
+  width: 100%;
+  text-align: left;
+  padding: clamp(1.4rem, 3vw, 2.2rem) 0;
+}
+
+.svc__num {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--dim);
+  transition: color 0.3s;
+}
+
+.svc__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.8vw, 3rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--mut);
+  transition: color 0.4s, transform 0.5s var(--ease);
+}
+
+.svc__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  transition: transform 0.5s var(--ease), background 0.3s, border-color 0.3s;
+}
+
+.svc__head:hover .svc__title,
+.svc.is-open .svc__title {
+  color: var(--ink);
+  transform: translateX(10px);
+}
+
+.svc.is-open .svc__num {
+  color: hsl(var(--brand));
+}
+
+.svc.is-open .svc__icon {
+  transform: rotate(135deg);
+  background: hsl(var(--brand));
+  border-color: hsl(var(--brand));
+  color: var(--on-brand);
+}
+
+.svc__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s var(--ease);
+}
+
+.svc.is-open .svc__panel {
+  grid-template-rows: 1fr;
+}
+
+.svc__panel>div {
+  overflow: hidden;
+  padding-left: calc(clamp(1rem, 3vw, 2.4rem) + 2rem);
+}
+
+.svc__panel p {
+  max-width: 60ch;
+  color: var(--mut);
+  margin-bottom: 1.1rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s 0.15s, transform 0.6s var(--ease) 0.15s;
+}
+
+.svc__panel .tags {
+  margin-bottom: 2.2rem;
+  opacity: 0;
+  transition: opacity 0.5s 0.25s;
+}
+
+.svc.is-open .svc__panel p {
+  opacity: 1;
+  transform: none;
+}
+
+.svc.is-open .svc__panel .tags {
+  opacity: 1;
+}
+

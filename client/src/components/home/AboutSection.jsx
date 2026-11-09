@@ -92,7 +92,7 @@ export const AboutSection = () => {
           <div className="about__card" ref={cardRef} data-tilt>
             <div className="about__card-glow"></div>
             <img
-              src="/assets/img/About.png"
+              src="/assets/img/About.webp"
               alt="Developer working at desk"
               width="520"
               height="520"

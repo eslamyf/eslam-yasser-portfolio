@@ -1,0 +1,62 @@
+﻿/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .js .reveal,
+  .js [data-split] .char,
+  .js .chips .chip-s {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  :root {
+    --intro: 0s;
+  }
+
+  .intro {
+    display: none !important;
+  }
+
+  .strip__track {
+    animation: none;
+  }
+
+  .hero-wrap {
+    height: auto;
+  }
+
+  .hero {
+    position: relative;
+  }
+
+  .xs {
+    height: auto !important;
+  }
+
+  .xs__pin,
+  .vault__pin {
+    position: static !important;
+    height: auto !important;
+  }
+
+  .vault {
+    height: auto !important;
+  }
+
+  .proj {
+    transform: none !important;
+    filter: none !important;
+  }
+}

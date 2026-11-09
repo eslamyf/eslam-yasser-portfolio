@@ -1,0 +1,134 @@
+﻿/* ---------- About ---------- */
+.about__grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(2.5rem, 6vw, 6rem);
+  align-items: center;
+}
+
+.about__card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 40px;
+  padding: 1.6rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.4s var(--ease);
+  will-change: transform;
+}
+
+.about__card-glow {
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, hsl(var(--brand) / 0.5), transparent);
+  filter: blur(30px);
+  animation: drift 10s ease-in-out infinite alternate;
+}
+
+.about__card img {
+  position: relative;
+  width: 88%;
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.5));
+}
+
+.about__card-badge {
+  position: absolute;
+  left: 1.2rem;
+  bottom: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: rgb(var(--ov) / 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.about__text {
+  margin-top: 1.8rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+}
+
+.word {
+  color: var(--dim);
+  transition: color 0.45s var(--ease);
+}
+
+.word.is-lit {
+  color: var(--ink);
+}
+
+.no-js .word,
+.no-motion .word {
+  color: var(--ink);
+}
+
+.no-motion .intro {
+  display: none !important;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2.4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.stat strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  background: linear-gradient(120deg, var(--strong), hsl(var(--brand)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat span {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.86rem;
+  color: var(--mut);
+}
+
+.langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.8rem;
+}
+
+.pill {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.88rem;
+  color: var(--mut);
+}
+
+.pill b {
+  color: var(--ink);
+  font-weight: 600;
+  margin-right: 0.35rem;
+}
+

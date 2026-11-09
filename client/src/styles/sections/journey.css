@@ -1,0 +1,141 @@
+﻿/* ---------- Journey / timeline ---------- */
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 5px;
+  margin-bottom: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.tab {
+  padding: 0.6rem 1.3rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--mut);
+  transition: color 0.3s, background 0.4s var(--ease);
+}
+
+.tab:hover {
+  color: var(--strong);
+}
+
+.tab.is-active {
+  color: var(--on-brand);
+  background: linear-gradient(120deg, hsl(var(--brand)), hsl(var(--cyan)));
+}
+
+.timeline {
+  position: relative;
+  padding-left: clamp(2.4rem, 5vw, 4rem);
+  max-width: 860px;
+  min-height: 260px;
+}
+
+.timeline__line {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.timeline__fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0;
+  transform: scaleY(var(--fill, 0));
+  background: linear-gradient(to bottom, hsl(var(--brand)), hsl(var(--violet)));
+}
+
+.panel {
+  display: none;
+}
+
+.panel.is-active {
+  display: grid;
+  gap: 1.6rem;
+  animation: panelIn 0.7s var(--ease);
+}
+
+.tl {
+  position: relative;
+}
+
+.tl__dot {
+  position: absolute;
+  left: calc(-1 * clamp(2.4rem, 5vw, 4rem) + 1px);
+  top: 2rem;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--dim);
+  transition: border-color 0.4s, background 0.4s, box-shadow 0.4s;
+}
+
+.tl.is-lit .tl__dot {
+  border-color: hsl(var(--brand));
+  background: hsl(var(--brand));
+  box-shadow: 0 0 0 6px hsl(var(--brand) / 0.18), 0 0 24px hsl(var(--brand));
+}
+
+.tl__card {
+  position: relative;
+  padding: 1.7rem 1.9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+  transition: transform 0.5s var(--ease), border-color 0.3s;
+}
+
+.tl__card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+  background: radial-gradient(380px circle at var(--mx) var(--my), hsl(var(--brand) / 0.14), transparent 60%);
+}
+
+.tl__card:hover {
+  transform: translateX(8px);
+  border-color: hsl(var(--brand) / 0.35);
+}
+
+.tl__card:hover::before {
+  opacity: 1;
+}
+
+.tl__card time {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: hsl(var(--brand));
+}
+
+.tl__card h3 {
+  margin: 0.5rem 0 0.2rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.55rem;
+  letter-spacing: -0.025em;
+}
+
+.tl__org {
+  color: var(--ink);
+  font-weight: 500;
+  margin-bottom: 0.7rem;
+}
+
+.tl__card p:last-child {
+  color: var(--mut);
+  max-width: 58ch;
+}
+

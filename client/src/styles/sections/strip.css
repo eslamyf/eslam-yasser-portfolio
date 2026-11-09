@@ -1,0 +1,64 @@
+﻿/* ---------- Tech strip (logos) ---------- */
+.strip {
+  position: relative;
+  overflow: hidden;
+  border-block: 1px solid var(--line);
+  background: var(--bg-2);
+  padding-block: 1.1rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.strip .strip__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 110s linear infinite !important;
+  will-change: transform;
+}
+
+.strip:hover .strip__track {
+  animation-play-state: paused;
+}
+
+.strip .strip__group {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+.strip .strip__group li {
+  display: flex;
+  align-items: center;
+}
+
+.strip .strip__group li::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  margin-inline: clamp(14px, 1.4vw, 20px);
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: var(--dim);
+  opacity: 0.6;
+}
+
+.strip .logo img {
+  width: 32px;
+  height: 32px;
+  opacity: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.25));
+  transition: transform 0.3s var(--ease);
+}
+
+.strip .logo:hover img {
+  transform: translateY(-2px) scale(1.18);
+}
+
+.logo__txt {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: var(--mut);
+}
+

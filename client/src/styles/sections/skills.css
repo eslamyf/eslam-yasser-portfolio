@@ -1,0 +1,307 @@
+﻿/* ---------- Skills (bento) ---------- */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.6rem;
+}
+
+.filter {
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--mut);
+  transition: all 0.3s var(--ease);
+}
+
+.filter:hover {
+  color: var(--strong);
+  border-color: hsl(var(--brand) / 0.5);
+}
+
+.filter.is-active {
+  color: var(--on-brand);
+  background: hsl(var(--brand));
+  border-color: hsl(var(--brand));
+}
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.bento__cell {
+  position: relative;
+  padding: 1.8rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease), filter 0.5s var(--ease), border-color 0.3s;
+}
+
+.bento__cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+  background: radial-gradient(420px circle at var(--mx) var(--my), hsl(var(--brand) / 0.16), transparent 60%);
+}
+
+.bento__cell:hover::before {
+  opacity: 1;
+}
+
+.bento__cell:hover {
+  border-color: hsl(var(--brand) / 0.35);
+}
+
+.bento__cell--lg {
+  grid-column: span 2;
+}
+
+.bento__cell.is-dim {
+  opacity: 0.22;
+  transform: scale(0.97);
+  filter: blur(2px);
+}
+
+.bento__cell h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.3rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.bento__cell h3 .i {
+  color: hsl(var(--brand));
+}
+
+.chips {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.chip-s {
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.9rem;
+  color: var(--mut);
+  transition: transform 0.35s var(--ease), background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.chip-s:hover {
+  transform: translateY(-3px);
+  color: var(--strong);
+  border-color: hsl(var(--brand) / 0.6);
+  background: hsl(var(--brand) / 0.12);
+}
+
+.chip-s.is-core {
+  color: var(--strong);
+  border-color: hsl(var(--brand) / 0.55);
+  background: hsl(var(--brand) / 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chip-s.is-core::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: hsl(var(--brand));
+  box-shadow: 0 0 10px hsl(var(--brand));
+}
+
+.chips .chip-s,
+.js .chips .chip-s {
+  opacity: 1;
+  transform: none;
+}
+
+.js .bento.is-in .chips .chip-s {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), background 0.3s, color 0.3s, border-color 0.3s;
+  transition-delay: calc(var(--k, 0) * 35ms), calc(var(--k, 0) * 35ms), 0s, 0s, 0s;
+}
+
+/* ---------- Skills Â· exploded stack ---------- */
+.xs {
+  --s: min(38vw, 360px, 46svh);
+  --gap: 82;
+  position: relative;
+  margin-top: clamp(1rem, 3vw, 2rem);
+}
+
+.xs__pin {
+  padding-block: 1rem 3rem;
+}
+
+.xs__grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.xs__stage {
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--s) * 1.7);
+  perspective: 1000px;
+}
+
+.xs__scene {
+  position: relative;
+  width: var(--s);
+  height: var(--s);
+  transform-style: preserve-3d;
+  translate: 0 calc(var(--gap) * 0.8px);
+  transform: rotateX(58deg) rotateZ(calc(-42deg + var(--xr, 0) * 16deg));
+}
+
+.slab {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  transform: translateZ(calc((3 - var(--i)) * var(--gap) * 1px));
+  border: 1.5px solid hsl(var(--a) / 0.45);
+  background: linear-gradient(140deg, hsl(var(--a) / 0.24), hsl(var(--a) / 0.06)),
+    linear-gradient(hsl(var(--a) / 0.12) 1px, transparent 1px) 0 0 / 20% 20%, linear-gradient(90deg, hsl(var(--a) / 0.12) 1px, transparent 1px) 0 0 / 20% 20%;
+  transition: border-color 0.5s, box-shadow 0.5s, opacity 0.5s;
+}
+
+.slab.is-on {
+  border-color: hsl(var(--a));
+  box-shadow: 0 0 60px hsl(var(--a) / 0.55), inset 0 0 40px hsl(var(--a) / 0.25);
+}
+
+.js:not(.no-motion) .slab:not(.is-on) {
+  opacity: 0.5;
+}
+
+.slab__label {
+  position: absolute;
+  left: 7%;
+  bottom: 6%;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: calc(var(--s) * 0.13);
+  letter-spacing: -0.03em;
+  color: hsl(var(--a));
+}
+
+.slab__tag {
+  position: absolute;
+  right: 6%;
+  top: 5%;
+  font-family: var(--font-mono);
+  font-size: calc(var(--s) * 0.045);
+  color: hsl(var(--a) / 0.8);
+}
+
+.xs__item {
+  padding: 1rem 0 1rem 1.6rem;
+  border-left: 2px solid hsl(var(--a) / 0.5);
+  transition: opacity 0.5s, border-color 0.5s, transform 0.6s var(--ease);
+}
+
+.xs__item h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.03em;
+}
+
+.xs__item h3 small {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  color: hsl(var(--a));
+}
+
+.xs__body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.6s var(--ease);
+}
+
+.xs__body>div {
+  overflow: hidden;
+}
+
+.xs__item p {
+  max-width: 46ch;
+  margin: 0.5rem 0 1rem;
+  color: var(--mut);
+}
+
+.xs__more {
+  margin-top: clamp(1.8rem, 3.5vw, 2.8rem);
+}
+
+.sub {
+  margin-bottom: 1.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+  color: var(--mut);
+}
+
+.js:not(.no-motion) .xs {
+  height: calc(100vh + (var(--layers, 5) - 1) * 32vh);
+  height: calc(100svh + (var(--layers, 5) - 1) * 32svh);
+  position: relative;
+}
+
+.js:not(.no-motion) .xs__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 0;
+}
+
+.js:not(.no-motion) .xs__grid {
+  width: 100%;
+}
+
+.js:not(.no-motion) .xs__item:not(.is-on) {
+  opacity: 0.32;
+  border-left-color: var(--line);
+}
+
+.js:not(.no-motion) .xs__item:not(.is-on) .xs__body {
+  grid-template-rows: 0fr;
+}
+
+.js:not(.no-motion) .xs__item.is-on {
+  border-left-color: hsl(var(--a));
+  transform: translateX(8px);
+}
+

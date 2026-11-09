@@ -1,27 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { IconGithub, IconLinkedin, IconWhatsapp, IconMail } from '../../assets/icons';
 import { TechStrip } from './TechStrip';
-import meWebp from '../../assets/me.webp';
-import me960Webp from '../../assets/me-960.webp';
-import mePng from '../../assets/me.png';
-
-const IconInstagram = ({ className = 'i' }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    width="24"
-    height="24"
-    strokeWidth="2"
-    stroke="currentColor"
-    fill="none"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-  </svg>
-);
+import { HeroNames } from './hero/HeroNames';
+import { HeroPortrait } from './hero/HeroPortrait';
+import { HeroPitch } from './hero/HeroPitch';
+import { HeroLocation } from './hero/HeroLocation';
 
 export const HeroWorkstation = () => {
   const heroRef = useRef(null);
@@ -342,180 +324,17 @@ export const HeroWorkstation = () => {
     <section className="hero-ref" id="home" ref={heroRef} aria-label="Introduction">
       <div className="hero-ref__glow" ref={glowRef} aria-hidden="true"></div>
 
-      <div className="hero-ref__names" ref={namesRef}>
-        <div className="hero-ref__name hero-ref__n1" aria-label="Eslam">
-          <span className="hero-ref__mask" aria-hidden="true">
-            {firstLetters.map((char, index) => (
-              <span key={index} className="hero-ref__ch">
-                {char}
-              </span>
-            ))}
-          </span>
-        </div>
-        <div className="hero-ref__name hero-ref__n2" aria-label="Yasser">
-          <span className="hero-ref__mask" aria-hidden="true">
-            {lastLetters.map((char, index) => (
-              <span key={index} className="hero-ref__ch">
-                {char}
-              </span>
-            ))}
-          </span>
-        </div>
-      </div>
+      <HeroNames ref={namesRef} firstLetters={firstLetters} lastLetters={lastLetters} />
 
-      <div className="hero-ref__photo" ref={photoRef}>
-        <div className="hero-ref__photo-inner">
-          <div className="hero-ref__rim-wrap">
-            <picture className="hero-ref__pic">
-              <source media="(max-width: 900px)" srcSet={me960Webp} type="image/webp" />
-              <source srcSet={meWebp} type="image/webp" />
-              <img
-                className="hero-ref__me"
-                src={mePng}
-                alt="Eslam Yasser - Full-Stack Developer"
-                width="1632"
-                height="1932"
-                loading="eager"
-                fetchpriority="high"
-                decoding="async"
-                onLoad={() => {
-                  if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-                }}
-              />
-            </picture>
-          </div>
-        </div>
-      </div>
+      <HeroPortrait ref={photoRef} />
 
       <div className="hero-ref__container">
         <div className="hero-ref__side-wrap" ref={sideWrapRef}>
-          <div className="hero-ref__side-in" ref={sideInRef}>
-            <div className="hero-ref__status">
-              <i aria-hidden="true"></i>
-              <span>Open to work &amp; freelance</span>
-            </div>
-            <h1 aria-label="I build APIs that last">
-              I build{' '}
-              <span className="hero-ref__roll" aria-hidden="true">
-                <span className="hero-ref__roll-in" ref={rollRef}>
-                  <span className="hero-ref__w">APIs that last</span>
-                  <span className="hero-ref__w">Angular apps that scale</span>
-                  <span className="hero-ref__w">MongoDB models that fit</span>
-                  <span className="hero-ref__w">APIs that last</span>
-                </span>
-              </span>
-            </h1>
-            <div className="hero-ref__btns">
-              <a className="btn btn--primary mag" href="#projects">
-                <span>See my work</span>
-              </a>
-              <a
-                className="btn btn--ghost mag"
-                href="/assets/pdf/EslamCV.pdf"
-                download="Eslam_Yasser_CV.pdf"
-              >
-                <span>Download CV</span>
-              </a>
-            </div>
-
-            <div className="hero-ref__mobile-soc" aria-label="Social profiles">
-              <a
-                href="https://github.com/eslamyf"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-              >
-                <IconGithub className="i" />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/eslamyf/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-              >
-                <IconLinkedin className="i" />
-              </a>
-              <a
-                href="https://wa.me/201028103634"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="WhatsApp"
-              >
-                <IconWhatsapp className="i" />
-              </a>
-              <a
-                href="https://www.instagram.com/_eslamyf"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-              >
-                <IconInstagram className="i" />
-              </a>
-              <a
-                href="mailto:eslam9076460@gmail.com"
-                aria-label="Email"
-              >
-                <IconMail className="i" />
-              </a>
-            </div>
-          </div>
+          <HeroPitch ref={sideInRef} rollRef={rollRef} />
         </div>
 
         <div className="hero-ref__right-wrap" ref={rightWrapRef}>
-          <div className="hero-ref__right-in" ref={rightInRef}>
-            <b>Egypt</b>
-            <span className="hero-ref__role">Full-Stack Developer · React &amp; Angular</span>
-            <div className="hero-ref__soc">
-              <a
-                href="https://github.com/eslamyf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mag"
-                aria-label="GitHub"
-              >
-                <IconGithub className="i" />
-                <span>GitHub</span>
-              </a>
-              <a
-                href="https://www.linkedin.com/in/eslamyf/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mag"
-                aria-label="LinkedIn"
-              >
-                <IconLinkedin className="i" />
-                <span>LinkedIn</span>
-              </a>
-              <a
-                href="https://wa.me/201028103634"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mag"
-                aria-label="WhatsApp"
-              >
-                <IconWhatsapp className="i" />
-                <span>WhatsApp</span>
-              </a>
-              <a
-                href="https://www.instagram.com/_eslamyf/?hl=ar"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mag"
-                aria-label="Instagram"
-              >
-                <IconInstagram className="i" />
-                <span>Instagram</span>
-              </a>
-              <a
-                href="mailto:eslam9076460@gmail.com"
-                className="mag"
-                aria-label="Email"
-              >
-                <IconMail className="i" />
-                <span>Email</span>
-              </a>
-            </div>
-          </div>
+          <HeroLocation ref={rightInRef} />
         </div>
       </div>
 

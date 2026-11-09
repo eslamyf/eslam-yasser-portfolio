@@ -1,0 +1,133 @@
+﻿/* =========================================================
+   Eslam Yasser â€” Portfolio
+   Dark editorial Â· electric blue Â· motion with purpose
+   ========================================================= */
+
+/* ---------- Tokens (Cobalt Pop - Dark Mode Default) ---------- */
+:root {
+  --bg: #0A0E2E;
+  --bg-2: #0E143C;
+  --surface: rgba(18, 23, 66, 0.65);
+  --surface-2: rgba(24, 32, 87, 0.85);
+  --line: rgba(246, 244, 239, 0.14);
+  --ink: #F6F4EF;
+  --mut: #A5A8C4;
+  --dim: #6E7295;
+
+  --brand: 234 93% 55%;
+  --brand-hex: #2438F5;
+  --accent: 49 100% 65%;
+  --accent-hex: #FFE14D;
+  --accent-ink: #0B1030;
+  --link: #8EA0FF;
+  --violet: 234 85% 65%;
+  --cyan: 49 100% 65%;
+
+  --ov: 10 14 46;
+  --ov2: 18 23 66;
+  --strong: #F6F4EF;
+  --on-brand: #0B1030;
+  --ok: #FFE14D;
+  --band-bg: #FFE14D;
+  --band-logo-color: #0B1030;
+  --band-ink: #0B1030;
+  --scrollbar-thumb: rgba(246, 244, 239, 0.30);
+  --scrollbar-hover: #FFE14D;
+  --name-fill: #F6F4EF;
+  --name-stroke: #FFE14D;
+  color-scheme: dark;
+
+  --font-display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --ease: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --radius: 28px;
+  --wrap: 1200px;
+  --gutter: clamp(20px, 5vw, 48px);
+}
+
+/* ---------- Light theme (Cobalt Pop) ---------- */
+:root[data-theme="light"] {
+  --bg: #F6F4EF;
+  --bg-2: #ECE8E0;
+  --surface: rgba(255, 255, 255, 0.70);
+  --surface-2: rgba(255, 255, 255, 0.95);
+  --line: rgba(11, 16, 48, 0.14);
+  --ink: #0B1030;
+  --mut: #4A4E69;
+  --dim: #777B96;
+  --brand: 234 93% 55%;
+  --brand-hex: #2438F5;
+  --accent: 49 100% 65%;
+  --accent-hex: #FFE14D;
+  --accent-ink: #0B1030;
+  --link: #2438F5;
+  --violet: 234 93% 55%;
+  --cyan: 234 93% 55%;
+  --ov: 246 244 239;
+  --ov2: 236 232 224;
+  --strong: #0B1030;
+  --on-brand: #F6F4EF;
+  --ok: #2438F5;
+  --band-bg: #2438F5;
+  --band-logo-color: #F6F4EF;
+  --band-ink: #F6F4EF;
+  --scrollbar-thumb: rgba(11, 16, 48, 0.30);
+  --scrollbar-hover: #2438F5;
+  --name-fill: #2438F5;
+  --name-stroke: #0B1030;
+  color-scheme: light;
+}
+
+/* dark "device" mockups keep their own dark tokens in light mode */
+.mock {
+  --ink: #F6F4EF;
+  --mut: #A5A8C4;
+  --line: rgba(246, 244, 239, 0.16);
+  --strong: #F6F4EF;
+  --ok: #FFE14D;
+}
+
+:root[data-theme="light"] .stage__halo {
+  mix-blend-mode: normal;
+  background: radial-gradient(circle at 50% 38%, hsl(var(--brand) / 0.22), hsl(var(--violet) / 0.1) 52%, transparent 70%);
+}
+
+:root[data-theme="light"] .stage__floor {
+  background: radial-gradient(closest-side, hsl(var(--brand) / 0.25), hsl(var(--cyan) / 0.12) 55%, transparent 76%);
+}
+
+:root[data-theme="light"] .grain {
+  opacity: 0.035;
+}
+
+:root[data-theme="light"] .logo--inv img {
+  filter: invert(1);
+}
+
+:root[data-theme="light"] .float__card,
+:root[data-theme="light"] .hero__copy {
+  box-shadow: 0 24px 60px -28px rgba(11, 16, 48, 0.15);
+}
+
+/* Circular View Transition for Theme Switch (800ms diagonal circular reveal) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 999999;
+}
+
+body {
+  transition: background-color 0.4s, color 0.4s;
+}
+

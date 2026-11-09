@@ -9,9 +9,10 @@ const { protect } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 const { uploadToCloudinary, isCloudinaryConfigured, deleteFromCloudinary, extractPublicId } = require('../config/cloudinary');
 
+const serverDataPath = path.join(__dirname, '../data/projects.json');
 const candidateProjPath1 = path.join(__dirname, '../../client/public/assets/data/projects.json');
 const candidateProjPath2 = path.join(__dirname, '../../client/assets/data/projects.json');
-const jsonPath = fs.existsSync(candidateProjPath1) ? candidateProjPath1 : candidateProjPath2;
+const jsonPath = fs.existsSync(serverDataPath) ? serverDataPath : (fs.existsSync(candidateProjPath1) ? candidateProjPath1 : candidateProjPath2);
 
 // Helper to read fallback JSON projects
 const getFallbackProjects = () => {

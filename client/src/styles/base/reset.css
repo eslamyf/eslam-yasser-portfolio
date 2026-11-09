@@ -1,0 +1,222 @@
+﻿/* ---------- Reset / base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-padding-top: 90px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--bg);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+#root,
+.home-wrapper,
+main {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: visible;
+}
+
+/* Premium Custom Scrollbar - Desktop / pointer:fine only */
+@media (pointer: fine) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    min-height: 48px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover,
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--scrollbar-hover);
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+::selection {
+  background: var(--accent-hex, #FFE14D);
+  color: var(--accent-ink, #0B1030);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-hex, #FFE14D);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+:root[data-theme="light"] :focus-visible {
+  outline-color: var(--brand-hex, #2438F5);
+}
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--wrap) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.i {
+  width: 1.15em;
+  height: 1.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.i--fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: -60px;
+  z-index: 200;
+  background: #fff;
+  color: #000;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* grain + progress + cursor */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  z-index: 120;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: var(--accent-hex, #FFE14D);
+}
+
+:root[data-theme="light"] .progress {
+  background: var(--brand-hex, #2438F5);
+}
+
+.cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  display: block;
+}
+
+.has-cursor,
+.has-cursor a,
+.has-cursor button {
+  cursor: none;
+}
+
+.has-cursor input,
+.has-cursor textarea {
+  cursor: text;
+}
+
+.cursor__canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* Hide custom cursor and trail completely on mobile and touch devices */
+@media (max-width: 860px), (pointer: coarse), (hover: none) {
+  .cursor,
+  .cursor__canvas {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .has-cursor,
+  .has-cursor a,
+  .has-cursor button {
+    cursor: auto !important;
+  }
+}
+

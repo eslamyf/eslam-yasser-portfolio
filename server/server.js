@@ -163,7 +163,9 @@ async function seedInitialData() {
     // 2. Seed Projects
     const projectCount = await Project.countDocuments();
     if (projectCount === 0) {
-      const projectsJsonPath = path.join(__dirname, '../client/assets/data/projects.json');
+      const projectsJsonPath = fs.existsSync(path.join(__dirname, 'data/projects.json'))
+        ? path.join(__dirname, 'data/projects.json')
+        : path.join(__dirname, '../client/public/assets/data/projects.json');
       if (fs.existsSync(projectsJsonPath)) {
         const initialProjects = JSON.parse(fs.readFileSync(projectsJsonPath, 'utf8'));
         for (let i = 0; i < initialProjects.length; i++) {
@@ -192,7 +194,9 @@ async function seedInitialData() {
     }
 
     // 3. Seed Work Data (Experience, Education, Volunteering, Certificates)
-    const workJsonPath = path.join(__dirname, '../client/assets/data/work.json');
+    const workJsonPath = fs.existsSync(path.join(__dirname, 'data/work.json'))
+      ? path.join(__dirname, 'data/work.json')
+      : path.join(__dirname, '../client/public/assets/data/work.json');
     if (fs.existsSync(workJsonPath)) {
       const workData = JSON.parse(fs.readFileSync(workJsonPath, 'utf8'));
 

@@ -1,0 +1,210 @@
+﻿/* ---------- Contact ---------- */
+.contact {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.contact::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 80vmax;
+  height: 50vmax;
+  transform: translateX(-50%);
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, hsl(var(--brand) / 0.12), transparent);
+}
+
+.contact__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 9.5vw, 8.4rem);
+  line-height: 0.93;
+  letter-spacing: -0.05em;
+  margin-bottom: clamp(2.5rem, 6vw, 5rem);
+}
+
+.contact__title span {
+  background: linear-gradient(100deg, hsl(var(--brand)), hsl(var(--cyan)) 45%, hsl(var(--violet)));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 7s linear infinite;
+}
+
+.contact__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.form {
+  display: grid;
+  gap: 1.8rem;
+}
+
+.field {
+  position: relative;
+  padding-top: 1.1rem;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.7rem 0;
+  font: inherit;
+  font-size: 1.15rem;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  outline: none;
+  resize: vertical;
+}
+
+.field label {
+  position: absolute;
+  left: 0;
+  top: 1.8rem;
+  color: var(--mut);
+  pointer-events: none;
+  transform-origin: 0 0;
+  transition: transform 0.4s var(--ease), color 0.3s;
+}
+
+.field input:focus+label,
+.field input:not(:placeholder-shown)+label,
+.field textarea:focus+label,
+.field textarea:not(:placeholder-shown)+label {
+  transform: translateY(-1.6rem) scale(0.78);
+  color: hsl(var(--brand));
+}
+
+.field__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, hsl(var(--brand)), hsl(var(--violet)));
+  transition: transform 0.6s var(--ease);
+}
+
+.field input:focus~.field__line,
+.field textarea:focus~.field__line {
+  transform: scaleX(1);
+}
+
+.field.is-error input,
+.field.is-error textarea {
+  border-color: #ff6b6b;
+}
+
+.field.is-error label {
+  color: #ff6b6b;
+}
+
+.form .btn {
+  justify-self: start;
+}
+
+.form__status {
+  min-height: 1.5rem;
+  font-size: 0.92rem;
+  color: var(--mut);
+}
+
+.form__status.is-ok {
+  color: var(--ok);
+}
+
+.form__status.is-err {
+  color: #ff8a8a;
+}
+
+.channels {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.channel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
+  padding: 1.15rem 1.3rem;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.5s var(--ease);
+}
+
+.channel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  background: radial-gradient(320px circle at var(--mx) var(--my), hsl(var(--brand) / 0.16), transparent 60%);
+}
+
+.channel:hover {
+  border-color: hsl(var(--brand) / 0.45);
+  transform: translateX(6px);
+}
+
+.channel:hover::before {
+  opacity: 1;
+}
+
+.channel>.i {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: hsl(var(--brand));
+}
+
+.channel div {
+  flex: 1;
+  min-width: 0;
+}
+
+.channel small {
+  display: block;
+  color: var(--mut);
+  font-size: 0.78rem;
+}
+
+.channel b {
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.channel__act {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  transition: background 0.3s, color 0.3s;
+}
+
+.channel:hover .channel__act {
+  background: hsl(var(--brand));
+  color: var(--on-brand);
+  border-color: transparent;
+}
+

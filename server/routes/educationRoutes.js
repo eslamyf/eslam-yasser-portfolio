@@ -11,7 +11,10 @@ const mongoose = require('mongoose');
 
 const isMongoReady = () => mongoose.connection.readyState === 1;
 
-const workJsonPath = path.join(__dirname, '../../client/assets/data/work.json');
+const serverWorkPath = path.join(__dirname, '../data/work.json');
+const candidateWorkPath1 = path.join(__dirname, '../../client/public/assets/data/work.json');
+const candidateWorkPath2 = path.join(__dirname, '../../client/assets/data/work.json');
+const workJsonPath = fs.existsSync(serverWorkPath) ? serverWorkPath : (fs.existsSync(candidateWorkPath1) ? candidateWorkPath1 : candidateWorkPath2);
 
 const getWorkData = () => {
   if (fs.existsSync(workJsonPath)) {

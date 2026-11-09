@@ -1,0 +1,108 @@
+﻿/* ---------- Section primitives ---------- */
+.section {
+  position: relative;
+  padding-block: clamp(3rem, 5.5vw, 4.5rem);
+}
+
+.section__head {
+  margin-bottom: clamp(1.4rem, 2.5vw, 2.2rem);
+}
+
+.section__head--row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mut);
+  margin-bottom: 1.1rem;
+}
+
+.kicker span {
+  color: hsl(var(--brand));
+}
+
+.kicker::after {
+  content: "";
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, hsl(var(--brand)), transparent);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.3rem, 5.4vw, 4.3rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  max-width: 18ch;
+}
+
+.note {
+  margin-top: 1.4rem;
+  color: var(--mut);
+  font-size: 0.9rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tags li {
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--mut);
+}
+
+.arrows {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  transition: background 0.3s, border-color 0.3s, transform 0.3s var(--ease);
+}
+
+.arrow:hover {
+  background: hsl(var(--brand));
+  border-color: hsl(var(--brand));
+  color: var(--on-brand);
+  transform: scale(1.06);
+}
+
+/* spotlight used by several card types */
+.spot {
+  position: relative;
+}
+
+.proj,
+.bento__cell,
+.channel,
+.tl__card,
+.quote {
+  --mx: 50%;
+  --my: 50%;
+}
+
