@@ -1,4 +1,4 @@
-﻿/* ---------- Contact ---------- */
+/* ---------- Contact ---------- */
 .contact {
   overflow: hidden;
   isolation: isolate;
@@ -27,7 +27,18 @@
 }
 
 .contact__title span {
-  background: linear-gradient(100deg, hsl(var(--brand)), hsl(var(--cyan)) 45%, hsl(var(--violet)));
+  display: inline-block;
+  background: linear-gradient(100deg, hsl(var(--brand)) 0%, hsl(var(--cyan)) 25%, hsl(var(--violet)) 50%, hsl(var(--cyan)) 75%, hsl(var(--brand)) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 7s linear infinite;
+  will-change: background-position;
+}
+
+:root[data-theme="light"] .contact__title span {
+  background: linear-gradient(100deg, #2438F5 0%, #D97706 25%, #7C3AED 50%, #D97706 75%, #2438F5 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
