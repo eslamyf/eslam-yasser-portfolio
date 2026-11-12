@@ -9,86 +9,119 @@ export const SecurityTab = ({
 }) => {
   return (
     <div>
-      <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>Security &amp; Credentials Center</h2>
-      <p style={{ color: 'var(--mut)', fontSize: '0.9rem', marginBottom: '2rem' }}>Manage administrative credentials, token validity, and rate limits</p>
+      {/* Header */}
+      <div className="admin-page-header">
+        <div>
+          <h2 className="admin-page-title">مركز الأمان وكلمة المرور 🔒</h2>
+          <p className="admin-page-sub">
+            تحديث كلمة مرور لوحة التحكم ومراجعة طبقات الحماية والتشفير النشطة
+          </p>
+        </div>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '960px' }}>
-        {/* Change Password */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '18px', padding: '1.75rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <IconKey className="i" style={{ color: 'hsl(var(--brand))' }} /> Change Password
-          </h3>
-          <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', maxWidth: '1000px' }}>
+        {/* Change Password Card */}
+        <div className="admin-card">
+          <div className="admin-card-header">
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>Current Password</label>
+              <h3 className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <i className="fa-solid fa-key" style={{ color: 'hsl(var(--brand))' }}></i>
+                تغيير كلمة المرور
+              </h3>
+              <p className="admin-card-sub">أدخل كلمة المرور الحالية والجديدة لتحديث بيانات دخولك</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleChangePassword}>
+            <div className="admin-form-group">
+              <label className="admin-label">كلمة المرور الحالية *</label>
               <input
                 type="password"
                 required
+                className="admin-input"
                 value={passData.currentPassword}
                 onChange={(e) => setPassData({ ...passData, currentPassword: e.target.value })}
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
+                placeholder="••••••••"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>New Password (min 6 characters)</label>
+
+            <div className="admin-form-group">
+              <label className="admin-label">كلمة المرور الجديدة (6 خانات على الأقل) *</label>
               <input
                 type="password"
                 required
+                minLength={6}
+                className="admin-input"
                 value={passData.newPassword}
                 onChange={(e) => setPassData({ ...passData, newPassword: e.target.value })}
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
+                placeholder="••••••••"
               />
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>Confirm New Password</label>
+
+            <div className="admin-form-group">
+              <label className="admin-label">تأكيد كلمة المرور الجديدة *</label>
               <input
                 type="password"
                 required
+                minLength={6}
+                className="admin-input"
                 value={passData.confirmPassword}
                 onChange={(e) => setPassData({ ...passData, confirmPassword: e.target.value })}
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
+                placeholder="••••••••"
               />
             </div>
-            <button type="submit" className="btn btn--primary btn--sm" disabled={isSubmitting} style={{ marginTop: '0.5rem' }}>
-              <IconShield className="i" />
-              <span>{isSubmitting ? 'Updating...' : 'Update Password'}</span>
-            </button>
+
+            <div style={{ marginTop: '1.25rem' }}>
+              <button type="submit" className="admin-btn admin-btn--primary" disabled={isSubmitting}>
+                <i className="fa-solid fa-shield-halved"></i>
+                <span>{isSubmitting ? 'جاري التحديث...' : 'تحديث كلمة المرور الآن'}</span>
+              </button>
+            </div>
           </form>
         </div>
 
-        {/* Security Overview & Protections */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '18px', padding: '1.75rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '1.25rem' }}>Active Security Guardrails</h3>
+        {/* Security Status Card */}
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <div>
+              <h3 className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <i className="fa-solid fa-shield-halved" style={{ color: '#34d399' }}></i>
+                طبقات الحماية النشطة
+              </h3>
+              <p className="admin-card-sub">معلومات التشفير وإجراءات حماية النظام</p>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#34d399', marginTop: '2px' }}><IconCheck className="i" /></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', borderRadius: '10px', background: 'var(--surface-3)', border: '1px solid var(--line)' }}>
+              <i className="fa-solid fa-circle-check" style={{ color: '#34d399' }}></i>
               <div>
-                <b style={{ display: 'block', fontSize: '0.95rem' }}>Bcrypt Password Hashing</b>
-                <small style={{ color: 'var(--mut)' }}>Salt rounds 10 with cryptographically secure one-way hashing</small>
+                <b style={{ fontSize: '0.92rem', color: 'var(--ink)' }}>تشفير كلمات المرور عبر Bcrypt</b>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--mut)' }}>12 جولة تشفير غير قابلة للعكس (Salt Rounds: 12)</p>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#34d399', marginTop: '2px' }}><IconCheck className="i" /></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', borderRadius: '10px', background: 'var(--surface-3)', border: '1px solid var(--line)' }}>
+              <i className="fa-solid fa-circle-check" style={{ color: '#34d399' }}></i>
               <div>
-                <b style={{ display: 'block', fontSize: '0.95rem' }}>JWT Bearer Authentication</b>
-                <small style={{ color: 'var(--mut)' }}>HMAC-SHA256 signed tokens with 7-day expiration and automatic invalidation on 401</small>
+                <b style={{ fontSize: '0.92rem', color: 'var(--ink)' }}>توثيق الجلسات بـ JWT Token</b>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--mut)' }}>جلسة مؤمنة تنتهي تلقائياً ومحمية في Headers</p>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#34d399', marginTop: '2px' }}><IconCheck className="i" /></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', borderRadius: '10px', background: 'var(--surface-3)', border: '1px solid var(--line)' }}>
+              <i className="fa-solid fa-circle-check" style={{ color: '#34d399' }}></i>
               <div>
-                <b style={{ display: 'block', fontSize: '0.95rem' }}>Brute-Force Rate Limiting</b>
-                <small style={{ color: 'var(--mut)' }}>Max 20 login attempts per 15-minute window on auth endpoints</small>
+                <b style={{ fontSize: '0.92rem', color: 'var(--ink)' }}>رفع سحابي مؤمن عبر Cloudinary</b>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--mut)' }}>مجلد مخصص ومحمي بمفاتيح API معزولة بيئياً</p>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#34d399', marginTop: '2px' }}><IconCheck className="i" /></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', borderRadius: '10px', background: 'var(--surface-3)', border: '1px solid var(--line)' }}>
+              <i className="fa-solid fa-circle-check" style={{ color: '#34d399' }}></i>
               <div>
-                <b style={{ display: 'block', fontSize: '0.95rem' }}>Helmet HTTP Security Headers</b>
-                <small style={{ color: 'var(--mut)' }}>X-Content-Type-Options, X-Frame-Options, and Strict-Transport-Security</small>
+                <b style={{ fontSize: '0.92rem', color: 'var(--ink)' }}>حماية ضد هجمات التخمين (Rate Limiter)</b>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--mut)' }}>حظر محاولات الدخول المتكررة تلقائياً</p>
               </div>
             </div>
           </div>
@@ -97,4 +130,3 @@ export const SecurityTab = ({
     </div>
   );
 };
-

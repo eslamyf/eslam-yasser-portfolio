@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/layout/Toast';
@@ -11,18 +11,12 @@ import {
   cvApi
 } from '../api/client';
 import api from '../api/client';
-import {
-  IconCode,
-  IconCap,
-  IconMail,
-  IconServer,
-  IconKey,
-  IconDownload,
-  IconUsers
-} from '../assets/icons';
+
+import '../styles/admin.css';
 
 import { AdminHeader } from '../components/admin/AdminHeader';
 import { AdminSidebar } from '../components/admin/AdminSidebar';
+import { ConfirmModal } from '../components/admin/ConfirmModal';
 import { ProjectsTab } from '../components/admin/tabs/ProjectsTab';
 import { SkillsTab } from '../components/admin/tabs/SkillsTab';
 import { CertificatesTab } from '../components/admin/tabs/CertificatesTab';
@@ -55,7 +49,8 @@ export const AdminDashboard = () => {
     technologies: '',
     githubUrl: '',
     liveUrl: '',
-    coverImage: ''
+    coverImage: '',
+    gallery: []
   });
 
   const [newSkill, setNewSkill] = useState({
@@ -63,7 +58,7 @@ export const AdminDashboard = () => {
     category: 'frontend',
     level: 'Advanced',
     proficiency: 90,
-    icon: 'ri-code-line'
+    icon: 'fa-solid fa-code'
   });
 
   const [newCert, setNewCert] = useState({
@@ -93,11 +88,47 @@ export const AdminDashboard = () => {
   const [cvFile, setCvFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Custom Confirmation Dialog State (replaces browser confirm)
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    type: null,
+    id: null,
+    title: '',
+    message: '',
+    isLoading: false
+  });
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/admin/login');
     }
   }, [isAuthenticated, navigate]);
+
+  // Initial load of counts & data
+  const loadInitialData = useCallback(async () => {
+    if (!token) return;
+    try {
+      const [pRes, cRes, sRes, vRes, iRes] = await Promise.allSettled([
+        projectApi.getAll(),
+        certificateApi.getAll(),
+        skillApi.getAll(),
+        journeyApi.getVolunteering(),
+        inquiryApi.getAll()
+      ]);
+
+      if (pRes.status === 'fulfilled') setProjects(pRes.value.data?.data || pRes.value.data || []);
+      if (cRes.status === 'fulfilled') setCertificates(cRes.value.data?.data || cRes.value.data || []);
+      if (sRes.status === 'fulfilled') setSkills(sRes.value.data?.data || sRes.value.data || []);
+      if (vRes.status === 'fulfilled') setVolunteering(vRes.value.data?.data || vRes.value.data || []);
+      if (iRes.status === 'fulfilled') setInquiries(iRes.value.data?.data || iRes.value.data || []);
+    } catch (e) {
+      console.warn('Initial data load error:', e);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
 
   // Load data according to active tab
   useEffect(() => {
@@ -107,36 +138,102 @@ export const AdminDashboard = () => {
       setLoading(true);
       projectApi.getAll()
         .then(res => setProjects(res.data.data || res.data || []))
-        .catch(err => showToast(err.response?.data?.message || 'Error fetching projects', 'error'))
+        .catch(err => showToast(err.response?.data?.message || 'فشل في جلب المشاريع', 'error'))
         .finally(() => setLoading(false));
     } else if (activeTab === 'certificates') {
       setLoading(true);
       certificateApi.getAll()
         .then(res => setCertificates(res.data.data || res.data || []))
-        .catch(err => showToast(err.response?.data?.message || 'Error fetching certificates', 'error'))
+        .catch(err => showToast(err.response?.data?.message || 'فشل في جلب الشهادات', 'error'))
         .finally(() => setLoading(false));
     } else if (activeTab === 'skills') {
       setLoading(true);
       skillApi.getAll()
         .then(res => setSkills(res.data.data || res.data || []))
-        .catch(err => showToast(err.response?.data?.message || 'Error fetching skills', 'error'))
+        .catch(err => showToast(err.response?.data?.message || 'فشل في جلب المهارات', 'error'))
         .finally(() => setLoading(false));
     } else if (activeTab === 'volunteering') {
       setLoading(true);
       journeyApi.getVolunteering()
         .then(res => setVolunteering(res.data.data || res.data || []))
-        .catch(err => showToast(err.response?.data?.message || 'Error fetching volunteering', 'error'))
+        .catch(err => showToast(err.response?.data?.message || 'فشل في جلب الأنشطة التطوعية', 'error'))
         .finally(() => setLoading(false));
     } else if (activeTab === 'inquiries') {
       setLoading(true);
       inquiryApi.getAll()
         .then(res => setInquiries(res.data.data || res.data || []))
-        .catch(err => showToast(err.response?.data?.message || 'Error fetching inquiries', 'error'))
+        .catch(err => showToast(err.response?.data?.message || 'فشل في جلب الرسائل', 'error'))
         .finally(() => setLoading(false));
     }
   }, [activeTab, token, showToast]);
 
-  // --- Handlers ---
+  // ==================== CONFIRM MODAL CONTROLLER ====================
+  const triggerDelete = (type, id, itemName = '') => {
+    let title = 'تأكيد الحذف';
+    let message = 'هل أنت متأكد من رغبتك في حذف هذا العنصر؟ لا يمكن التراجع عن هذه الخطوة.';
+
+    if (type === 'project') {
+      title = itemName ? `حذف المشروع: ${itemName}` : 'تأكيد حذف المشروع';
+      message = 'هل أنت متأكد من رغبتك في حذف هذا المشروع نهائياً من الموقع ومعرض الأعمال؟';
+    } else if (type === 'skill') {
+      title = itemName ? `حذف مهارة: ${itemName}` : 'تأكيد حذف المهارة';
+      message = 'هل أنت متأكد من رغبتك في حذف هذه المهارة من قائمة مهاراتك؟';
+    } else if (type === 'cert') {
+      title = itemName ? `حذف شهادة: ${itemName}` : 'تأكيد حذف الشهادة';
+      message = 'هل أنت متأكد من رغبتك في حذف هذه الشهادة والاعتماد من الموقع؟';
+    } else if (type === 'volunteering') {
+      title = itemName ? `حذف نشاط: ${itemName}` : 'تأكيد حذف النشاط التطوعي';
+      message = 'هل أنت متأكد من رغبتك في حذف هذا النشاط التطوعي؟';
+    } else if (type === 'inquiry') {
+      title = 'حذف رسالة الزائر';
+      message = itemName ? `هل أنت متأكد من حذف رسالة الزائر (${itemName}) نهائياً؟` : 'هل أنت متأكد من حذف هذه الرسالة نهائياً؟';
+    }
+
+    setConfirmModal({
+      isOpen: true,
+      type,
+      id,
+      title,
+      message,
+      isLoading: false
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    const { type, id } = confirmModal;
+    if (!type || !id) return;
+
+    setConfirmModal(prev => ({ ...prev, isLoading: true }));
+    try {
+      if (type === 'project') {
+        await projectApi.delete(id);
+        showToast('تم حذف المشروع بنجاح', 'success');
+        setProjects(prev => prev.filter(p => (p._id || p.id) !== id));
+      } else if (type === 'skill') {
+        await skillApi.delete(id);
+        showToast('تم حذف المهارة بنجاح', 'success');
+        setSkills(prev => prev.filter(s => (s._id || s.id) !== id));
+      } else if (type === 'cert') {
+        await certificateApi.delete(id);
+        showToast('تم حذف الشهادة بنجاح', 'success');
+        setCertificates(prev => prev.filter(c => (c._id || c.id) !== id));
+      } else if (type === 'volunteering') {
+        await journeyApi.deleteVolunteering(id);
+        showToast('تم حذف النشاط التطوعي بنجاح', 'success');
+        setVolunteering(prev => prev.filter(v => (v._id || v.id) !== id));
+      } else if (type === 'inquiry') {
+        await inquiryApi.delete(id);
+        showToast('تم حذف الرسالة بنجاح', 'success');
+        setInquiries(prev => prev.filter(m => (m._id || m.id) !== id));
+      }
+      setConfirmModal({ isOpen: false, type: null, id: null, title: '', message: '', isLoading: false });
+    } catch (err) {
+      showToast(err.response?.data?.message || 'فشل في إتمام عملية الحذف', 'error');
+      setConfirmModal(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  // ==================== PROJECTS HANDLERS ====================
   const handleAddProject = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -150,10 +247,12 @@ export const AdminDashboard = () => {
         githubUrl: newProject.githubUrl,
         liveUrl: newProject.liveUrl,
         coverImage: newProject.coverImage || 'assets/img/backend_api.webp',
-        image: newProject.coverImage || 'assets/img/backend_api.webp'
+        image: newProject.coverImage || 'assets/img/backend_api.webp',
+        gallery: newProject.gallery || [],
+        images: newProject.gallery || []
       };
       await projectApi.create(payload);
-      showToast('Project added successfully!', 'success');
+      showToast('تمت إضافة المشروع بنجاح ورفعه للموقع!', 'success');
       setNewProject({
         title: '',
         category: 'MEAN Stack',
@@ -162,28 +261,31 @@ export const AdminDashboard = () => {
         technologies: '',
         githubUrl: '',
         liveUrl: '',
-        coverImage: ''
+        coverImage: '',
+        gallery: []
       });
       const res = await projectApi.getAll();
       setProjects(res.data.data || res.data || []);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to add project', 'error');
+      showToast(err.response?.data?.message || 'حدث خطأ أثناء إضافة المشروع', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteProject = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this project?')) return;
+  const handleUpdateProject = async (id, payload) => {
     try {
-      await projectApi.delete(id);
-      showToast('Project removed', 'success');
-      setProjects(prev => prev.filter(p => (p._id || p.id) !== id));
+      await projectApi.update(id, payload);
+      showToast('تم تحديث بيانات المشروع بنجاح!', 'success');
+      const res = await projectApi.getAll();
+      setProjects(res.data.data || res.data || []);
     } catch (err) {
-      showToast('Failed to delete project', 'error');
+      showToast(err.response?.data?.message || 'فشل في تحديث المشروع', 'error');
+      throw err;
     }
   };
 
+  // ==================== SKILLS HANDLERS ====================
   const handleAddSkill = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -196,34 +298,36 @@ export const AdminDashboard = () => {
         icon: newSkill.icon
       };
       await skillApi.create(payload);
-      showToast('Skill added!', 'success');
+      showToast('تمت إضافة المهارة بنجاح!', 'success');
       setNewSkill({
         name: '',
         category: 'frontend',
         level: 'Advanced',
         proficiency: 90,
-        icon: 'ri-code-line'
+        icon: 'fa-solid fa-code'
       });
       const res = await skillApi.getAll();
       setSkills(res.data.data || res.data || []);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to add skill', 'error');
+      showToast(err.response?.data?.message || 'فشل في إضافة المهارة', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteSkill = async (id) => {
-    if (!window.confirm('Delete this skill?')) return;
+  const handleUpdateSkill = async (id, payload) => {
     try {
-      await skillApi.delete(id);
-      showToast('Skill deleted', 'success');
-      setSkills(prev => prev.filter(s => (s._id || s.id) !== id));
+      await skillApi.update(id, payload);
+      showToast('تم تحديث المهارة بنجاح!', 'success');
+      const res = await skillApi.getAll();
+      setSkills(res.data.data || res.data || []);
     } catch (err) {
-      showToast('Failed to delete skill', 'error');
+      showToast(err.response?.data?.message || 'فشل في تحديث المهارة', 'error');
+      throw err;
     }
   };
 
+  // ==================== CERTIFICATES HANDLERS ====================
   const handleAddCert = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -238,7 +342,7 @@ export const AdminDashboard = () => {
         image: newCert.image
       };
       await certificateApi.create(payload);
-      showToast('Certificate added!', 'success');
+      showToast('تمت إضافة الشهادة بنجاح!', 'success');
       setNewCert({
         title: '',
         issuer: '',
@@ -251,29 +355,31 @@ export const AdminDashboard = () => {
       const res = await certificateApi.getAll();
       setCertificates(res.data.data || res.data || []);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to add certificate', 'error');
+      showToast(err.response?.data?.message || 'فشل في إضافة الشهادة', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteCert = async (id) => {
-    if (!window.confirm('Delete this certificate?')) return;
+  const handleUpdateCert = async (id, payload) => {
     try {
-      await certificateApi.delete(id);
-      showToast('Certificate deleted', 'success');
-      setCertificates(prev => prev.filter(c => (c._id || c.id) !== id));
+      await certificateApi.update(id, payload);
+      showToast('تم تحديث الشهادة بنجاح!', 'success');
+      const res = await certificateApi.getAll();
+      setCertificates(res.data.data || res.data || []);
     } catch (err) {
-      showToast('Failed to delete certificate', 'error');
+      showToast(err.response?.data?.message || 'فشل في تحديث الشهادة', 'error');
+      throw err;
     }
   };
 
+  // ==================== VOLUNTEERING HANDLERS ====================
   const handleAddVolunteering = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       await journeyApi.createVolunteering(newVolunteering);
-      showToast('Volunteering added!', 'success');
+      showToast('تمت إضافة النشاط التطوعي بنجاح!', 'success');
       setNewVolunteering({
         role: '',
         organization: '',
@@ -284,34 +390,25 @@ export const AdminDashboard = () => {
       const res = await journeyApi.getVolunteering();
       setVolunteering(res.data.data || res.data || []);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to add activity', 'error');
+      showToast(err.response?.data?.message || 'فشل في إضافة النشاط', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteVolunteering = async (id) => {
-    if (!window.confirm('Delete this volunteering record?')) return;
+  const handleUpdateVolunteering = async (id, payload) => {
     try {
-      await journeyApi.deleteVolunteering(id);
-      showToast('Activity deleted', 'success');
-      setVolunteering(prev => prev.filter(v => (v._id || v.id) !== id));
+      await journeyApi.updateVolunteering(id, payload);
+      showToast('تم تحديث النشاط التطوعي بنجاح!', 'success');
+      const res = await journeyApi.getVolunteering();
+      setVolunteering(res.data.data || res.data || []);
     } catch (err) {
-      showToast('Failed to delete activity', 'error');
+      showToast(err.response?.data?.message || 'فشل في تحديث النشاط التطوعي', 'error');
+      throw err;
     }
   };
 
-  const handleDeleteInquiry = async (id) => {
-    if (!window.confirm('Delete this message?')) return;
-    try {
-      await inquiryApi.delete(id);
-      showToast('Message deleted', 'success');
-      setInquiries(prev => prev.filter(m => (m._id || m.id) !== id));
-    } catch (err) {
-      showToast('Failed to delete message', 'error');
-    }
-  };
-
+  // ==================== CV & SECURITY HANDLERS ====================
   const handleUploadCV = async (e) => {
     e.preventDefault();
     if (!cvFile) return;
@@ -320,10 +417,10 @@ export const AdminDashboard = () => {
       const formData = new FormData();
       formData.append('cv', cvFile);
       await cvApi.upload(formData);
-      showToast('New CV uploaded & activated successfully!', 'success');
+      showToast('تم رفع وتفعيل السيرة الذاتية الجديدة بنجاح على الموقع!', 'success');
       setCvFile(null);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to upload CV file', 'error');
+      showToast(err.response?.data?.message || 'فشل في رفع ملف السيرة الذاتية', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -332,11 +429,11 @@ export const AdminDashboard = () => {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passData.newPassword !== passData.confirmPassword) {
-      showToast('Passwords do not match', 'error');
+      showToast('كلمتا المرور غير متطابقتين', 'error');
       return;
     }
     if (passData.newPassword.length < 6) {
-      showToast('Password must be at least 6 characters', 'error');
+      showToast('يجب أن تكون كلمة المرور 6 أحرف على الأقل', 'error');
       return;
     }
     setIsSubmitting(true);
@@ -345,37 +442,82 @@ export const AdminDashboard = () => {
         currentPassword: passData.currentPassword,
         newPassword: passData.newPassword
       });
-      showToast('Password updated successfully! Please re-login.', 'success');
+      showToast('تم تحديث كلمة المرور بنجاح! يرجى إعادة تسجيل الدخول.', 'success');
       setPassData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setTimeout(() => logout(), 1500);
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to change password', 'error');
+      showToast(err.response?.data?.message || 'فشل في تغيير كلمة المرور', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Pure Arabic Navigation Items with Font Awesome Icons
   const navItems = [
-    { id: 'projects', label: 'Projects (المشاريع)', icon: IconCode, count: projects.length },
-    { id: 'skills', label: 'Skills (الاسكليز)', icon: IconServer, count: skills.length },
-    { id: 'certificates', label: 'Certificates (الشهايد)', icon: IconCap, count: certificates.length },
-    { id: 'volunteering', label: 'Volunteering (التطوع)', icon: IconUsers, count: volunteering.length },
-    { id: 'inquiries', label: 'Inbox (الرسائل)', icon: IconMail, count: inquiries.length },
-    { id: 'cv', label: 'CV Document (الـ CV)', icon: IconDownload },
-    { id: 'security', label: 'Security & Auth', icon: IconKey }
+    { id: 'projects', label: 'المشاريع والأعمال', faIcon: 'fa-solid fa-laptop-code', count: projects.length },
+    { id: 'skills', label: 'المهارات والتقنيات', faIcon: 'fa-solid fa-code', count: skills.length },
+    { id: 'certificates', label: 'الشهادات والاعتمادات', faIcon: 'fa-solid fa-graduation-cap', count: certificates.length },
+    { id: 'volunteering', label: 'الخبرات والتطوع', faIcon: 'fa-solid fa-handshake-angle', count: volunteering.length },
+    { id: 'inquiries', label: 'صندوق الرسائل', faIcon: 'fa-solid fa-inbox', count: inquiries.length },
+    { id: 'cv', label: 'السيرة الذاتية (CV)', faIcon: 'fa-solid fa-file-pdf' },
+    { id: 'security', label: 'الأمان والحساب', faIcon: 'fa-solid fa-shield-halved' }
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
+    <div className="admin-root">
       <AdminHeader user={user} logout={logout} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr', minHeight: 'calc(100vh - 80px)' }}>
+      <div className="admin-layout">
         <AdminSidebar navItems={navItems} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <main style={{ padding: '2.5rem', overflowY: 'auto' }}>
+        <main className="admin-main">
+          {/* Top Classic Stats Grid with Font Awesome */}
+          <div className="admin-stats-grid">
+            <div className="admin-stat-card" onClick={() => setActiveTab('projects')}>
+              <div className="admin-stat-card__icon">
+                <i className="fa-solid fa-briefcase"></i>
+              </div>
+              <div className="admin-stat-card__info">
+                <span className="admin-stat-card__label">إجمالي المشاريع</span>
+                <span className="admin-stat-card__value">{projects.length}</span>
+              </div>
+            </div>
+
+            <div className="admin-stat-card" onClick={() => setActiveTab('skills')}>
+              <div className="admin-stat-card__icon">
+                <i className="fa-solid fa-bolt"></i>
+              </div>
+              <div className="admin-stat-card__info">
+                <span className="admin-stat-card__label">المهارات التقنية</span>
+                <span className="admin-stat-card__value">{skills.length}</span>
+              </div>
+            </div>
+
+            <div className="admin-stat-card" onClick={() => setActiveTab('certificates')}>
+              <div className="admin-stat-card__icon">
+                <i className="fa-solid fa-award"></i>
+              </div>
+              <div className="admin-stat-card__info">
+                <span className="admin-stat-card__label">الشهادات المعتمدة</span>
+                <span className="admin-stat-card__value">{certificates.length}</span>
+              </div>
+            </div>
+
+            <div className="admin-stat-card" onClick={() => setActiveTab('inquiries')}>
+              <div className="admin-stat-card__icon">
+                <i className="fa-solid fa-envelope-open-text"></i>
+              </div>
+              <div className="admin-stat-card__info">
+                <span className="admin-stat-card__label">رسائل الزوار</span>
+                <span className="admin-stat-card__value">{inquiries.length}</span>
+              </div>
+            </div>
+          </div>
+
           {loading && (
-            <div style={{ padding: '1rem', color: 'hsl(var(--brand))', fontWeight: 600 }}>
-              Loading data...
+            <div style={{ padding: '0.8rem 1.25rem', marginBottom: '1.5rem', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', fontWeight: 600, border: '1px solid rgba(56, 189, 248, 0.2)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <i className="fa-solid fa-spinner fa-spin"></i>
+              <span>جاري تحميل وتحديث البيانات...</span>
             </div>
           )}
 
@@ -385,7 +527,8 @@ export const AdminDashboard = () => {
               newProject={newProject}
               setNewProject={setNewProject}
               handleAddProject={handleAddProject}
-              handleDeleteProject={handleDeleteProject}
+              handleUpdateProject={handleUpdateProject}
+              handleDeleteProject={(id, title) => triggerDelete('project', id, title)}
               isSubmitting={isSubmitting}
             />
           )}
@@ -396,7 +539,8 @@ export const AdminDashboard = () => {
               newSkill={newSkill}
               setNewSkill={setNewSkill}
               handleAddSkill={handleAddSkill}
-              handleDeleteSkill={handleDeleteSkill}
+              handleUpdateSkill={handleUpdateSkill}
+              handleDeleteSkill={(id, name) => triggerDelete('skill', id, name)}
               isSubmitting={isSubmitting}
             />
           )}
@@ -407,7 +551,8 @@ export const AdminDashboard = () => {
               newCert={newCert}
               setNewCert={setNewCert}
               handleAddCert={handleAddCert}
-              handleDeleteCert={handleDeleteCert}
+              handleUpdateCert={handleUpdateCert}
+              handleDeleteCert={(id, title) => triggerDelete('cert', id, title)}
               isSubmitting={isSubmitting}
             />
           )}
@@ -418,7 +563,8 @@ export const AdminDashboard = () => {
               newVolunteering={newVolunteering}
               setNewVolunteering={setNewVolunteering}
               handleAddVolunteering={handleAddVolunteering}
-              handleDeleteVolunteering={handleDeleteVolunteering}
+              handleUpdateVolunteering={handleUpdateVolunteering}
+              handleDeleteVolunteering={(id, role) => triggerDelete('volunteering', id, role)}
               isSubmitting={isSubmitting}
             />
           )}
@@ -426,7 +572,7 @@ export const AdminDashboard = () => {
           {activeTab === 'inquiries' && (
             <InquiriesTab
               inquiries={inquiries}
-              handleDeleteInquiry={handleDeleteInquiry}
+              handleDeleteInquiry={(id, name) => triggerDelete('inquiry', id, name)}
             />
           )}
 
@@ -449,6 +595,16 @@ export const AdminDashboard = () => {
           )}
         </main>
       </div>
+
+      {/* Modern Custom Arabic Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirmDelete}
+        isLoading={confirmModal.isLoading}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-﻿/* ---------- Projects (sticky stack) ---------- */
+/* ---------- Projects (sticky stack) ---------- */
 .projects {
   padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
 }
@@ -178,6 +178,29 @@
   padding: 14px;
   display: grid;
   gap: 12px;
+}
+
+.mock--has-image .mock__body--image {
+  padding: 0;
+  display: block;
+  height: clamp(240px, 32vw, 330px);
+  overflow: hidden;
+  border-radius: 0 0 19px 19px;
+  background: var(--surface-2, #0e143c);
+  position: relative;
+}
+
+.mock__project-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: transform 0.8s var(--ease);
+}
+
+.proj:hover .mock__project-img {
+  transform: scale(1.04);
 }
 
 .mock__hero {

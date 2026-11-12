@@ -1,0 +1,98 @@
+[
+    {
+        "fullDescription": "",
+        "_id": "6aabed4a69c7e22fb583fdf8",
+        "title": "Aqario Luxe",
+        "category": "MEAN Stack",
+        "subtitle": "Real Estate Management System",
+        "description": "Developed a scalable real estate platform (Aqario Luxe) using the MEAN stack with clean, maintainable architecture. Implemented a freemium model with secure payment integration for user transactions, structured MongoDB database design, and Git version control.",
+        "date": "March 2026 – June 2026",
+        "coverImage": "https://res.cloudinary.com/azk1xpfi/image/upload/v1794494876/portfolio/image/v6wmimhpmvogtbywkcty.jpg",
+        "image": "https://res.cloudinary.com/azk1xpfi/image/upload/v1794494876/portfolio/image/v6wmimhpmvogtbywkcty.jpg",
+        "gallery": [],
+        "images": [],
+        "technologies": [
+            "Angular",
+            "Node.js",
+            "Express.js",
+            "MongoDB",
+            "JWT Auth"
+        ],
+        "demo": "https://aqario-luxe.vercel.app/",
+        "github": "https://github.com/eslamyf/aqario-luxe-web",
+        "isFeatured": true,
+        "status": "published",
+        "orderIndex": 1,
+        "createdAt": "2026-09-17T13:38:18.946Z",
+        "updatedAt": "2026-11-12T14:48:28.578Z"
+    },
+    {
+        "fullDescription": "",
+        "_id": "6aabed4a69c7e22fb583fdf9",
+        "title": "Foodio",
+        "category": "MEAN Stack",
+        "subtitle": "University Food Delivery Platform",
+        "description": "Built a food delivery app connecting local restaurants with university students. Implemented core features including cart system, favorites management, and organized a modular project structure for high scalability.",
+        "date": "February 2026 – March 2026",
+        "coverImage": "assets/img/RWD.webp",
+        "image": "assets/img/RWD.webp",
+        "gallery": [
+            "assets/img/RWD.webp",
+            "assets/img/aqario.webp",
+            "assets/img/backend_api.webp"
+        ],
+        "images": [
+            "assets/img/RWD.webp",
+            "assets/img/aqario.webp",
+            "assets/img/backend_api.webp"
+        ],
+        "technologies": [
+            "Angular",
+            "Bootstrap",
+            "REST APIs",
+            "TypeScript"
+        ],
+        "demo": "",
+        "github": "https://github.com/eslamyasser",
+        "isFeatured": true,
+        "status": "published",
+        "orderIndex": 2,
+        "createdAt": "2026-09-17T13:38:18.946Z",
+        "updatedAt": "2026-09-17T13:38:18.946Z"
+    },
+    {
+        "fullDescription": "",
+        "_id": "6aabed4a69c7e22fb583fdfa",
+        "title": "Scalable RESTful Backend Architecture",
+        "category": "Backend & Cloud",
+        "subtitle": "Node.js & MongoDB Core Engine",
+        "description": "Engineered high-performance RESTful API micro-services with role-based access control (RBAC), robust authentication with JWT & Bcrypt, automated rate-limiting, and Cloudinary media pipeline.",
+        "date": "2026",
+        "coverImage": "assets/img/backend_api.webp",
+        "image": "assets/img/backend_api.webp",
+        "gallery": [
+            "assets/img/backend_api.webp",
+            "assets/img/aqario.webp",
+            "assets/img/RWD.webp"
+        ],
+        "images": [
+            "assets/img/backend_api.webp",
+            "assets/img/aqario.webp",
+            "assets/img/RWD.webp"
+        ],
+        "technologies": [
+            "Node.js",
+            "Express.js",
+            "MongoDB",
+            "Mongoose",
+            "Cloudinary"
+        ],
+        "demo": "",
+        "github": "https://github.com/eslamyasser",
+        "isFeatured": false,
+        "status": "published",
+        "orderIndex": 3,
+        "createdAt": "2026-09-17T13:38:18.946Z",
+        "updatedAt": "2026-09-17T13:38:18.946Z"
+    }
+]

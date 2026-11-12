@@ -129,8 +129,15 @@ app.use(async (req, res, next) => {
 async function seedInitialData() {
   try {
     // 1. Seed / Ensure Admin User
-    const adminEmail = (process.env.ADMIN_EMAIL || 'eslam9076460@gmail.com').toLowerCase().trim();
+    const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
     const adminUsername = (process.env.ADMIN_USERNAME || 'admin').trim();
+    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH || (process.env.ADMIN_PASSWORD ? bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10) : '');
+
+    if (!adminEmail || !adminPasswordHash) {
+      console.warn('[Seed] ADMIN_EMAIL or ADMIN_PASSWORD_HASH not configured in environment. Skipping admin seed.');
+      return;
+    }
+
     let admin = await User.findOne({
       $or: [{ email: adminEmail }, { username: adminUsername }]
     });
@@ -139,7 +146,7 @@ async function seedInitialData() {
       admin = new User({
         username: adminUsername,
         email: adminEmail,
-        password: process.env.ADMIN_PASSWORD_HASH || '$2a$12$KzXzX/zQHH/tk58GGR7nKOAH9u./VNl1T3PdTlXSocn8CrylIQJW.',
+        password: adminPasswordHash,
         role: 'admin'
       });
       await admin.save();
@@ -150,8 +157,8 @@ async function seedInitialData() {
         admin.email = adminEmail;
         needsSave = true;
       }
-      if (process.env.ADMIN_PASSWORD_HASH && admin.password !== process.env.ADMIN_PASSWORD_HASH) {
-        admin.password = process.env.ADMIN_PASSWORD_HASH;
+      if (adminPasswordHash && admin.password !== adminPasswordHash) {
+        admin.password = adminPasswordHash;
         needsSave = true;
       }
       if (needsSave) {

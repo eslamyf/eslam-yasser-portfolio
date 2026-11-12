@@ -9,47 +9,60 @@ export const CvTab = ({
 }) => {
   return (
     <div>
-      <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>CV Document Management</h2>
-      <p style={{ color: 'var(--mut)', fontSize: '0.9rem', marginBottom: '2rem' }}>Upload your latest PDF CV for recruiters and clients to download directly</p>
+      {/* Header */}
+      <div className="admin-page-header">
+        <div>
+          <h2 className="admin-page-title">إدارة ملف السيرة الذاتية (CV) 📄</h2>
+          <p className="admin-page-sub">
+            ارفع أحدث نسخة من سيرتك الذاتية بصيغة PDF ليتمكن أصحاب العمل ومسؤولو التوظيف من تحميلها مباشرة
+          </p>
+        </div>
+      </div>
 
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '18px', padding: '2rem', maxWidth: '520px' }}>
+      <div className="admin-card" style={{ maxWidth: '600px' }}>
+        <div className="admin-card-header">
+          <div>
+            <h3 className="admin-card-title">تحديث وتفعيل السيرة الذاتية</h3>
+            <p className="admin-card-sub">اختر ملف PDF جديد من جهازك واضغط زر الرفع والتفعيل</p>
+          </div>
+        </div>
+
         <form onSubmit={handleUploadCV}>
-          <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-            Select new PDF Curriculum Vitae:
-          </label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setCvFile(e.target.files[0])}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '10px',
-              border: '1px solid var(--line)',
-              background: 'var(--surface-2)',
-              color: 'var(--ink)',
-              marginBottom: '1.25rem'
-            }}
-          />
-          <button
-            type="submit"
-            className="btn btn--primary btn--sm"
-            disabled={!cvFile || isSubmitting}
-          >
-            <IconDownload className="i" />
-            <span>{isSubmitting ? 'Uploading...' : 'Upload & Activate CV'}</span>
-          </button>
+          <div className="admin-form-group">
+            <label className="admin-label">اختر ملف الـ PDF الجديد:</label>
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={(e) => setCvFile(e.target.files[0])}
+              className="admin-input"
+              style={{ cursor: 'pointer' }}
+            />
+            {cvFile && (
+              <small style={{ color: '#34d399', fontSize: '0.82rem', marginTop: '0.4rem', display: 'block' }}>
+                ✓ تم اختيار: {cvFile.name} ({(cvFile.size / 1024 / 1024).toFixed(2)} MB)
+              </small>
+            )}
+          </div>
+
+          <div style={{ marginTop: '1.25rem' }}>
+            <button
+              type="submit"
+              className="admin-btn admin-btn--primary"
+              disabled={!cvFile || isSubmitting}
+            >
+              <i className="fa-solid fa-cloud-arrow-up"></i>
+              <span>{isSubmitting ? 'جاري رفع وتفعيل السيرة الذاتية...' : 'رفع وتفعيل السيرة الذاتية الآن'}</span>
+            </button>
+          </div>
         </form>
 
-        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--line)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#34d399', fontSize: '0.9rem' }}>
-            <IconCheck className="i" />
-            <span>Current Active CV: EslamCV.pdf</span>
+        <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid var(--line)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#34d399', fontSize: '0.92rem' }}>
+            <i className="fa-solid fa-circle-check"></i>
+            <span>السيرة الذاتية المفعلة حالياً على الموقع: <b>Eslam_Yasser_CV.pdf</b></span>
           </div>
         </div>
       </div>
     </div>
   );
 };
-

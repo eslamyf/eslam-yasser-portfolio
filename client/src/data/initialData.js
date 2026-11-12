@@ -37,6 +37,7 @@ export const initialProjects = [
     tags: ['Angular', 'Node.js', 'MongoDB', 'Payments'],
     codeUrl: 'https://github.com/eslamyasser',
     liveUrl: '',
+    coverImage: '/assets/img/aqario.webp',
     mockType: 'web'
   },
   {
@@ -50,6 +51,7 @@ export const initialProjects = [
     tags: ['Angular', 'Node.js', 'REST APIs', 'TypeScript'],
     codeUrl: 'https://github.com/eslamyasser',
     liveUrl: '',
+    coverImage: '/assets/img/RWD.webp',
     mockType: 'phone'
   },
   {
@@ -63,6 +65,7 @@ export const initialProjects = [
     tags: ['Node.js', 'Express.js', 'MongoDB', 'JWT', 'Cloudinary'],
     codeUrl: 'https://github.com/eslamyasser',
     liveUrl: '',
+    coverImage: '/assets/img/backend_api.webp',
     mockType: 'term'
   }
 ];

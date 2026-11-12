@@ -28,10 +28,35 @@ const getWorkData = () => {
 };
 
 const saveWorkData = (data) => {
+  const targetDirs = [
+    path.join(__dirname, '../data'),
+    path.join(__dirname, '../../client/public/assets/data')
+  ];
+  for (const dir of targetDirs) {
+    try {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'work.json'), JSON.stringify(data, null, 2), 'utf8');
+    } catch (err) {
+      console.warn('Failed to save work.json fallback:', err.message);
+    }
+  }
+};
+
+const syncCertificatesToJson = async () => {
   try {
-    fs.writeFileSync(workJsonPath, JSON.stringify(data, null, 4), 'utf8');
+    const workData = getWorkData();
+    if (isMongoReady()) {
+      const items = await Certificate.find().sort({ orderIndex: 1, createdAt: -1 }).lean();
+      if (items && items.length > 0) {
+        workData.certificates = items.map(c => ({
+          ...c,
+          _id: c._id?.toString() || c._id
+        }));
+      }
+    }
+    saveWorkData(workData);
   } catch (err) {
-    console.warn('Failed to save work.json fallback:', err.message);
+    console.warn('Failed to sync certificates to work.json:', err.message);
   }
 };
 
@@ -148,6 +173,7 @@ const handleCreateCertificate = async (req, res) => {
     if (isMongoReady()) {
       const item = new Certificate(data);
       await item.save();
+      await syncCertificatesToJson();
       return res.json({ success: true, message: 'Certificate added successfully', data: item });
     }
 
@@ -232,6 +258,7 @@ const handleUpdateCertificate = async (req, res) => {
     if (isMongoReady()) {
       const item = await Certificate.findByIdAndUpdate(id, data, { new: true });
       if (item) {
+        await syncCertificatesToJson();
         return res.json({ success: true, message: 'Certificate updated successfully', data: item });
       }
     }
@@ -281,6 +308,7 @@ const handleDeleteCertificate = async (req, res) => {
     if (isMongoReady() && mongoose.Types.ObjectId.isValid(id)) {
       const item = await Certificate.findByIdAndDelete(id);
       if (item) {
+        await syncCertificatesToJson();
         return res.json({ success: true, message: 'Certificate deleted successfully' });
       }
     }

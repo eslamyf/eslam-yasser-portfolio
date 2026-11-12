@@ -29,10 +29,38 @@ const getFallbackProjects = () => {
 
 // Helper to write fallback JSON projects
 const saveFallbackProjects = (projects) => {
+  const targetDirs = [
+    path.join(__dirname, '../data'),
+    path.join(__dirname, '../../client/public/assets/data')
+  ];
+  for (const dir of targetDirs) {
+    try {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'projects.json'), JSON.stringify(projects, null, 2), 'utf8');
+    } catch (err) {
+      console.warn('Notice: Error writing projects.json fallback:', err.message);
+    }
+  }
+};
+
+// Helper to keep JSON fallbacks synchronized with database
+const syncProjectsToJson = async () => {
   try {
-    fs.writeFileSync(jsonPath, JSON.stringify(projects, null, 4), 'utf8');
+    let projects = [];
+    if (isMongoReady()) {
+      projects = await Project.find().sort({ orderIndex: 1, createdAt: -1 }).lean();
+    }
+    if (!projects || projects.length === 0) {
+      projects = getFallbackProjects();
+    }
+    const cleanProjects = projects.map(p => ({
+      ...p,
+      id: p.id || p._id?.toString() || p._id,
+      _id: p._id?.toString() || p._id || p.id
+    }));
+    saveFallbackProjects(cleanProjects);
   } catch (err) {
-    console.warn('Notice: Error writing projects.json fallback:', err.message);
+    console.warn('Notice: Error syncing projects to JSON:', err.message);
   }
 };
 
@@ -189,6 +217,7 @@ const handleCreateProject = async (req, res) => {
     if (isMongoReady()) {
       const newProject = new Project(newProjectData);
       await newProject.save();
+      await syncProjectsToJson();
       return res.status(201).json({
         success: true,
         message: 'Project created successfully! (تم إضافة المشروع بنجاح)',
@@ -250,6 +279,7 @@ const handleUpdateProject = async (req, res) => {
         if (req.body.github && !req.body.githubUrl) req.body.githubUrl = req.body.github;
 
         project = await Project.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+        await syncProjectsToJson();
         return res.json({
           success: true,
           message: 'Project updated successfully! (تم تعديل المشروع بنجاح)',
@@ -292,6 +322,7 @@ const handleDeleteProject = async (req, res) => {
       const project = await Project.findById(id);
       if (project) {
         await project.deleteOne();
+        await syncProjectsToJson();
         return res.json({ success: true, message: 'Project deleted successfully! (تم حذف المشروع بنجاح)' });
       }
     }

@@ -1,140 +1,310 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IconPlus } from '../../../assets/icons';
+import { EditModal } from '../EditModal';
 
 export const VolunteeringTab = ({
   volunteering,
   newVolunteering,
   setNewVolunteering,
   handleAddVolunteering,
+  handleUpdateVolunteering,
   handleDeleteVolunteering,
   isSubmitting
 }) => {
+  const [editingVol, setEditingVol] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  const openEdit = (vol) => {
+    const vId = vol._id || vol.id;
+    setEditingVol({
+      id: vId,
+      role: vol.role || vol.title || '',
+      organization: vol.organization || vol.subtitle || '',
+      startDate: vol.startDate || '2025',
+      endDate: vol.endDate || 'Present',
+      description: vol.description || ''
+    });
+    setIsEditOpen(true);
+  };
+
+  const closeEdit = () => {
+    setIsEditOpen(false);
+    setEditingVol(null);
+  };
+
+  const onEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingVol) return;
+    setEditSubmitting(true);
+    try {
+      if (handleUpdateVolunteering) {
+        await handleUpdateVolunteering(editingVol.id, {
+          role: editingVol.role,
+          organization: editingVol.organization,
+          startDate: editingVol.startDate,
+          endDate: editingVol.endDate,
+          description: editingVol.description
+        });
+      }
+      closeEdit();
+    } catch (err) {
+      // parent handles
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      {/* Header */}
+      <div className="admin-page-header">
         <div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0 }}>Volunteering Activities (التطوع)</h2>
-          <p style={{ color: 'var(--mut)', fontSize: '0.9rem', margin: '0.3rem 0 0 0' }}>Manage community roles, mentoring, and student activities</p>
+          <h2 className="admin-page-title">إدارة الأنشطة والخبرات التطوعية 🤝</h2>
+          <p className="admin-page-sub">
+            أضف وعدّل أنشطتك المجتمعية، القيادة الطلابية، والمبادرات التقنية
+          </p>
         </div>
-        <span style={{ background: 'var(--surface)', padding: '0.4rem 0.9rem', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '0.85rem', color: 'var(--mut)' }}>
-          Total: {volunteering.length}
-        </span>
+        <div className="admin-stat-pill">
+          <span>إجمالي الأنشطة:</span>
+          <b>{volunteering.length}</b>
+        </div>
       </div>
 
-      {/* Add Volunteering Form */}
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '18px', padding: '1.75rem', marginBottom: '2.5rem' }}>
-        <h3 style={{ fontSize: '1.2rem', marginBottom: '1.25rem' }}>Add Volunteering Activity</h3>
-        <form onSubmit={handleAddVolunteering} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      {/* Add Volunteering Form Card */}
+      <div className="admin-card" style={{ marginBottom: '2.5rem' }}>
+        <div className="admin-card-header">
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>Role / Title *</label>
-            <input
-              type="text"
-              required
-              value={newVolunteering.role}
-              onChange={(e) => setNewVolunteering({ ...newVolunteering, role: e.target.value })}
-              placeholder="e.g. Head of PR Team, Technical Mentor"
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
-            />
+            <h3 className="admin-card-title">إضافة نشاط تطوعي جديد</h3>
+            <p className="admin-card-sub">حدد الدور والجهة المصدرة وفترة التطوع والمسؤوليات</p>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>Organization / Community *</label>
-            <input
-              type="text"
-              required
-              value={newVolunteering.organization}
-              onChange={(e) => setNewVolunteering({ ...newVolunteering, organization: e.target.value })}
-              placeholder="e.g. Students for Egypt, ClassMate Platform"
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
-            />
+        </div>
+
+        <form onSubmit={handleAddVolunteering}>
+          <div className="admin-grid-2">
+            <div className="admin-form-group">
+              <label className="admin-label">المسمى / الدور التطوعي *</label>
+              <input
+                type="text"
+                required
+                className="admin-input"
+                value={newVolunteering.role}
+                onChange={(e) => setNewVolunteering({ ...newVolunteering, role: e.target.value })}
+                placeholder="مثال: مسؤول العلاقات العامة (Head of PR) أو مرشد تقني"
+              />
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-label">المنظمة / المجتمع أو الفريق *</label>
+              <input
+                type="text"
+                required
+                className="admin-input"
+                value={newVolunteering.organization}
+                onChange={(e) => setNewVolunteering({ ...newVolunteering, organization: e.target.value })}
+                placeholder="مثال: Students for Egypt, GDG, منصة كلاس ميت"
+              />
+            </div>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>Start Date</label>
-            <input
-              type="text"
-              value={newVolunteering.startDate}
-              onChange={(e) => setNewVolunteering({ ...newVolunteering, startDate: e.target.value })}
-              placeholder="2025 or June 2025"
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
-            />
+
+          <div className="admin-grid-2">
+            <div className="admin-form-group">
+              <label className="admin-label">تاريخ البداية</label>
+              <input
+                type="text"
+                className="admin-input"
+                value={newVolunteering.startDate}
+                onChange={(e) => setNewVolunteering({ ...newVolunteering, startDate: e.target.value })}
+                placeholder="2025 أو يونيو 2025"
+              />
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-label">تاريخ الانتهاء</label>
+              <input
+                type="text"
+                className="admin-input"
+                value={newVolunteering.endDate}
+                onChange={(e) => setNewVolunteering({ ...newVolunteering, endDate: e.target.value })}
+                placeholder="مستمر حتى الآن أو 2026"
+              />
+            </div>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>End Date</label>
-            <input
-              type="text"
-              value={newVolunteering.endDate}
-              onChange={(e) => setNewVolunteering({ ...newVolunteering, endDate: e.target.value })}
-              placeholder="Present or 2026"
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
-            />
-          </div>
-          <div style={{ gridColumn: 'span 2' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--mut)', marginBottom: '0.4rem' }}>Description</label>
+
+          <div className="admin-form-group">
+            <label className="admin-label">وصف النشاط والمهام المنجزة</label>
             <textarea
               rows={3}
+              className="admin-textarea"
               value={newVolunteering.description}
               onChange={(e) => setNewVolunteering({ ...newVolunteering, description: e.target.value })}
-              placeholder="Responsibilities, achievements, impact..."
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--line)', background: 'var(--surface-2)', color: 'var(--ink)' }}
+              placeholder="اكتب نبذة عن دورك في التنظيم أو التدريب والأثر المجتمعي..."
             />
           </div>
-          <div style={{ gridColumn: 'span 2' }}>
-            <button type="submit" className="btn btn--primary btn--sm" disabled={isSubmitting}>
-              <IconPlus className="i" />
-              <span>{isSubmitting ? 'Saving...' : 'Add Volunteering'}</span>
+
+          <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'flex-start' }}>
+            <button type="submit" className="admin-btn admin-btn--primary" disabled={isSubmitting}>
+              <i className="fa-solid fa-plus"></i>
+              <span>{isSubmitting ? 'جاري الإضافة...' : 'إضافة النشاط التطوعي'}</span>
             </button>
           </div>
         </form>
       </div>
 
       {/* Volunteering List */}
-      <div style={{ display: 'grid', gap: '1rem' }}>
-        {volunteering.map((v) => {
-          const vId = v._id || v.id;
-          const role = v.role || v.title;
-          const org = v.organization || v.subtitle;
-          const period = v.period || v.time || `${v.startDate || '2025'} - ${v.endDate || 'Present'}`;
-          return (
-            <div
-              key={vId}
-              style={{
-                padding: '1.25rem 1.5rem',
-                background: 'var(--surface)',
-                border: '1px solid var(--line)',
-                borderRadius: '14px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-                  <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{role}</h4>
-                  <span style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '6px', background: 'hsl(var(--brand) / 0.15)', color: 'hsl(var(--brand))' }}>
-                    {org}
-                  </span>
+      <div>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--ink)' }}>
+          الأنشطة التطوعية المسجلة ({volunteering.length})
+        </h3>
+
+        {volunteering.length === 0 ? (
+          <div className="admin-empty">
+            <div className="admin-empty-icon">🤝</div>
+            <p className="admin-empty-title">لا توجد أنشطة تطوعية مسجلة</p>
+            <p className="admin-empty-sub">استخدم النموذج بالأعلى لإضافة مساهماتك وتأثيرك المجتمعي</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gap: '1.25rem' }}>
+            {volunteering.map((v) => {
+              const vId = v._id || v.id;
+              const roleTitle = v.role || v.title;
+              const orgName = v.organization || v.subtitle;
+              const period = v.period || v.time || `${v.startDate || '2025'} - ${v.endDate || 'مستمر'}`;
+
+              return (
+                <div key={vId} className="admin-item-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ flex: 1, minWidth: '240px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+                        <span className="admin-badge admin-badge--primary">
+                          {period}
+                        </span>
+                        <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--ink)' }}>
+                          {roleTitle}
+                        </h4>
+                      </div>
+
+                      <div style={{ color: 'hsl(var(--brand))', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                        🏛️ {orgName}
+                      </div>
+
+                      {v.description && (
+                        <p style={{ color: 'var(--ink)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
+                          {v.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="admin-actions-group">
+                      <button
+                        type="button"
+                        onClick={() => openEdit(v)}
+                        className="admin-btn admin-btn--secondary"
+                      >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                        <span>تعديل</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteVolunteering(vId, roleTitle)}
+                        className="admin-btn admin-btn--danger"
+                      >
+                        <i className="fa-solid fa-trash-can"></i>
+                        <span>حذف</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <span style={{ fontSize: '0.82rem', color: 'var(--mut)' }}>{period}</span>
-                {v.description && <p style={{ fontSize: '0.9rem', color: 'var(--ink)', marginTop: '0.5rem', margin: '0.5rem 0 0 0' }}>{v.description}</p>}
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Edit Volunteering Modal */}
+      {editingVol && (
+        <EditModal
+          isOpen={isEditOpen}
+          onClose={closeEdit}
+          title={`تعديل النشاط: ${editingVol.role}`}
+        >
+          <form onSubmit={onEditSubmit}>
+            <div className="admin-grid-2">
+              <div className="admin-form-group">
+                <label className="admin-label">الدور التطوعي *</label>
+                <input
+                  type="text"
+                  required
+                  className="admin-input"
+                  value={editingVol.role}
+                  onChange={(e) => setEditingVol({ ...editingVol, role: e.target.value })}
+                />
               </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">المنظمة / الفريق *</label>
+                <input
+                  type="text"
+                  required
+                  className="admin-input"
+                  value={editingVol.organization}
+                  onChange={(e) => setEditingVol({ ...editingVol, organization: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-form-group">
+                <label className="admin-label">تاريخ البداية</label>
+                <input
+                  type="text"
+                  className="admin-input"
+                  value={editingVol.startDate}
+                  onChange={(e) => setEditingVol({ ...editingVol, startDate: e.target.value })}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">تاريخ الانتهاء</label>
+                <input
+                  type="text"
+                  className="admin-input"
+                  value={editingVol.endDate}
+                  onChange={(e) => setEditingVol({ ...editingVol, endDate: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-label">الوصف والمهام</label>
+              <textarea
+                rows={3}
+                className="admin-textarea"
+                value={editingVol.description}
+                onChange={(e) => setEditingVol({ ...editingVol, description: e.target.value })}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
               <button
-                onClick={() => handleDeleteVolunteering(vId)}
-                style={{
-                  color: '#ff6b6b',
-                  background: 'rgba(255, 75, 75, 0.08)',
-                  border: '1px solid rgba(255, 75, 75, 0.3)',
-                  borderRadius: '8px',
-                  padding: '0.45rem 0.9rem',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem'
-                }}
+                type="button"
+                className="admin-btn admin-btn--ghost"
+                onClick={closeEdit}
+                disabled={editSubmitting}
               >
-                Delete
+                إلغاء
+              </button>
+              <button
+                type="submit"
+                className="admin-btn admin-btn--primary"
+                disabled={editSubmitting}
+              >
+                {editSubmitting ? 'جاري حفظ التعديل...' : 'حفظ التعديل ✓'}
               </button>
             </div>
-          );
-        })}
-      </div>
+          </form>
+        </EditModal>
+      )}
     </div>
   );
 };
-

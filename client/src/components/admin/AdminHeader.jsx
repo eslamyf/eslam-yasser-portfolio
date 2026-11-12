@@ -1,56 +1,48 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '../../assets/Logo';
-import { IconArrowUR } from '../../assets/icons';
 
 export const AdminHeader = ({ user, logout }) => {
   return (
-    <header style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '1.25rem 2.5rem',
-      borderBottom: '1px solid var(--line)',
-      background: 'var(--surface)',
-      backdropFilter: 'blur(10px)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 50
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <header className="admin-header">
+      <div className="admin-header__brand">
         <Logo size={42} />
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Eslam Yasser · CMS</h1>
-            <span style={{
-              fontSize: '0.72rem',
-              padding: '0.15rem 0.5rem',
-              borderRadius: '6px',
-              background: 'rgba(52, 211, 153, 0.15)',
-              color: '#34d399',
-              fontWeight: 600
-            }}>
-              Security Verified
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <h1 className="admin-header__title">إسلام ياسر &bull; لوحة التحكم</h1>
+            <span className="admin-header__badge">
+              <i className="fa-solid fa-shield-halved" style={{ marginLeft: '0.35rem' }}></i>
+              متصل ومحمٍ
             </span>
           </div>
-          <small style={{ color: 'var(--mut)' }}>Portfolio Control Center &bull; Logged in as {user?.username || 'admin'}</small>
+          <div className="admin-header__sub">
+            مركز الإدارة الشامل للموقع &bull; مرحباً، {user?.username || 'المسؤول'}
+          </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <Link to="/" className="btn btn--ghost btn--sm">
-          <span>View Live Site</span>
-          <IconArrowUR className="i" />
+      <div className="admin-header__actions">
+        <Link to="/" className="btn btn--ghost btn--sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span>زيارة الموقع</span>
+          <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.85rem' }}></i>
         </Link>
         <button
           onClick={logout}
           className="btn btn--sm"
-          style={{ border: '1px solid rgba(255, 75, 75, 0.4)', color: '#ff6b6b' }}
+          style={{
+            border: '1px solid rgba(255, 75, 75, 0.4)',
+            color: '#ff6b6b',
+            background: 'rgba(255, 75, 75, 0.08)',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}
         >
-          <span>Sign Out</span>
+          <i className="fa-solid fa-right-from-bracket"></i>
+          <span>تسجيل الخروج</span>
         </button>
       </div>
     </header>
   );
 };
-

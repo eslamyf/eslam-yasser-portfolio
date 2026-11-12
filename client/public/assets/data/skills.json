@@ -1,0 +1,80 @@
+[
+  {
+    "_id": "6adf81bba5f3208b6bafd2ac",
+    "name": "Angular",
+    "category": "frontend",
+    "level": "Advanced",
+    "proficiency": 90,
+    "icon": "ri-angularjs-line",
+    "status": "published",
+    "orderIndex": 1,
+    "__v": 0,
+    "createdAt": "2026-10-26T16:37:15.479Z",
+    "updatedAt": "2026-10-26T16:37:15.479Z"
+  },
+  {
+    "_id": "6adf81bba5f3208b6bafd2ad",
+    "name": "TypeScript",
+    "category": "frontend",
+    "level": "Advanced",
+    "proficiency": 88,
+    "icon": "ri-javascript-line",
+    "status": "published",
+    "orderIndex": 2,
+    "__v": 0,
+    "createdAt": "2026-10-26T16:37:15.481Z",
+    "updatedAt": "2026-10-26T16:37:15.481Z"
+  },
+  {
+    "_id": "6adf81bba5f3208b6bafd2ae",
+    "name": "Node.js",
+    "category": "backend",
+    "level": "Advanced",
+    "proficiency": 92,
+    "icon": "ri-nodejs-line",
+    "status": "published",
+    "orderIndex": 3,
+    "__v": 0,
+    "createdAt": "2026-10-26T16:37:15.481Z",
+    "updatedAt": "2026-10-26T16:37:15.481Z"
+  },
+  {
+    "_id": "6adf81bba5f3208b6bafd2af",
+    "name": "MongoDB",
+    "category": "backend",
+    "level": "Advanced",
+    "proficiency": 88,
+    "icon": "ri-database-2-line",
+    "status": "published",
+    "orderIndex": 4,
+    "__v": 0,
+    "createdAt": "2026-10-26T16:37:15.481Z",
+    "updatedAt": "2026-10-26T16:37:15.481Z"
+  },
+  {
+    "_id": "6adf81bba5f3208b6bafd2b0",
+    "name": "Express.js",
+    "category": "backend",
+    "level": "Advanced",
+    "proficiency": 90,
+    "icon": "ri-server-line",
+    "status": "published",
+    "orderIndex": 5,
+    "__v": 0,
+    "createdAt": "2026-10-26T16:37:15.481Z",
+    "updatedAt": "2026-10-26T16:37:15.481Z"
+  },
+  {
+    "_id": "6adf81bba5f3208b6bafd2b1",
+    "name": "Data Structures",
+    "category": "tools",
+    "level": "Advanced",
+    "proficiency": 88,
+    "icon": "ri-git-branch-line",
+    "status": "published",
+    "orderIndex": 6,
+    "__v": 0,
+    "createdAt": "2026-10-26T16:37:15.481Z",
+    "updatedAt": "2026-10-26T16:37:15.481Z"
+  }
+]

@@ -13,19 +13,26 @@ export const ProjectsSection = () => {
       .getAll()
       .then((res) => {
         if (res.data?.success && Array.isArray(res.data?.data) && res.data.data.length > 0) {
-          const dbProjects = res.data.data.map((p, idx) => ({
-            _id: p._id,
-            no: `0${idx + 1}`,
-            type: p.category || 'Full-Stack',
-            accent: idx === 0 ? '205 100% 62%' : idx === 1 ? '28 100% 60%' : '150 80% 52%',
-            title: p.title,
-            subtitle: p.subtitle || p.shortDescription || '',
-            description: p.description,
-            tags: p.technologies || p.tags || ['Angular', 'Node.js', 'MongoDB'],
-            codeUrl: p.githubUrl || p.github || 'https://github.com/eslamyasser',
-            liveUrl: p.liveUrl || p.demo || '',
-            mockType: idx === 0 ? 'web' : idx === 1 ? 'phone' : 'term'
-          }));
+          const dbProjects = res.data.data.map((p, idx) => {
+            const imgUrl = p.coverImage || p.image || '';
+            const formattedImg = imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('/') ? `/${imgUrl}` : imgUrl;
+            return {
+              _id: p._id || p.id,
+              no: `0${idx + 1}`,
+              type: p.category || 'Full-Stack',
+              accent: idx === 0 ? '205 100% 62%' : idx === 1 ? '28 100% 60%' : '150 80% 52%',
+              title: p.title,
+              subtitle: p.subtitle || p.shortDescription || '',
+              description: p.description,
+              tags: Array.isArray(p.technologies)
+                ? p.technologies
+                : (typeof p.technologies === 'string' ? p.technologies.split(/[\s,]+/).filter(Boolean) : (p.tags || ['Angular', 'Node.js', 'MongoDB'])),
+              codeUrl: p.githubUrl || p.github || 'https://github.com/eslamyasser',
+              liveUrl: p.liveUrl || p.demo || '',
+              coverImage: formattedImg,
+              mockType: p.mockType || (idx === 0 ? 'web' : idx === 1 ? 'phone' : 'term')
+            };
+          });
           setProjects(dbProjects);
         }
       })
@@ -180,7 +187,26 @@ export const ProjectsSection = () => {
             </div>
 
             <div className="proj__shot">
-              {proj.mockType === 'web' && (
+              {proj.coverImage ? (
+                <div className="mock mock--web mock--has-image">
+                  <div className="mock__bar">
+                    <i></i><i></i><i></i>
+                    <span>
+                      {proj.liveUrl
+                        ? proj.liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
+                        : `${proj.title.toLowerCase().replace(/[^a-z0-9]/g, '')}.app`}
+                    </span>
+                  </div>
+                  <div className="mock__body mock__body--image">
+                    <img
+                      src={proj.coverImage}
+                      alt={proj.title}
+                      className="mock__project-img"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              ) : proj.mockType === 'web' ? (
                 <div className="mock mock--web">
                   <div className="mock__bar">
                     <i></i><i></i><i></i>
@@ -197,9 +223,7 @@ export const ProjectsSection = () => {
                     </div>
                   </div>
                 </div>
-              )}
-
-              {proj.mockType === 'phone' && (
+              ) : proj.mockType === 'phone' ? (
                 <div className="mock mock--phone">
                   <div className="phone">
                     <div className="phone__notch"></div>
@@ -225,9 +249,7 @@ export const ProjectsSection = () => {
                     <div className="phone__cart">View cart · 2 items</div>
                   </div>
                 </div>
-              )}
-
-              {proj.mockType === 'term' && (
+              ) : (
                 <div className="mock mock--term">
                   <div className="mock__bar">
                     <i></i><i></i><i></i>

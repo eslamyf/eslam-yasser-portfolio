@@ -26,7 +26,7 @@ const handleLogin = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please enter username/email and password' });
     }
 
-    const envAdminEmail = (process.env.ADMIN_EMAIL || 'eslam9076460@gmail.com').toLowerCase().trim();
+    const envAdminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
     const envAdminUsername = (process.env.ADMIN_USERNAME || 'admin').toLowerCase().trim();
     const lowerIdentifier = rawIdentifier.toLowerCase();
 

@@ -65,6 +65,7 @@ export const journeyApi = {
 
   getVolunteering: () => api.get('/volunteering'),
   createVolunteering: (data) => api.post('/volunteering', data),
+  updateVolunteering: (id, data) => api.put(`/volunteering/${id}`, data),
   deleteVolunteering: (id) => api.delete(`/volunteering/${id}`)
 };
 

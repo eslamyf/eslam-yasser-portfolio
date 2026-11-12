@@ -28,10 +28,35 @@ const getWorkData = () => {
 };
 
 const saveWorkData = (data) => {
+  const targetDirs = [
+    path.join(__dirname, '../data'),
+    path.join(__dirname, '../../client/public/assets/data')
+  ];
+  for (const dir of targetDirs) {
+    try {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'work.json'), JSON.stringify(data, null, 2), 'utf8');
+    } catch (err) {
+      console.warn('Failed to save work.json fallback:', err.message);
+    }
+  }
+};
+
+const syncVolunteeringToJson = async () => {
   try {
-    fs.writeFileSync(workJsonPath, JSON.stringify(data, null, 4), 'utf8');
+    const workData = getWorkData();
+    if (isMongoReady()) {
+      const items = await Volunteering.find().sort({ orderIndex: 1, createdAt: -1 }).lean();
+      if (items && items.length > 0) {
+        workData.volunteering = items.map(v => ({
+          ...v,
+          _id: v._id?.toString() || v._id
+        }));
+      }
+    }
+    saveWorkData(workData);
   } catch (err) {
-    console.warn('Failed to save work.json fallback:', err.message);
+    console.warn('Failed to sync volunteering to work.json:', err.message);
   }
 };
 
@@ -130,6 +155,7 @@ const handleCreateVolunteering = async (req, res) => {
     if (isMongoReady()) {
       const item = new Volunteering(data);
       await item.save();
+      await syncVolunteeringToJson();
       return res.json({ success: true, message: 'Volunteering entry added successfully', data: item });
     }
 
@@ -211,6 +237,7 @@ const handleUpdateVolunteering = async (req, res) => {
     if (isMongoReady()) {
       const item = await Volunteering.findByIdAndUpdate(id, data, { new: true });
       if (item) {
+        await syncVolunteeringToJson();
         return res.json({ success: true, message: 'Volunteering updated successfully', data: item });
       }
     }
@@ -251,6 +278,7 @@ const handleDeleteVolunteering = async (req, res) => {
     if (isMongoReady() && mongoose.Types.ObjectId.isValid(id)) {
       const item = await Volunteering.findByIdAndDelete(id);
       if (item) {
+        await syncVolunteeringToJson();
         return res.json({ success: true, message: 'Volunteering entry deleted successfully' });
       }
     }
