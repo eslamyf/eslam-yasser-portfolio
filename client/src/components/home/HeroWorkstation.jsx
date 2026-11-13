@@ -114,26 +114,19 @@ export const HeroWorkstation = () => {
           { yPercent: 0, rotate: 0, duration: 1.3, stagger: 0.07, clearProps: 'transform' },
           0.35
         )
-        // Photo reveals with clip-path from bottom to top
+        // Smooth non-blocking photo settle without clip-path hiding to maintain instant LCP
         .fromTo(
           '.hero-ref__photo .hero-ref__me',
-          { clipPath: 'inset(100% 0% 0% 0%)', yPercent: 8 },
-          { clipPath: 'inset(0% 0% 0% 0%)', yPercent: 0, duration: 1.5 },
-          0.5
-        )
-        // Fade rim wrap in after the photo reveal
-        .fromTo(
-          '.hero-ref__rim-wrap',
-          { opacity: 0 },
-          { opacity: 1, duration: 1.2, ease: 'power2.out', clearProps: 'opacity' },
-          1.3
+          { yPercent: 3 },
+          { yPercent: 0, duration: 0.8, ease: 'power2.out', clearProps: 'transform' },
+          0.2
         )
         // Left & Right inner blocks slide and fade in cleanly
         .fromTo(
           [sideInRef.current, rightInRef.current].filter(Boolean),
           { y: 32, opacity: 0 },
           { y: 0, opacity: 1, duration: 1.0, stagger: 0.1, clearProps: 'all' },
-          0.95
+          0.65
         );
 
       // 4. Rotating words inside masked line (1.7s swap, 0.85s power4.inOut)

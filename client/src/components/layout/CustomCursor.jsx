@@ -88,14 +88,18 @@ export const CustomCursor = () => {
         prevY = mouseY;
         lastTime = now;
       }
+
+      startRender();
     };
 
     const handleMouseDown = () => {
       isDown = true;
+      startRender();
     };
 
     const handleMouseUp = () => {
       isDown = false;
+      startRender();
     };
 
     const handleMouseOver = (e) => {
@@ -121,6 +125,7 @@ export const CustomCursor = () => {
 
     const handleMouseEnter = () => {
       isInside = true;
+      startRender();
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
@@ -130,11 +135,19 @@ export const CustomCursor = () => {
     document.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('mouseenter', handleMouseEnter);
 
-    let rafId;
+    let rafId = null;
+    let isRendering = false;
+
+    const startRender = () => {
+      if (isMobile() || isRendering) return;
+      isRendering = true;
+      rafId = requestAnimationFrame(render);
+    };
+
     const render = () => {
       if (isMobile()) {
-        ctx.clearRect(0, 0, width, height);
-        rafId = requestAnimationFrame(render);
+        isRendering = false;
+        if (ctx) ctx.clearRect(0, 0, width, height);
         return;
       }
       const now = performance.now();
@@ -223,10 +236,16 @@ export const CustomCursor = () => {
         ctx.restore();
       }
 
-      rafId = requestAnimationFrame(render);
+      if (!isMobile() && (isInside || points.length > 0)) {
+        rafId = requestAnimationFrame(render);
+      } else {
+        isRendering = false;
+      }
     };
 
-    rafId = requestAnimationFrame(render);
+    if (!isMobile()) {
+      startRender();
+    }
 
     return () => {
       document.documentElement.classList.remove('has-cursor');
@@ -237,7 +256,7 @@ export const CustomCursor = () => {
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
