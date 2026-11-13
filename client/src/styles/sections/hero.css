@@ -101,44 +101,11 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  /* Wrapper mask: soft bottom fade over 12% */
+  /* Wrapper mask: soft bottom fade over 12%, no side fades to keep blazer edges clean and sharp */
   -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 12%, #000 100%);
   mask-image: linear-gradient(to top, transparent 0%, #000 12%, #000 100%);
   -webkit-mask-composite: normal;
   mask-composite: normal;
-}
-
-/* Ambient studio backlight behind the portrait silhouette */
-.hero-ref__backlight {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 92%;
-  height: 82%;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(59, 130, 246, 0.42) 0%,
-    rgba(37, 99, 235, 0.24) 40%,
-    rgba(30, 58, 138, 0.10) 65%,
-    transparent 80%
-  );
-  filter: blur(42px);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.9;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-:root[data-theme="light"] .hero-ref__backlight {
-  background: radial-gradient(
-    ellipse at center,
-    rgba(59, 130, 246, 0.22) 0%,
-    rgba(37, 99, 235, 0.12) 45%,
-    transparent 72%
-  );
-  opacity: 0.7;
 }
 
 .hero-ref__photo-inner {
@@ -159,42 +126,34 @@
   justify-content: center;
   align-items: flex-end;
   cursor: pointer;
-  /* Radiant dual-sided studio contour lighting */
+  /* Very subtle single-sided left contour glow */
   filter: 
-    drop-shadow(0 0 18px rgba(59, 130, 246, 0.42))
-    drop-shadow(0 0 40px rgba(37, 99, 235, 0.28))
-    drop-shadow(-4px 0 10px rgba(96, 165, 250, 0.48))
-    drop-shadow(4px 0 10px rgba(96, 165, 250, 0.48));
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 3.5px) 0 8px rgba(36, 56, 245, 0.22))
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 1px) 0 2.5px rgba(142, 160, 255, 0.35));
   will-change: filter;
   transition: filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hero-ref__photo-inner:hover .hero-ref__rim-wrap,
 .hero-ref__rim-wrap:hover {
-  /* On hover: intense, vibrant ambient glow */
+  /* On hover: clean, subtle colored contour shadow from top to bottom on the left */
   filter: 
-    drop-shadow(0 0 28px rgba(59, 130, 246, 0.65))
-    drop-shadow(0 0 55px rgba(37, 99, 235, 0.45))
-    drop-shadow(-6px 0 16px rgba(147, 197, 253, 0.75))
-    drop-shadow(6px 0 16px rgba(147, 197, 253, 0.75));
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 7px) 0 16px rgba(36, 56, 245, 0.52))
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 2px) 0 5px rgba(142, 160, 255, 0.72));
 }
 
 :root[data-theme="light"] .hero-ref__rim-wrap {
-  /* Light mode: crisp cobalt studio edge lighting */
+  /* Light mode: clean cobalt contour on the left without dark hazy vignettes */
   filter: 
-    drop-shadow(0 0 14px rgba(37, 99, 235, 0.25))
-    drop-shadow(0 0 32px rgba(59, 130, 246, 0.18))
-    drop-shadow(-3px 0 8px rgba(37, 99, 235, 0.30))
-    drop-shadow(3px 0 8px rgba(37, 99, 235, 0.30));
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 2.5px) 0 6px rgba(36, 56, 245, 0.16))
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 1px) 0 2px rgba(36, 56, 245, 0.25));
 }
 
 :root[data-theme="light"] .hero-ref__photo-inner:hover .hero-ref__rim-wrap,
 :root[data-theme="light"] .hero-ref__rim-wrap:hover {
   filter: 
-    drop-shadow(0 0 22px rgba(37, 99, 235, 0.42))
-    drop-shadow(0 0 42px rgba(59, 130, 246, 0.32))
-    drop-shadow(-5px 0 12px rgba(37, 99, 235, 0.48))
-    drop-shadow(5px 0 12px rgba(37, 99, 235, 0.48));
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 6px) 0 14px rgba(36, 56, 245, 0.38))
+    drop-shadow(calc(var(--mouse-light-x, 0px) - 2px) 0 4.5px rgba(36, 56, 245, 0.55));
 }
 
 .hero-ref__pic {
@@ -203,9 +162,6 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  /* Seamlessly feather the vertical cut boundaries on both left and right edges */
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6.5%, #000 93.5%, transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 6.5%, #000 93.5%, transparent 100%);
 }
 
 .hero-ref__me {
@@ -583,37 +539,29 @@ html.no-js .hero-ref__names {
     width: auto;
     max-width: 100%;
     filter: 
-      drop-shadow(0 0 14px rgba(59, 130, 246, 0.40))
-      drop-shadow(0 0 32px rgba(37, 99, 235, 0.25))
-      drop-shadow(-3px 0 8px rgba(96, 165, 250, 0.45))
-      drop-shadow(3px 0 8px rgba(96, 165, 250, 0.45));
+      drop-shadow(-3px 0 8px rgba(36, 56, 245, 0.22))
+      drop-shadow(-1px 0 2px rgba(142, 160, 255, 0.35));
     transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .hero-ref__photo-inner:hover .hero-ref__rim-wrap,
   .hero-ref__rim-wrap:hover {
     filter: 
-      drop-shadow(0 0 22px rgba(59, 130, 246, 0.60))
-      drop-shadow(0 0 45px rgba(37, 99, 235, 0.40))
-      drop-shadow(-5px 0 12px rgba(147, 197, 253, 0.70))
-      drop-shadow(5px 0 12px rgba(147, 197, 253, 0.70));
+      drop-shadow(-6px 0 14px rgba(36, 56, 245, 0.45))
+      drop-shadow(-2px 0 4px rgba(142, 160, 255, 0.65));
   }
 
   :root[data-theme="light"] .hero-ref__rim-wrap {
     filter: 
-      drop-shadow(0 0 12px rgba(37, 99, 235, 0.22))
-      drop-shadow(0 0 28px rgba(59, 130, 246, 0.16))
-      drop-shadow(-2.5px 0 6px rgba(37, 99, 235, 0.28))
-      drop-shadow(2.5px 0 6px rgba(37, 99, 235, 0.28));
+      drop-shadow(-2.5px 0 6px rgba(36, 56, 245, 0.16))
+      drop-shadow(-1px 0 2px rgba(36, 56, 245, 0.25));
   }
 
   :root[data-theme="light"] .hero-ref__photo-inner:hover .hero-ref__rim-wrap,
   :root[data-theme="light"] .hero-ref__rim-wrap:hover {
     filter: 
-      drop-shadow(0 0 18px rgba(37, 99, 235, 0.38))
-      drop-shadow(0 0 36px rgba(59, 130, 246, 0.28))
-      drop-shadow(-4px 0 10px rgba(37, 99, 235, 0.45))
-      drop-shadow(4px 0 10px rgba(37, 99, 235, 0.45));
+      drop-shadow(-5px 0 12px rgba(36, 56, 245, 0.35))
+      drop-shadow(-1.5px 0 3px rgba(36, 56, 245, 0.48));
   }
 
   .hero-ref__pic {
@@ -623,8 +571,6 @@ html.no-js .hero-ref__names {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6.5%, #000 93.5%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, #000 6.5%, #000 93.5%, transparent 100%);
   }
 
   .hero-ref__me {

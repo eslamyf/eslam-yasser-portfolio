@@ -5,7 +5,6 @@ import me960Webp from '../../../assets/me-960.webp';
 export const HeroPortrait = React.forwardRef((props, ref) => {
   return (
     <div className="hero-ref__photo" ref={ref}>
-      <div className="hero-ref__backlight" aria-hidden="true" />
       <div className="hero-ref__photo-inner">
         <div className="hero-ref__rim-wrap">
           <picture className="hero-ref__pic">
