@@ -1,7 +1,6 @@
 import React from 'react';
 import meWebp from '../../../assets/me.webp';
 import me960Webp from '../../../assets/me-960.webp';
-import mePng from '../../../assets/me.png';
 
 export const HeroPortrait = React.forwardRef((props, ref) => {
   return (
@@ -13,7 +12,9 @@ export const HeroPortrait = React.forwardRef((props, ref) => {
             <source srcSet={meWebp} type="image/webp" />
             <img
               className="hero-ref__me"
-              src={mePng}
+              src={meWebp}
+              srcSet={`${me960Webp} 960w, ${meWebp} 1632w`}
+              sizes="(max-width: 900px) 960px, 1632px"
               alt="Eslam Yasser - Full-Stack Developer"
               width="1632"
               height="1932"

@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './components/layout/Toast';
 import { HomePage } from './pages/HomePage';
-import { AdminLoginPage } from './pages/AdminLoginPage';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { NotFoundPage } from './pages/NotFoundPage';
 import './styles/portfolio-v5.css';
+
+// Lazy load non-critical routes to keep the main bundle lightweight
+const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 // Automatically scroll to top on every route change
 const ScrollToTop = () => {
@@ -41,34 +43,36 @@ export const App = () => {
         <ToastProvider>
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route
-                path="/admin"
-                element={
-                  <AdminPublicRoute>
-                    <AdminLoginPage />
-                  </AdminPublicRoute>
-                }
-              />
-              <Route
-                path="/admin/login"
-                element={
-                  <AdminPublicRoute>
-                    <AdminLoginPage />
-                  </AdminPublicRoute>
-                }
-              />
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <AdminRoute>
-                    <AdminDashboard />
-                  </AdminRoute>
-                }
-              />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+            <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg, #0A0E2E)' }} />}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminPublicRoute>
+                      <AdminLoginPage />
+                    </AdminPublicRoute>
+                  }
+                />
+                <Route
+                  path="/admin/login"
+                  element={
+                    <AdminPublicRoute>
+                      <AdminLoginPage />
+                    </AdminPublicRoute>
+                  }
+                />
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </ToastProvider>
       </AuthProvider>

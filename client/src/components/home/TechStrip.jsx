@@ -41,7 +41,7 @@ export const TechStrip = () => {
                 alt={logo.title}
                 width="34"
                 height="34"
-                loading="eager"
+                loading={i < 8 ? "eager" : "lazy"}
                 decoding="async"
                 onError={(e) => handleImageError(e, logo.title)}
               />
@@ -56,7 +56,7 @@ export const TechStrip = () => {
                 alt={logo.title}
                 width="34"
                 height="34"
-                loading="eager"
+                loading="lazy"
                 decoding="async"
                 onError={(e) => handleImageError(e, logo.title)}
               />
