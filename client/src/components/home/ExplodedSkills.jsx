@@ -3,6 +3,104 @@ import { initialStackLayers, initialBentoSkills } from '../../data/initialData';
 import { skillApi } from '../../api/client';
 import { IconCode, IconServer, IconCap, IconShield } from '../../assets/icons';
 
+const renderTechIcon = (name) => {
+  const lower = (name || '').toLowerCase();
+  const iconPaths = {
+    'angular': '/assets/img/tech-color/angular.svg',
+    'typescript': '/assets/img/tech-color/typescript.svg',
+    'javascript': '/assets/img/tech-color/javascript.svg',
+    'html5': '/assets/img/tech-color/html5.svg',
+    'css3': '/assets/img/tech-color/css3.svg',
+    'bootstrap': '/assets/img/tech-color/bootstrap.svg',
+    'node.js': '/assets/img/tech-color/nodedotjs.svg',
+    'express.js': '/assets/img/tech-color/express.svg',
+    'mongodb': '/assets/img/tech-color/mongodb.svg',
+    'python': '/assets/img/tech-color/python.svg',
+    'c++': '/assets/img/tech-color/cplusplus.svg',
+    'git & github': '/assets/img/tech-color/github.svg',
+    'github': '/assets/img/tech-color/github.svg',
+    'git': '/assets/img/tech-color/git.svg',
+    'postman': '/assets/img/tech-color/postman.svg',
+    'react': '/assets/img/tech-color/react.svg',
+  };
+
+  if (iconPaths[lower]) {
+    return (
+      <img
+        src={iconPaths[lower]}
+        alt=""
+        width="18"
+        height="18"
+        loading="lazy"
+        className="tech-chip__img"
+      />
+    );
+  }
+
+  if (lower.includes('api')) {
+    return (
+      <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" fill="currentColor" />
+      </svg>
+    );
+  }
+  if (lower.includes('auth') || lower.includes('jwt')) {
+    return (
+      <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    );
+  }
+  if (lower.includes('rbac') || lower.includes('security')) {
+    return (
+      <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+    );
+  }
+  if (lower.includes('structure') || lower.includes('tree')) {
+    return (
+      <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="5" r="3" />
+        <circle cx="6" cy="19" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <path d="M12 8v4M9 16l3-4 3 4" />
+      </svg>
+    );
+  }
+  if (lower.includes('oop')) {
+    return (
+      <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      </svg>
+    );
+  }
+  if (lower.includes('cloud')) {
+    return (
+      <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+      </svg>
+    );
+  }
+  if (lower.includes('responsive') || lower.includes('ui')) {
+    return (
+      <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="18" height="14" x="3" y="3" rx="2" />
+        <path d="M7 21h10M12 17v4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="tech-chip__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+};
+
 export const ExplodedSkills = () => {
   const xsRef = useRef(null);
   const xsSceneRef = useRef(null);
@@ -158,7 +256,17 @@ export const ExplodedSkills = () => {
       </div>
 
       <div className="wrap xs__more">
-        <h3 className="sub reveal is-in">Everything else in the toolbox</h3>
+        <div className="xs__more-header reveal is-in">
+          <div>
+            <p className="kicker">
+              <span>04.1</span> Arsenal
+            </p>
+            <h3 className="title title--sm">Engineering Tech Stack &amp; Tools</h3>
+            <p className="xs__more-desc">
+              From reactive client architectures to resilient distributed backend services, high-throughput databases, and core CS fundamentals.
+            </p>
+          </div>
+        </div>
 
         <div className="filters reveal is-in" role="tablist" aria-label="Filter skills">
           <button
@@ -167,7 +275,12 @@ export const ExplodedSkills = () => {
             role="tab"
             aria-selected={filter === 'all'}
           >
-            All
+            All Stack <span className="filter__badge">{
+              (bentoSkills.frontend?.skills?.length || 0) +
+              (bentoSkills.backend?.skills?.length || 0) +
+              (bentoSkills.foundations?.skills?.length || 0) +
+              (bentoSkills.workflow?.skills?.length || 0)
+            }</span>
           </button>
           <button
             className={`filter ${filter === 'frontend' ? 'is-active' : ''}`}
@@ -175,7 +288,7 @@ export const ExplodedSkills = () => {
             role="tab"
             aria-selected={filter === 'frontend'}
           >
-            Frontend
+            Frontend <span className="filter__badge">{bentoSkills.frontend?.skills?.length || 0}</span>
           </button>
           <button
             className={`filter ${filter === 'backend' ? 'is-active' : ''}`}
@@ -183,7 +296,7 @@ export const ExplodedSkills = () => {
             role="tab"
             aria-selected={filter === 'backend'}
           >
-            Backend
+            Backend <span className="filter__badge">{bentoSkills.backend?.skills?.length || 0}</span>
           </button>
           <button
             className={`filter ${filter === 'tools' ? 'is-active' : ''}`}
@@ -191,77 +304,171 @@ export const ExplodedSkills = () => {
             role="tab"
             aria-selected={filter === 'tools'}
           >
-            Tools &amp; CS
+            Tools &amp; CS <span className="filter__badge">{
+              (bentoSkills.foundations?.skills?.length || 0) +
+              (bentoSkills.workflow?.skills?.length || 0)
+            }</span>
           </button>
         </div>
 
         <div className="bento is-in" id="bento">
+          {/* Frontend Cell */}
           <div
             className={`bento__cell bento__cell--lg ${filter !== 'all' && filter !== 'frontend' ? 'is-dim' : ''}`}
             data-group="frontend"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+            }}
           >
-            <h3>
-              <IconCode className="i" /> {bentoSkills.frontend.title}
-            </h3>
-            <ul className="chips">
+            <span className="bento__corner-mark" aria-hidden="true">+</span>
+            <div className="bento__head-row">
+              <div className="bento__icon-frame bento__icon-frame--blue">
+                <IconCode className="i" />
+              </div>
+              <div className="bento__head-meta">
+                <span className="bento__tag">Client-Side Architecture</span>
+                <h3 className="bento__title">{bentoSkills.frontend.title}</h3>
+              </div>
+              <span className="bento__count">{bentoSkills.frontend.skills.length} Technologies</span>
+            </div>
+            <div className="tech-matrix">
               {bentoSkills.frontend.skills.map((s, i) => (
-                <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  {s.name}
-                </li>
+                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                  <span className="tech-card__name">{s.name}</span>
+                  {s.core && (
+                    <span className="tech-card__beacon" title="Core Daily Driver" aria-label="Core Daily Driver">
+                      <span className="tech-card__ping"></span>
+                      <span className="tech-card__dot"></span>
+                    </span>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
+          {/* Backend Cell */}
           <div
             className={`bento__cell bento__cell--lg ${filter !== 'all' && filter !== 'backend' ? 'is-dim' : ''}`}
             data-group="backend"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+            }}
           >
-            <h3>
-              <IconServer className="i" /> {bentoSkills.backend.title}
-            </h3>
-            <ul className="chips">
+            <span className="bento__corner-mark" aria-hidden="true">+</span>
+            <div className="bento__head-row">
+              <div className="bento__icon-frame bento__icon-frame--emerald">
+                <IconServer className="i" />
+              </div>
+              <div className="bento__head-meta">
+                <span className="bento__tag">Distributed &amp; REST APIs</span>
+                <h3 className="bento__title">{bentoSkills.backend.title}</h3>
+              </div>
+              <span className="bento__count">{bentoSkills.backend.skills.length} Technologies</span>
+            </div>
+            <div className="tech-matrix">
               {bentoSkills.backend.skills.map((s, i) => (
-                <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  {s.name}
-                </li>
+                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                  <span className="tech-card__name">{s.name}</span>
+                  {s.core && (
+                    <span className="tech-card__beacon" title="Core Daily Driver" aria-label="Core Daily Driver">
+                      <span className="tech-card__ping"></span>
+                      <span className="tech-card__dot"></span>
+                    </span>
+                  )}
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
+          {/* CS Foundations */}
           <div
             className={`bento__cell ${filter !== 'all' && filter !== 'tools' ? 'is-dim' : ''}`}
             data-group="tools"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+            }}
           >
-            <h3>
-              <IconCap className="i" /> {bentoSkills.foundations.title}
-            </h3>
-            <ul className="chips">
+            <span className="bento__corner-mark" aria-hidden="true">+</span>
+            <div className="bento__head-row">
+              <div className="bento__icon-frame bento__icon-frame--amber">
+                <IconCap className="i" />
+              </div>
+              <div className="bento__head-meta">
+                <span className="bento__tag">Algorithms &amp; Core</span>
+                <h3 className="bento__title">{bentoSkills.foundations.title}</h3>
+              </div>
+              <span className="bento__count">{bentoSkills.foundations.skills.length} Subjects</span>
+            </div>
+            <div className="tech-matrix">
               {bentoSkills.foundations.skills.map((s, i) => (
-                <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  {s.name}
-                </li>
+                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                  <span className="tech-card__name">{s.name}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
+          {/* Workflow & DevOps */}
           <div
             className={`bento__cell ${filter !== 'all' && filter !== 'tools' ? 'is-dim' : ''}`}
             data-group="tools"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+            }}
           >
-            <h3>
-              <IconShield className="i" /> {bentoSkills.workflow.title}
-            </h3>
-            <ul className="chips">
+            <span className="bento__corner-mark" aria-hidden="true">+</span>
+            <div className="bento__head-row">
+              <div className="bento__icon-frame bento__icon-frame--violet">
+                <IconShield className="i" />
+              </div>
+              <div className="bento__head-meta">
+                <span className="bento__tag">CI/CD &amp; Storage</span>
+                <h3 className="bento__title">{bentoSkills.workflow.title}</h3>
+              </div>
+              <span className="bento__count">{bentoSkills.workflow.skills.length} Tools</span>
+            </div>
+            <div className="tech-matrix">
               {bentoSkills.workflow.skills.map((s, i) => (
-                <li key={i} className={`chip-s ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  {s.name}
-                </li>
+                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                  <span className="tech-card__name">{s.name}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
 
-        <p className="note reveal is-in">Highlighted chips are the tools I use every day.</p>
+        {/* High-Tech Status Bar */}
+        <div className="bento__status-bar reveal is-in">
+          <div className="bento__legend">
+            <span className="bento__legend-item">
+              <span className="tech-card__beacon is-static" aria-hidden="true">
+                <span className="tech-card__dot"></span>
+              </span>
+              <span>Daily Production Driver (Primary Expertise)</span>
+            </span>
+            <span className="bento__legend-sep" aria-hidden="true">/</span>
+            <span className="bento__legend-item">
+              <span className="bento__legend-bullet" aria-hidden="true"></span>
+              <span>Enterprise Modern Standards</span>
+            </span>
+          </div>
+          <div className="bento__badge-pill">
+            <span className="bento__badge-dot" aria-hidden="true"></span>
+            <span>100% Type-Safe &amp; Scalable Architecture</span>
+          </div>
+        </div>
       </div>
     </section>
   );
