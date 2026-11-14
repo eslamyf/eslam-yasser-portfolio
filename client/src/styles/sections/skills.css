@@ -21,13 +21,58 @@
   line-height: 1.6;
 }
 
-/* Filters */
+/* Toolbar & Filters */
+.toolbox-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.view-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  user-select: none;
+}
+
+.view-switcher__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--mut);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+}
+
+.view-switcher__btn:hover {
+  color: var(--strong);
+}
+
+.view-switcher__btn.is-active {
+  background: hsl(var(--brand));
+  border-color: hsl(var(--brand));
+  color: #ffffff;
+  box-shadow: 0 4px 14px -3px hsl(var(--brand) / 0.5);
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  margin-bottom: 2rem;
   padding: 0.35rem;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -451,6 +496,646 @@
 
 :root[data-theme="light"] .bento__count {
   background: rgba(11, 16, 48, 0.04);
+}
+
+/* ======================================================== */
+/*  PLANETARY ORBITAL TECH SYSTEM (COSMIC VIEW)             */
+/* ======================================================== */
+.cosmic-system {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: radial-gradient(circle at 50% 45%, rgba(36, 56, 245, 0.08) 0%, rgba(10, 14, 46, 0.45) 45%, var(--surface) 80%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  padding: 2.5rem 1.5rem 2rem;
+  box-shadow: 0 20px 48px -16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+:root[data-theme="light"] .cosmic-system {
+  background: radial-gradient(circle at 50% 45%, rgba(36, 56, 245, 0.05) 0%, rgba(240, 244, 255, 0.7) 50%, rgba(255, 255, 255, 0.95) 85%);
+  box-shadow: 0 16px 36px -10px rgba(11, 16, 48, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Ambient Star Dust & Glow */
+.cosmic-system__ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cosmic-system__glow--core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 480px;
+  height: 480px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(36, 56, 245, 0.22) 0%, rgba(255, 225, 77, 0.08) 35%, transparent 70%);
+  filter: blur(30px);
+}
+
+.cosmic-system__grid-ring {
+  position: absolute;
+  inset: 5%;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme="light"] .cosmic-system__grid-ring {
+  border-color: rgba(36, 56, 245, 0.06);
+}
+
+/* Cosmic Stage Viewport */
+.cosmic-stage-viewport {
+  width: 100%;
+  min-height: 760px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.cosmic-stage {
+  position: relative;
+  width: 760px;
+  height: 760px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
+}
+
+/* Central Planet Core */
+.planet-core {
+  position: absolute;
+  z-index: 15;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #1e296e 0%, #0c1236 70%, #06091d 100%);
+  border: 2px solid rgba(255, 225, 77, 0.45);
+  box-shadow: 0 0 35px rgba(36, 56, 245, 0.55), inset 0 0 20px rgba(255, 225, 77, 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s, border-color 0.35s;
+  outline: none;
+}
+
+.planet-core:hover,
+.planet-core.is-active-core {
+  transform: scale(1.08);
+  border-color: #ffe14d;
+  box-shadow: 0 0 50px rgba(36, 56, 245, 0.8), 0 0 25px rgba(255, 225, 77, 0.5), inset 0 0 25px rgba(255, 225, 77, 0.4);
+}
+
+:root[data-theme="light"] .planet-core {
+  background: radial-gradient(circle at 35% 30%, #f0f4ff 0%, #dbeafe 60%, #bfdbfe 100%);
+  border-color: rgba(36, 56, 245, 0.6);
+  box-shadow: 0 0 35px rgba(36, 56, 245, 0.25), inset 0 0 20px rgba(255, 255, 255, 0.9);
+}
+
+.planet-core__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-align: center;
+  user-select: none;
+}
+
+.planet-core__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #ffe14d;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255, 225, 77, 0.5);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+:root[data-theme="light"] .planet-core__title {
+  color: #1b2bd0;
+  text-shadow: none;
+}
+
+.planet-core__badge {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: uppercase;
+}
+
+:root[data-theme="light"] .planet-core__badge {
+  color: #4b5563;
+}
+
+/* Atmospheric Pulses */
+.planet-core__pulse {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(36, 56, 245, 0.5);
+  pointer-events: none;
+  animation: planet-pulse-wave 3.2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+
+.planet-core__pulse--2 {
+  animation-delay: 1.6s;
+}
+
+@keyframes planet-pulse-wave {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Concentric Orbit Tracks */
+.orbit-track {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  border: 1.5px dashed rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 20px rgba(36, 56, 245, 0.03);
+  transition: border-color 0.3s;
+}
+
+:root[data-theme="light"] .orbit-track {
+  border-color: rgba(36, 56, 245, 0.16);
+  box-shadow: inset 0 0 20px rgba(36, 56, 245, 0.02);
+}
+
+.orbit-track--1 {
+  width: 290px;
+  height: 290px;
+  animation: orbit-rotate-cw 38s linear infinite;
+  z-index: 5;
+}
+
+.orbit-track--2 {
+  width: 490px;
+  height: 490px;
+  animation: orbit-rotate-ccw 54s linear infinite;
+  z-index: 4;
+}
+
+.orbit-track--3 {
+  width: 690px;
+  height: 690px;
+  animation: orbit-rotate-cw 72s linear infinite;
+  z-index: 3;
+}
+
+/* Rotation Animations */
+@keyframes orbit-rotate-cw {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes orbit-rotate-ccw {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+/* Pause State */
+.cosmic-system.is-paused .orbit-track,
+.cosmic-system.is-paused .orbit-node__inner,
+.cosmic-system:hover .orbit-track,
+.cosmic-system:hover .orbit-node__inner {
+  animation-play-state: paused !important;
+}
+
+/* Orbit Node Anchor (Positions satellite along perimeter) */
+.orbit-node-anchor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  transform: rotate(var(--angle)) translateY(calc(var(--track-radius) * -1));
+  transition: opacity 0.35s var(--ease), filter 0.35s var(--ease);
+}
+
+.orbit-node-anchor.is-dim {
+  opacity: 0.15;
+  filter: grayscale(0.85);
+}
+
+.orbit-node-anchor.is-selected {
+  z-index: 30;
+}
+
+/* Orbit Node (The interactive tech satellite) */
+.orbit-node {
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.orbit-node__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(14, 20, 56, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 12px rgba(36, 56, 245, 0.15);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 500;
+  user-select: none;
+  white-space: nowrap;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s, box-shadow 0.28s, background 0.28s;
+  /* Initial counter-angle rotation */
+  transform: rotate(calc(-1 * var(--angle)));
+}
+
+/* Counter-rotations to keep nodes upright and horizontal at 0deg */
+.orbit-track--1 .orbit-node__inner {
+  animation: orbit-rotate-ccw 38s linear infinite;
+}
+
+.orbit-track--2 .orbit-node__inner {
+  animation: orbit-rotate-cw 54s linear infinite;
+}
+
+.orbit-track--3 .orbit-node__inner {
+  animation: orbit-rotate-ccw 72s linear infinite;
+}
+
+:root[data-theme="light"] .orbit-node__inner {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(36, 56, 245, 0.2);
+  box-shadow: 0 4px 14px rgba(11, 16, 48, 0.08);
+  color: var(--ink);
+}
+
+/* Node Hover & Selected State */
+.orbit-node:hover .orbit-node__inner,
+.orbit-node-anchor.is-selected .orbit-node__inner {
+  border-color: hsl(var(--brand));
+  background: rgba(26, 35, 96, 0.96);
+  box-shadow: 0 0 24px hsl(var(--brand) / 0.65), 0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: rotate(calc(-1 * var(--angle))) scale(1.16);
+}
+
+:root[data-theme="light"] .orbit-node:hover .orbit-node__inner,
+:root[data-theme="light"] .orbit-node-anchor.is-selected .orbit-node__inner {
+  background: #ffffff;
+  border-color: hsl(var(--brand));
+  box-shadow: 0 0 20px hsl(var(--brand) / 0.4), 0 8px 20px rgba(11, 16, 48, 0.12);
+}
+
+/* Node Core Styling */
+.orbit-node.is-core .orbit-node__inner {
+  border-color: rgba(255, 225, 77, 0.45);
+  box-shadow: 0 0 16px rgba(255, 225, 77, 0.2), 0 4px 16px rgba(0, 0, 0, 0.35);
+  font-weight: 600;
+}
+
+:root[data-theme="light"] .orbit-node.is-core .orbit-node__inner {
+  border-color: rgba(36, 56, 245, 0.5);
+  box-shadow: 0 0 16px rgba(36, 56, 245, 0.15), 0 4px 14px rgba(11, 16, 48, 0.08);
+}
+
+.orbit-node__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.orbit-node__label {
+  letter-spacing: -0.01em;
+}
+
+/* Category Accent Rings */
+.orbit-node--frontend .orbit-node__inner {
+  border-left: 2.5px solid #60a5fa;
+}
+
+.orbit-node--backend .orbit-node__inner {
+  border-left: 2.5px solid #34d399;
+}
+
+.orbit-node--tools .orbit-node__inner {
+  border-left: 2.5px solid #fbbf24;
+}
+
+/* Orbit HUD / Active Tech Inspector */
+.cosmic-hud {
+  position: relative;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  z-index: 20;
+}
+
+.cosmic-hud__card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.25rem 1.6rem;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.45), 0 0 24px -6px hsl(var(--brand) / 0.25);
+  animation: hud-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="light"] .cosmic-hud__card {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 30px -8px rgba(11, 16, 48, 0.12);
+}
+
+@keyframes hud-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cosmic-hud__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+:root[data-theme="light"] .cosmic-hud__icon {
+  background: rgba(11, 16, 48, 0.04);
+}
+
+.cosmic-hud__details {
+  flex: 1;
+  min-width: 0;
+}
+
+.cosmic-hud__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.4rem;
+}
+
+.cosmic-hud__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cosmic-hud__tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cosmic-hud__tag--frontend {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.cosmic-hud__tag--backend {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.cosmic-hud__tag--tools {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.cosmic-hud__tag--core {
+  background: rgba(255, 225, 77, 0.15);
+  color: #ffe14d;
+  border: 1px solid rgba(255, 225, 77, 0.35);
+}
+
+.cosmic-hud__core-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--dim);
+}
+
+.cosmic-hud__desc {
+  font-size: 0.88rem;
+  color: var(--mut);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cosmic-hud__close {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  transition: all 0.2s var(--ease);
+  flex-shrink: 0;
+}
+
+.cosmic-hud__close:hover {
+  color: var(--strong);
+  border-color: hsl(var(--brand));
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Prompt Hint */
+.cosmic-hud__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.84rem;
+  color: var(--dim);
+}
+
+.cosmic-hud__hint-beacon {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsl(var(--brand));
+  box-shadow: 0 0 10px hsl(var(--brand));
+  animation: beacon-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Controls Bar */
+.cosmic-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.cosmic-controls__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--strong);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+}
+
+.cosmic-controls__btn:hover {
+  border-color: hsl(var(--brand));
+  background: hsl(var(--brand) / 0.1);
+}
+
+.cosmic-controls__btn.is-active {
+  background: hsl(var(--brand));
+  color: #ffffff;
+  border-color: hsl(var(--brand));
+}
+
+.cosmic-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--dim);
+}
+
+.cosmic-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+}
+
+/* Responsive Scaling for Orbit Stage */
+@media (max-width: 860px) {
+  .cosmic-stage {
+    transform: scale(0.76);
+  }
+  .cosmic-stage-viewport {
+    min-height: 590px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cosmic-stage {
+    transform: scale(0.56);
+  }
+  .cosmic-stage-viewport {
+    min-height: 440px;
+  }
+  .cosmic-system {
+    padding: 1.5rem 0.85rem 1.25rem;
+  }
+}
+
+@media (max-width: 440px) {
+  .cosmic-stage {
+    transform: scale(0.44);
+  }
+  .cosmic-stage-viewport {
+    min-height: 350px;
+  }
+  .toolbox-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .view-switcher {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-track,
+  .orbit-node__inner,
+  .planet-core__pulse {
+    animation: none !important;
+  }
 }
 
 /* Responsive Breakpoints */

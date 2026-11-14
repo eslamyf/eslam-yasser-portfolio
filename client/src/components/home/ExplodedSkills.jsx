@@ -2,6 +2,32 @@ import React, { useState, useEffect, useRef } from 'react';
 import { initialStackLayers, initialBentoSkills } from '../../data/initialData';
 import { skillApi } from '../../api/client';
 import { IconCode, IconServer, IconCap, IconShield } from '../../assets/icons';
+import { Logo } from '../../assets/Logo';
+
+const TECH_DETAILS = {
+  'angular': { cat: 'frontend', role: 'Reactive Client Architecture', desc: 'Primary enterprise frontend framework for building performant single-page apps with TypeScript.' },
+  'typescript': { cat: 'frontend', role: 'Strict Static Typing', desc: '100% type safety and strict compiler checks across client components and server codebases.' },
+  'javascript': { cat: 'frontend', role: 'Modern ES6+ Engine', desc: 'Core language foundation with async/await, closures, prototypical inheritance, and event loop mastery.' },
+  'html5': { cat: 'frontend', role: 'Semantic Web Standards', desc: 'Accessible, SEO-optimized markup following modern WCAG 2.1 AAA accessibility criteria.' },
+  'css3': { cat: 'frontend', role: 'Modern Layouts & Motion', desc: 'Flexbox, CSS Grid, custom properties, and GPU-accelerated 60fps animations with responsive design.' },
+  'bootstrap': { cat: 'frontend', role: 'Design System & UI', desc: 'Rapid prototyping and scalable responsive UI grid components.' },
+  'responsive ui': { cat: 'frontend', role: 'Cross-Device Adaptability', desc: 'Fluid viewports, adaptive typography, and flawless rendering on mobile, tablet, and desktop.' },
+
+  'node.js': { cat: 'backend', role: 'Event-Driven Runtime', desc: 'High-throughput asynchronous V8 JavaScript runtime powering scalable REST APIs and microservices.' },
+  'express.js': { cat: 'backend', role: 'API Framework', desc: 'Fast, minimalist routing framework implementing RESTful architectures, CORS, and centralized error handling.' },
+  'mongodb': { cat: 'backend', role: 'Document Database', desc: 'NoSQL document data store utilizing Mongoose schemas, compound indexes, and aggregation pipelines.' },
+  'rest apis': { cat: 'backend', role: 'Stateless Architecture', desc: 'Clean HTTP RESTful contracts with predictable JSON payloads, status codes, and rate limiting.' },
+  'jwt auth': { cat: 'backend', role: 'Token Security', desc: 'Stateless JSON Web Tokens with encrypted payloads, refresh token rotation, and bcrypt password hashing.' },
+  'rbac': { cat: 'backend', role: 'Access Control', desc: 'Role-Based Access Control guards protecting sensitive administrative endpoints and resources.' },
+
+  'data structures': { cat: 'tools', role: 'Algorithmic Optimization', desc: 'In-depth mastery of arrays, hash maps, trees, and graphs for optimal space and time complexity.' },
+  'oop': { cat: 'tools', role: 'Design Principles', desc: 'Object-Oriented Programming (encapsulation, abstraction, inheritance, polymorphism, SOLID principles).' },
+  'c++': { cat: 'tools', role: 'High-Performance Computing', desc: 'Memory management, pointers, and algorithmic problem solving with low-level computational efficiency.' },
+  'python': { cat: 'tools', role: 'Scripting & Automation', desc: 'Automation pipelines, data manipulation, utility scripting, and quick prototyping.' },
+  'git & github': { cat: 'tools', role: 'Version Control', desc: 'Branch management, semantic commit workflows, code reviews, and Git CI/CD pipelines.' },
+  'postman': { cat: 'tools', role: 'API Testing & Docs', desc: 'End-to-end API test suites, environment variables, mock servers, and automated collection runs.' },
+  'cloudinary': { cat: 'tools', role: 'Cloud Media Storage', desc: 'Cloud media hosting with dynamic transformations, responsive srcset generation, and fast global CDN delivery.' },
+};
 
 const renderTechIcon = (name) => {
   const lower = (name || '').toLowerCase();
@@ -106,7 +132,51 @@ export const ExplodedSkills = () => {
   const xsSceneRef = useRef(null);
   const [activeLayer, setActiveLayer] = useState(0);
   const [filter, setFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('orbit');
+  const [isOrbitPaused, setIsOrbitPaused] = useState(false);
+  const [activeTech, setActiveTech] = useState(null);
   const [bentoSkills, setBentoSkills] = useState(initialBentoSkills);
+
+  const getTechInfo = (name, fallbackCat, isCore) => {
+    const key = (name || '').toLowerCase();
+    const meta = TECH_DETAILS[key] || {};
+    return {
+      name,
+      category: meta.cat || fallbackCat || 'tools',
+      role: meta.role || (isCore ? 'Daily Production Driver' : 'Production Verified Tool'),
+      desc: meta.desc || 'Production verified technology used in scalable web development.',
+      core: isCore,
+    };
+  };
+
+  const orbit1Items = [
+    { name: 'Angular', category: 'frontend', core: true },
+    { name: 'TypeScript', category: 'frontend', core: true },
+    { name: 'Node.js', category: 'backend', core: true },
+    { name: 'Express.js', category: 'backend', core: true },
+    { name: 'MongoDB', category: 'backend', core: true },
+  ];
+
+  const orbit2Items = [
+    { name: 'JavaScript', category: 'frontend', core: false },
+    { name: 'REST APIs', category: 'backend', core: false },
+    { name: 'HTML5', category: 'frontend', core: false },
+    { name: 'JWT Auth', category: 'backend', core: false },
+    { name: 'CSS3', category: 'frontend', core: false },
+    { name: 'RBAC', category: 'backend', core: false },
+    { name: 'Bootstrap', category: 'frontend', core: false },
+    { name: 'Responsive UI', category: 'frontend', core: false },
+  ];
+
+  const orbit3Items = [
+    { name: 'Data Structures', category: 'tools', core: false },
+    { name: 'Git & GitHub', category: 'tools', core: false },
+    { name: 'OOP', category: 'tools', core: false },
+    { name: 'Postman', category: 'tools', core: false },
+    { name: 'C++', category: 'tools', core: false },
+    { name: 'Cloudinary', category: 'tools', core: false },
+    { name: 'Python', category: 'tools', core: false },
+  ];
 
   useEffect(() => {
     skillApi.getAll().then((res) => {
@@ -268,186 +338,429 @@ export const ExplodedSkills = () => {
           </div>
         </div>
 
-        <div className="filters reveal is-in" role="tablist" aria-label="Filter skills">
-          <button
-            className={`filter ${filter === 'all' ? 'is-active' : ''}`}
-            onClick={() => setFilter('all')}
-            role="tab"
-            aria-selected={filter === 'all'}
-          >
-            All Stack <span className="filter__badge">{
-              (bentoSkills.frontend?.skills?.length || 0) +
-              (bentoSkills.backend?.skills?.length || 0) +
-              (bentoSkills.foundations?.skills?.length || 0) +
-              (bentoSkills.workflow?.skills?.length || 0)
-            }</span>
-          </button>
-          <button
-            className={`filter ${filter === 'frontend' ? 'is-active' : ''}`}
-            onClick={() => setFilter('frontend')}
-            role="tab"
-            aria-selected={filter === 'frontend'}
-          >
-            Frontend <span className="filter__badge">{bentoSkills.frontend?.skills?.length || 0}</span>
-          </button>
-          <button
-            className={`filter ${filter === 'backend' ? 'is-active' : ''}`}
-            onClick={() => setFilter('backend')}
-            role="tab"
-            aria-selected={filter === 'backend'}
-          >
-            Backend <span className="filter__badge">{bentoSkills.backend?.skills?.length || 0}</span>
-          </button>
-          <button
-            className={`filter ${filter === 'tools' ? 'is-active' : ''}`}
-            onClick={() => setFilter('tools')}
-            role="tab"
-            aria-selected={filter === 'tools'}
-          >
-            Tools &amp; CS <span className="filter__badge">{
-              (bentoSkills.foundations?.skills?.length || 0) +
-              (bentoSkills.workflow?.skills?.length || 0)
-            }</span>
-          </button>
-        </div>
-
-        <div className="bento is-in" id="bento">
-          {/* Frontend Cell */}
-          <div
-            className={`bento__cell bento__cell--lg ${filter !== 'all' && filter !== 'frontend' ? 'is-dim' : ''}`}
-            data-group="frontend"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
-            }}
-          >
-            <span className="bento__corner-mark" aria-hidden="true">+</span>
-            <div className="bento__head-row">
-              <div className="bento__icon-frame bento__icon-frame--blue">
-                <IconCode className="i" />
-              </div>
-              <div className="bento__head-meta">
-                <span className="bento__tag">Client-Side Architecture</span>
-                <h3 className="bento__title">{bentoSkills.frontend.title}</h3>
-              </div>
-              <span className="bento__count">{bentoSkills.frontend.skills.length} Technologies</span>
-            </div>
-            <div className="tech-matrix">
-              {bentoSkills.frontend.skills.map((s, i) => (
-                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
-                  <span className="tech-card__name">{s.name}</span>
-                  {s.core && (
-                    <span className="tech-card__beacon" title="Core Daily Driver" aria-label="Core Daily Driver">
-                      <span className="tech-card__ping"></span>
-                      <span className="tech-card__dot"></span>
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
+        {/* Action Bar: Filters + View Switcher */}
+        <div className="toolbox-toolbar reveal is-in">
+          <div className="filters" role="tablist" aria-label="Filter skills">
+            <button
+              className={`filter ${filter === 'all' ? 'is-active' : ''}`}
+              onClick={() => setFilter('all')}
+              role="tab"
+              aria-selected={filter === 'all'}
+            >
+              All Stack <span className="filter__badge">20</span>
+            </button>
+            <button
+              className={`filter ${filter === 'frontend' ? 'is-active' : ''}`}
+              onClick={() => setFilter('frontend')}
+              role="tab"
+              aria-selected={filter === 'frontend'}
+            >
+              Frontend <span className="filter__badge">7</span>
+            </button>
+            <button
+              className={`filter ${filter === 'backend' ? 'is-active' : ''}`}
+              onClick={() => setFilter('backend')}
+              role="tab"
+              aria-selected={filter === 'backend'}
+            >
+              Backend <span className="filter__badge">6</span>
+            </button>
+            <button
+              className={`filter ${filter === 'tools' ? 'is-active' : ''}`}
+              onClick={() => setFilter('tools')}
+              role="tab"
+              aria-selected={filter === 'tools'}
+            >
+              Tools &amp; CS <span className="filter__badge">7</span>
+            </button>
           </div>
 
-          {/* Backend Cell */}
-          <div
-            className={`bento__cell bento__cell--lg ${filter !== 'all' && filter !== 'backend' ? 'is-dim' : ''}`}
-            data-group="backend"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
-            }}
-          >
-            <span className="bento__corner-mark" aria-hidden="true">+</span>
-            <div className="bento__head-row">
-              <div className="bento__icon-frame bento__icon-frame--emerald">
-                <IconServer className="i" />
-              </div>
-              <div className="bento__head-meta">
-                <span className="bento__tag">Distributed &amp; REST APIs</span>
-                <h3 className="bento__title">{bentoSkills.backend.title}</h3>
-              </div>
-              <span className="bento__count">{bentoSkills.backend.skills.length} Technologies</span>
-            </div>
-            <div className="tech-matrix">
-              {bentoSkills.backend.skills.map((s, i) => (
-                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
-                  <span className="tech-card__name">{s.name}</span>
-                  {s.core && (
-                    <span className="tech-card__beacon" title="Core Daily Driver" aria-label="Core Daily Driver">
-                      <span className="tech-card__ping"></span>
-                      <span className="tech-card__dot"></span>
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CS Foundations */}
-          <div
-            className={`bento__cell ${filter !== 'all' && filter !== 'tools' ? 'is-dim' : ''}`}
-            data-group="tools"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
-            }}
-          >
-            <span className="bento__corner-mark" aria-hidden="true">+</span>
-            <div className="bento__head-row">
-              <div className="bento__icon-frame bento__icon-frame--amber">
-                <IconCap className="i" />
-              </div>
-              <div className="bento__head-meta">
-                <span className="bento__tag">Algorithms &amp; Core</span>
-                <h3 className="bento__title">{bentoSkills.foundations.title}</h3>
-              </div>
-              <span className="bento__count">{bentoSkills.foundations.skills.length} Subjects</span>
-            </div>
-            <div className="tech-matrix">
-              {bentoSkills.foundations.skills.map((s, i) => (
-                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
-                  <span className="tech-card__name">{s.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Workflow & DevOps */}
-          <div
-            className={`bento__cell ${filter !== 'all' && filter !== 'tools' ? 'is-dim' : ''}`}
-            data-group="tools"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
-            }}
-          >
-            <span className="bento__corner-mark" aria-hidden="true">+</span>
-            <div className="bento__head-row">
-              <div className="bento__icon-frame bento__icon-frame--violet">
-                <IconShield className="i" />
-              </div>
-              <div className="bento__head-meta">
-                <span className="bento__tag">CI/CD &amp; Storage</span>
-                <h3 className="bento__title">{bentoSkills.workflow.title}</h3>
-              </div>
-              <span className="bento__count">{bentoSkills.workflow.skills.length} Tools</span>
-            </div>
-            <div className="tech-matrix">
-              {bentoSkills.workflow.skills.map((s, i) => (
-                <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
-                  <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
-                  <span className="tech-card__name">{s.name}</span>
-                </div>
-              ))}
-            </div>
+          <div className="view-switcher" role="radiogroup" aria-label="Toolbox presentation mode">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={viewMode === 'orbit'}
+              className={`view-switcher__btn ${viewMode === 'orbit' ? 'is-active' : ''}`}
+              onClick={() => setViewMode('orbit')}
+              title="Interactive Planetary Orbit View"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)" />
+              </svg>
+              <span>Orbit View</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={viewMode === 'grid'}
+              className={`view-switcher__btn ${viewMode === 'grid' ? 'is-active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              title="Classic Bento Grid View"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+              </svg>
+              <span>Grid View</span>
+            </button>
           </div>
         </div>
+
+        {viewMode === 'orbit' ? (
+          /* ======================================================== */
+          /*  PLANETARY ORBITAL TECH SYSTEM                           */
+          /* ======================================================== */
+          <div className={`cosmic-system ${isOrbitPaused ? 'is-paused' : ''}`}>
+            {/* Ambient Nebula & Cosmic Depth */}
+            <div className="cosmic-system__ambient" aria-hidden="true">
+              <div className="cosmic-system__glow cosmic-system__glow--core"></div>
+              <div className="cosmic-system__grid-ring"></div>
+            </div>
+
+            {/* Orbit Stage */}
+            <div className="cosmic-stage-viewport">
+              <div className="cosmic-stage">
+                {/* Central Core Planet: Eslam Yasser / MEAN Stack Core */}
+                <button
+                  type="button"
+                  className={`planet-core ${activeTech?.isPlanet ? 'is-active-core' : ''}`}
+                  onClick={() =>
+                    setActiveTech({
+                      name: 'Eslam Yasser • Full-Stack Core',
+                      category: 'core',
+                      role: 'Production Architecture • React & Angular & Node.js',
+                      desc: 'Unified full-stack engineering powering scalable reactive clients with resilient Express REST services and high-throughput MongoDB data models.',
+                      core: true,
+                      isPlanet: true
+                    })
+                  }
+                  aria-label="Eslam Yasser Full-Stack Core Planet"
+                >
+                  <span className="planet-core__pulse planet-core__pulse--1" aria-hidden="true"></span>
+                  <span className="planet-core__pulse planet-core__pulse--2" aria-hidden="true"></span>
+                  <span className="planet-core__inner">
+                    <Logo size={44} animated />
+                    <span className="planet-core__title">MEAN STACK</span>
+                    <span className="planet-core__badge">CORE ENGINE</span>
+                  </span>
+                </button>
+
+                {/* Orbit 1: Daily Core Drivers (Inner Track) */}
+                <div className="orbit-track orbit-track--1" style={{ '--track-radius': '145px' }}>
+                  {orbit1Items.map((tech, i) => {
+                    const angle = (360 / orbit1Items.length) * i;
+                    const isDim = filter !== 'all' && filter !== tech.category;
+                    const isSelected = activeTech?.name === tech.name;
+                    return (
+                      <div
+                        key={tech.name}
+                        className={`orbit-node-anchor ${isDim ? 'is-dim' : ''} ${isSelected ? 'is-selected' : ''}`}
+                        style={{ '--angle': `${angle}deg` }}
+                      >
+                        <button
+                          type="button"
+                          className={`orbit-node ${tech.core ? 'is-core' : ''} orbit-node--${tech.category}`}
+                          onClick={() => setActiveTech(getTechInfo(tech.name, tech.category, tech.core))}
+                          onMouseEnter={() => setActiveTech(getTechInfo(tech.name, tech.category, tech.core))}
+                          aria-label={`${tech.name} - ${tech.category}`}
+                        >
+                          <span className="orbit-node__inner" style={{ '--angle': `${angle}deg` }}>
+                            <span className="orbit-node__icon">{renderTechIcon(tech.name)}</span>
+                            <span className="orbit-node__label">{tech.name}</span>
+                            {tech.core && (
+                              <span className="tech-card__beacon" title="Daily Production Driver">
+                                <span className="tech-card__ping"></span>
+                                <span className="tech-card__dot"></span>
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Orbit 2: Distributed & Client Architecture (Middle Track) */}
+                <div className="orbit-track orbit-track--2" style={{ '--track-radius': '245px' }}>
+                  {orbit2Items.map((tech, i) => {
+                    const angle = (360 / orbit2Items.length) * i;
+                    const isDim = filter !== 'all' && filter !== tech.category;
+                    const isSelected = activeTech?.name === tech.name;
+                    return (
+                      <div
+                        key={tech.name}
+                        className={`orbit-node-anchor ${isDim ? 'is-dim' : ''} ${isSelected ? 'is-selected' : ''}`}
+                        style={{ '--angle': `${angle}deg` }}
+                      >
+                        <button
+                          type="button"
+                          className={`orbit-node ${tech.core ? 'is-core' : ''} orbit-node--${tech.category}`}
+                          onClick={() => setActiveTech(getTechInfo(tech.name, tech.category, tech.core))}
+                          onMouseEnter={() => setActiveTech(getTechInfo(tech.name, tech.category, tech.core))}
+                          aria-label={`${tech.name} - ${tech.category}`}
+                        >
+                          <span className="orbit-node__inner" style={{ '--angle': `${angle}deg` }}>
+                            <span className="orbit-node__icon">{renderTechIcon(tech.name)}</span>
+                            <span className="orbit-node__label">{tech.name}</span>
+                          </span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Orbit 3: CS Foundations & Workflow (Outer Track) */}
+                <div className="orbit-track orbit-track--3" style={{ '--track-radius': '345px' }}>
+                  {orbit3Items.map((tech, i) => {
+                    const angle = (360 / orbit3Items.length) * i;
+                    const isDim = filter !== 'all' && filter !== tech.category;
+                    const isSelected = activeTech?.name === tech.name;
+                    return (
+                      <div
+                        key={tech.name}
+                        className={`orbit-node-anchor ${isDim ? 'is-dim' : ''} ${isSelected ? 'is-selected' : ''}`}
+                        style={{ '--angle': `${angle}deg` }}
+                      >
+                        <button
+                          type="button"
+                          className={`orbit-node ${tech.core ? 'is-core' : ''} orbit-node--${tech.category}`}
+                          onClick={() => setActiveTech(getTechInfo(tech.name, tech.category, tech.core))}
+                          onMouseEnter={() => setActiveTech(getTechInfo(tech.name, tech.category, tech.core))}
+                          aria-label={`${tech.name} - ${tech.category}`}
+                        >
+                          <span className="orbit-node__inner" style={{ '--angle': `${angle}deg` }}>
+                            <span className="orbit-node__icon">{renderTechIcon(tech.name)}</span>
+                            <span className="orbit-node__label">{tech.name}</span>
+                          </span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Orbit HUD Readout & Active Satellite Inspector */}
+            <div className="cosmic-hud">
+              {activeTech ? (
+                <div className="cosmic-hud__card">
+                  <div className="cosmic-hud__icon">
+                    {activeTech.isPlanet ? <Logo size={32} animated /> : renderTechIcon(activeTech.name)}
+                  </div>
+                  <div className="cosmic-hud__details">
+                    <div className="cosmic-hud__head">
+                      <strong className="cosmic-hud__title">{activeTech.name}</strong>
+                      <span className={`cosmic-hud__tag cosmic-hud__tag--${activeTech.category}`}>
+                        {activeTech.category === 'frontend'
+                          ? 'Frontend'
+                          : activeTech.category === 'backend'
+                          ? 'Backend'
+                          : activeTech.category === 'core'
+                          ? 'Central Core'
+                          : 'Tools & CS'}
+                      </span>
+                      {activeTech.core && !activeTech.isPlanet && (
+                        <span className="cosmic-hud__core-badge">
+                          <span className="tech-card__beacon is-static" aria-hidden="true"><span className="tech-card__dot"></span></span>
+                          Daily Driver
+                        </span>
+                      )}
+                    </div>
+                    <p className="cosmic-hud__desc">{activeTech.desc}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="cosmic-hud__close"
+                    onClick={() => setActiveTech(null)}
+                    aria-label="Dismiss inspector"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div className="cosmic-hud__hint">
+                  <span className="cosmic-hud__hint-beacon" aria-hidden="true"></span>
+                  <span>Hover or tap any orbiting satellite or the central core to inspect production capabilities.</span>
+                </div>
+              )}
+
+              {/* Orbit Controls (Pause / Resume & Status) */}
+              <div className="cosmic-controls">
+                <button
+                  type="button"
+                  className={`cosmic-controls__btn ${isOrbitPaused ? 'is-active' : ''}`}
+                  onClick={() => setIsOrbitPaused(!isOrbitPaused)}
+                  aria-label={isOrbitPaused ? 'Resume planetary orbit' : 'Pause planetary orbit'}
+                >
+                  {isOrbitPaused ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                      </svg>
+                      <span>Resume Orbit</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="4" width="4" height="16" />
+                        <rect x="14" y="4" width="4" height="16" />
+                      </svg>
+                      <span>Pause Orbit</span>
+                    </>
+                  )}
+                </button>
+                <div className="cosmic-status-badge">
+                  <span className="cosmic-status-dot" aria-hidden="true"></span>
+                  <span>3 Synchronized Orbits • 20 Satellites</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ======================================================== */
+          /*  CLASSIC BENTO GRID VIEW                                 */
+          /* ======================================================== */
+          <div className="bento is-in" id="bento">
+            {/* Frontend Cell */}
+            <div
+              className={`bento__cell bento__cell--lg ${filter !== 'all' && filter !== 'frontend' ? 'is-dim' : ''}`}
+              data-group="frontend"
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+              }}
+            >
+              <span className="bento__corner-mark" aria-hidden="true">+</span>
+              <div className="bento__head-row">
+                <div className="bento__icon-frame bento__icon-frame--blue">
+                  <IconCode className="i" />
+                </div>
+                <div className="bento__head-meta">
+                  <span className="bento__tag">Client-Side Architecture</span>
+                  <h3 className="bento__title">{bentoSkills.frontend.title}</h3>
+                </div>
+                <span className="bento__count">{bentoSkills.frontend.skills.length} Technologies</span>
+              </div>
+              <div className="tech-matrix">
+                {bentoSkills.frontend.skills.map((s, i) => (
+                  <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                    <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                    <span className="tech-card__name">{s.name}</span>
+                    {s.core && (
+                      <span className="tech-card__beacon" title="Core Daily Driver" aria-label="Core Daily Driver">
+                        <span className="tech-card__ping"></span>
+                        <span className="tech-card__dot"></span>
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Backend Cell */}
+            <div
+              className={`bento__cell bento__cell--lg ${filter !== 'all' && filter !== 'backend' ? 'is-dim' : ''}`}
+              data-group="backend"
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+              }}
+            >
+              <span className="bento__corner-mark" aria-hidden="true">+</span>
+              <div className="bento__head-row">
+                <div className="bento__icon-frame bento__icon-frame--emerald">
+                  <IconServer className="i" />
+                </div>
+                <div className="bento__head-meta">
+                  <span className="bento__tag">Distributed &amp; REST APIs</span>
+                  <h3 className="bento__title">{bentoSkills.backend.title}</h3>
+                </div>
+                <span className="bento__count">{bentoSkills.backend.skills.length} Technologies</span>
+              </div>
+              <div className="tech-matrix">
+                {bentoSkills.backend.skills.map((s, i) => (
+                  <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                    <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                    <span className="tech-card__name">{s.name}</span>
+                    {s.core && (
+                      <span className="tech-card__beacon" title="Core Daily Driver" aria-label="Core Daily Driver">
+                        <span className="tech-card__ping"></span>
+                        <span className="tech-card__dot"></span>
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CS Foundations */}
+            <div
+              className={`bento__cell ${filter !== 'all' && filter !== 'tools' ? 'is-dim' : ''}`}
+              data-group="tools"
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+              }}
+            >
+              <span className="bento__corner-mark" aria-hidden="true">+</span>
+              <div className="bento__head-row">
+                <div className="bento__icon-frame bento__icon-frame--amber">
+                  <IconCap className="i" />
+                </div>
+                <div className="bento__head-meta">
+                  <span className="bento__tag">Algorithms &amp; Core</span>
+                  <h3 className="bento__title">{bentoSkills.foundations.title}</h3>
+                </div>
+                <span className="bento__count">{bentoSkills.foundations.skills.length} Subjects</span>
+              </div>
+              <div className="tech-matrix">
+                {bentoSkills.foundations.skills.map((s, i) => (
+                  <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                    <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                    <span className="tech-card__name">{s.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Workflow & DevOps */}
+            <div
+              className={`bento__cell ${filter !== 'all' && filter !== 'tools' ? 'is-dim' : ''}`}
+              data-group="tools"
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+              }}
+            >
+              <span className="bento__corner-mark" aria-hidden="true">+</span>
+              <div className="bento__head-row">
+                <div className="bento__icon-frame bento__icon-frame--violet">
+                  <IconShield className="i" />
+                </div>
+                <div className="bento__head-meta">
+                  <span className="bento__tag">CI/CD &amp; Storage</span>
+                  <h3 className="bento__title">{bentoSkills.workflow.title}</h3>
+                </div>
+                <span className="bento__count">{bentoSkills.workflow.skills.length} Tools</span>
+              </div>
+              <div className="tech-matrix">
+                {bentoSkills.workflow.skills.map((s, i) => (
+                  <div key={i} className={`tech-card ${s.core ? 'is-core' : ''}`} style={{ '--k': i }}>
+                    <div className="tech-card__icon">{renderTechIcon(s.name)}</div>
+                    <span className="tech-card__name">{s.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* High-Tech Status Bar */}
         <div className="bento__status-bar reveal is-in">
