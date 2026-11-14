@@ -1,4 +1,4 @@
-﻿/* ---------- Footer ---------- */
+/* ---------- Footer ---------- */
 .footer {
   position: relative;
   padding: clamp(3rem, 8vw, 6rem) 0 2rem;
@@ -7,23 +7,47 @@
 }
 
 .footer__giant {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(3.4rem, 15.5vw, 14rem);
-  line-height: 0.85;
-  letter-spacing: -0.06em;
-  text-align: center;
-  white-space: nowrap;
-  color: transparent;
-  -webkit-text-stroke: 1.5px hsl(var(--brand) / 0.35);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
   -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 30%, transparent 100%);
-  transition: -webkit-text-stroke-color 0.5s;
-  user-select: none;
 }
 
-.footer:hover .footer__giant {
-  -webkit-text-stroke-color: hsl(var(--brand) / 0.8);
+.footer__giant svg {
+  width: 100%;
+  max-width: 1200px;
+  height: auto;
+}
+
+.footer__giant-svg-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 130px;
+  letter-spacing: -0.05em;
+  fill: none;
+  stroke: hsl(var(--brand) / 0.35);
+  stroke-width: 2px;
+  transition: stroke 0.4s var(--ease);
+}
+
+.footer:hover .footer__giant-svg-text {
+  stroke: hsl(var(--brand) / 0.8);
+}
+
+.footer__admin-link {
+  color: var(--mut);
+  font-size: 0.8rem;
+  transition: color 0.2s var(--ease);
+  text-decoration: none;
+}
+
+.footer__admin-link:hover {
+  color: var(--strong);
 }
 
 .footer__row {

@@ -22,48 +22,6 @@ export const HeroWorkstation = () => {
     const heroEl = heroRef.current;
     if (!heroEl) return;
 
-    // --- High-Performance Precision Fit-To-Width Function ---
-    const fitNames = () => {
-      if (window.innerWidth > 860) {
-        if (namesRef.current) {
-          namesRef.current.style.removeProperty('--fit-1');
-          namesRef.current.style.removeProperty('--fit-2');
-        }
-        return;
-      }
-
-      if (!namesRef.current || !heroEl) return;
-
-      const availableWidth = Math.max(240, Math.min(window.innerWidth - 32, 680));
-
-      let measurer = document.getElementById('hero-name-measurer');
-      if (!measurer) {
-        measurer = document.createElement('span');
-        measurer.id = 'hero-name-measurer';
-        measurer.style.cssText =
-          'position:fixed;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;' +
-          'font-family:"Archivo",sans-serif;font-weight:900;font-stretch:62%;' +
-          'text-transform:uppercase;font-size:100px;letter-spacing:-0.005em;pointer-events:none;transform:none !important;';
-        document.body.appendChild(measurer);
-      }
-
-      measurer.textContent = 'ESLAM';
-      const w1 = measurer.getBoundingClientRect().width || 340;
-
-      measurer.textContent = 'YASSER';
-      const w2 = measurer.getBoundingClientRect().width || 410;
-
-      if (w1 > 0 && w2 > 0) {
-        const fs1 = Math.min(180, (availableWidth / w1) * 100);
-        const fs2 = Math.min(150, (availableWidth / w2) * 100);
-
-        namesRef.current.style.setProperty('--fit-1', `${fs1.toFixed(2)}px`);
-        namesRef.current.style.setProperty('--fit-2', `${fs2.toFixed(2)}px`);
-      }
-    };
-
-    fitNames();
-
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = window.innerWidth <= 860;
 
@@ -277,34 +235,21 @@ export const HeroWorkstation = () => {
 
     if (document.fonts?.ready) {
       document.fonts.ready.then(() => {
-        fitNames();
         if (window.ScrollTrigger) window.ScrollTrigger.refresh();
       });
     }
 
     const onResize = () => {
-      fitNames();
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
     };
 
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
 
-    let resizeObserver = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(() => {
-        fitNames();
-      });
-      resizeObserver.observe(heroEl);
-    }
-
     return () => {
       clearTimeout(safetyTimer);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
-      const measurer = document.getElementById('hero-name-measurer');
-      if (measurer) measurer.remove();
-      if (resizeObserver) resizeObserver.disconnect();
       mm.revert();
       ctx.revert();
     };

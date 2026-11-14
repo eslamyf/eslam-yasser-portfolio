@@ -114,7 +114,7 @@ export const Navbar = () => {
             className="nav__burger"
             id="burger"
             onClick={() => setDrawerOpen(!drawerOpen)}
-            aria-label="Open menu"
+            aria-label={drawerOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={drawerOpen}
             aria-controls="drawer"
           >
@@ -124,7 +124,12 @@ export const Navbar = () => {
         </div>
       </header>
 
-      <div className={`drawer ${drawerOpen ? 'is-open' : ''}`} id="drawer" aria-hidden={!drawerOpen}>
+      <div
+        className={`drawer ${drawerOpen ? 'is-open' : ''}`}
+        id="drawer"
+        aria-hidden={!drawerOpen}
+        inert={!drawerOpen ? '' : undefined}
+      >
         <nav aria-label="Mobile">
           {navItems.map((item) => (
             <a
@@ -132,6 +137,7 @@ export const Navbar = () => {
               href={`#${item.id}`}
               onClick={(e) => scrollTo(e, item.id)}
               className={activeSection === item.id ? 'is-active' : ''}
+              tabIndex={drawerOpen ? 0 : -1}
             >
               {item.label}
             </a>

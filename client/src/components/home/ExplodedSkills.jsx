@@ -111,7 +111,11 @@ export const ExplodedSkills = () => {
               {initialStackLayers.map((layer, i) => (
                 <button
                   key={i}
+                  id={`xsTab-${i}`}
                   type="button"
+                  role="tab"
+                  aria-selected={activeLayer === i}
+                  aria-controls={`xsLayer-${i}`}
                   className={`xs__mobile-pill ${activeLayer === i ? 'is-active' : ''}`}
                   style={{ '--a': layer.accent }}
                   onClick={() => setActiveLayer(i)}
@@ -121,10 +125,13 @@ export const ExplodedSkills = () => {
               ))}
             </div>
 
-            <ol className="xs__list" id="xsList">
+            <div className="xs__list" id="xsList">
               {initialStackLayers.map((layer, i) => (
-                <li
+                <div
                   key={i}
+                  id={`xsLayer-${i}`}
+                  role="tabpanel"
+                  aria-labelledby={`xsTab-${i}`}
                   className={`xs__item ${activeLayer === i ? 'is-on' : ''}`}
                   style={{ '--a': layer.accent }}
                   onClick={() => setActiveLayer(i)}
@@ -143,9 +150,9 @@ export const ExplodedSkills = () => {
                       </ul>
                     </div>
                   </div>
-                </li>
+                </div>
               ))}
-            </ol>
+            </div>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-﻿/* ---------- Skills (bento) ---------- */
+/* ---------- Skills (bento) ---------- */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -23,7 +23,7 @@
 }
 
 .filter.is-active {
-  color: var(--on-brand);
+  color: #ffffff;
   background: hsl(var(--brand));
   border-color: hsl(var(--brand));
 }
@@ -238,7 +238,8 @@
   font-weight: 400;
   font-size: 0.75rem;
   letter-spacing: 0;
-  color: hsl(var(--a));
+  color: var(--ink);
+  opacity: 0.85;
 }
 
 .xs__body {
@@ -292,7 +293,7 @@
 }
 
 .js:not(.no-motion) .xs__item:not(.is-on) {
-  opacity: 0.32;
+  opacity: 0.72;
   border-left-color: var(--line);
 }
 

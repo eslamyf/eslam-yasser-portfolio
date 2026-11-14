@@ -1,4 +1,4 @@
-﻿/* ---------- Section primitives ---------- */
+/* ---------- Section primitives ---------- */
 .section {
   position: relative;
   padding-block: clamp(3rem, 5.5vw, 4.5rem);
@@ -28,7 +28,7 @@
 }
 
 .kicker span {
-  color: hsl(var(--brand));
+  color: var(--brand-text, #8EA0FF);
 }
 
 .kicker::after {

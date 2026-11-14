@@ -14,7 +14,7 @@ export const HeroPortrait = React.forwardRef((props, ref) => {
               className="hero-ref__me"
               src={meWebp}
               srcSet={`${me960Webp} 960w, ${meWebp} 1632w`}
-              sizes="(max-width: 900px) 960px, 1632px"
+              sizes="(max-width: 900px) 100vw, 600px"
               alt="Eslam Yasser - Full-Stack Developer"
               width="1632"
               height="1932"

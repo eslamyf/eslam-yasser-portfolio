@@ -29,6 +29,11 @@ export const CustomCursor = () => {
       );
     };
 
+    if (isMobile()) {
+      document.documentElement.classList.remove('has-cursor');
+      return;
+    }
+
     const resize = () => {
       if (isMobile()) {
         document.documentElement.classList.remove('has-cursor');

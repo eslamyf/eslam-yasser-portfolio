@@ -94,8 +94,8 @@ export const AboutSection = () => {
             <img
               src="/assets/img/About.webp"
               alt="Developer working at desk"
-              width="520"
-              height="520"
+              width="433"
+              height="577"
               loading="lazy"
             />
             <div className="about__card-badge">

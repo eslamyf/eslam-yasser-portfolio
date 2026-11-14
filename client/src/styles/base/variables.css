@@ -12,10 +12,11 @@
   --line: rgba(246, 244, 239, 0.14);
   --ink: #F6F4EF;
   --mut: #A5A8C4;
-  --dim: #6E7295;
+  --dim: #8E93B5;
 
   --brand: 234 93% 55%;
   --brand-hex: #2438F5;
+  --brand-text: #8EA0FF;
   --accent: 49 100% 65%;
   --accent-hex: #FFE14D;
   --accent-ink: #0B1030;
@@ -26,7 +27,7 @@
   --ov: 10 14 46;
   --ov2: 18 23 66;
   --strong: #F6F4EF;
-  --on-brand: #0B1030;
+  --on-brand: #FFFFFF;
   --ok: #FFE14D;
   --band-bg: #FFE14D;
   --band-logo-color: #0B1030;
@@ -57,9 +58,10 @@
   --line: rgba(11, 16, 48, 0.14);
   --ink: #0B1030;
   --mut: #4A4E69;
-  --dim: #777B96;
+  --dim: #555A75;
   --brand: 234 93% 55%;
   --brand-hex: #2438F5;
+  --brand-text: #1B2EC9;
   --accent: 49 100% 65%;
   --accent-hex: #FFE14D;
   --accent-ink: #0B1030;
@@ -69,7 +71,7 @@
   --ov: 246 244 239;
   --ov2: 236 232 224;
   --strong: #0B1030;
-  --on-brand: #F6F4EF;
+  --on-brand: #FFFFFF;
   --ok: #2438F5;
   --band-bg: #2438F5;
   --band-logo-color: #F6F4EF;

@@ -1,4 +1,4 @@
-﻿/* ---------- Certificates Â· Vault ---------- */
+/* ---------- Certificates Â· Vault ---------- */
 .vault {
   position: relative;
   margin-top: 1rem;
@@ -409,7 +409,7 @@
   }
 
   .vault__index li.is-on button span {
-    color: hsl(var(--brand));
+    color: var(--brand-text, #8EA0FF);
   }
 }
 

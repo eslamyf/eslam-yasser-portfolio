@@ -454,7 +454,7 @@ html.no-js .hero-ref__names {
   }
 
   .hero-ref__n1 {
-    font-size: var(--fit-1, clamp(42px, 16.5vw, 150px));
+    font-size: clamp(44px, 17vw, 130px);
     line-height: 0.84;
     text-align: center;
     letter-spacing: -0.005em;
@@ -469,7 +469,7 @@ html.no-js .hero-ref__names {
   }
 
   .hero-ref__n2 {
-    font-size: var(--fit-2, clamp(36px, 13.8vw, 125px));
+    font-size: clamp(38px, 14.5vw, 115px);
     line-height: 0.84;
     text-align: center;
     letter-spacing: -0.005em;

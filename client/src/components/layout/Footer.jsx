@@ -32,7 +32,13 @@ export const Footer = () => {
 
   return (
     <footer className="footer">
-      <div className="footer__giant" aria-hidden="true">ESLAM YASSER</div>
+      <div className="footer__giant" aria-hidden="true">
+        <svg viewBox="0 0 1200 180" width="100%" role="presentation">
+          <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="footer__giant-svg-text">
+            ESLAM YASSER
+          </text>
+        </svg>
+      </div>
       <div className="wrap footer__row">
         <p>
           &copy; <span id="year">{year}</span> Eslam Yasser · Full-Stack Developer &amp; Web Instructor
@@ -41,7 +47,7 @@ export const Footer = () => {
           <IconPin className="i" /> Egypt · <span id="cairoTime">{cairoTime || '--:--'}</span>
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link to="/admin" style={{ opacity: 0.25, fontSize: '0.8rem', transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.target.style.opacity = 1} onMouseLeave={(e) => e.target.style.opacity = 0.25}>
+          <Link to="/admin" className="footer__admin-link">
             Admin Portal
           </Link>
           <a href="#home" onClick={scrollToTop} className="footer__top" aria-label="Back to top">
