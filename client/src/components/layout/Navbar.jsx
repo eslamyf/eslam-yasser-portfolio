@@ -44,17 +44,24 @@ export const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    if (!pillRef.current || !indicatorRef.current) return;
-    const activeLink = pillRef.current.querySelector(`a[href="#${activeSection}"]`);
-    if (activeLink) {
-      const pillRect = pillRef.current.getBoundingClientRect();
-      const linkRect = activeLink.getBoundingClientRect();
-      const left = linkRect.left - pillRect.left;
-      const width = linkRect.width;
-      indicatorRef.current.style.transform = `translateX(${left}px)`;
-      indicatorRef.current.style.width = `${width}px`;
-      indicatorRef.current.style.opacity = '1';
-    }
+    const updateIndicator = () => {
+      if (!pillRef.current || !indicatorRef.current) return;
+      const activeLink = pillRef.current.querySelector(`a[href="#${activeSection}"]`);
+      if (activeLink) {
+        const pillRect = pillRef.current.getBoundingClientRect();
+        const linkRect = activeLink.getBoundingClientRect();
+        if (pillRect.width > 0 && linkRect.width > 0) {
+          const left = linkRect.left - pillRect.left;
+          indicatorRef.current.style.transform = `translateX(${left}px)`;
+          indicatorRef.current.style.width = `${linkRect.width}px`;
+          indicatorRef.current.style.opacity = '1';
+        }
+      }
+    };
+
+    updateIndicator();
+    window.addEventListener('resize', updateIndicator, { passive: true });
+    return () => window.removeEventListener('resize', updateIndicator);
   }, [activeSection]);
 
   const scrollTo = (e, id) => {

@@ -28,9 +28,6 @@ export const HeroWorkstation = () => {
     // Fallback if GSAP is unavailable or reduced motion is preferred
     if (!gsap || prefersReducedMotion) {
       if (namesRef.current) namesRef.current.style.opacity = '1';
-      if (photoRef.current) {
-        photoRef.current.style.transform = isMobile ? 'none' : 'translateX(-50%)';
-      }
       if (sideInRef.current) sideInRef.current.style.opacity = '1';
       if (rightInRef.current) rightInRef.current.style.opacity = '1';
       return;
@@ -241,6 +238,9 @@ export const HeroWorkstation = () => {
 
     const onResize = () => {
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      if (photoRef.current) {
+        gsap.set(photoRef.current, { clearProps: 'x,xPercent' });
+      }
     };
 
     window.addEventListener('resize', onResize);
